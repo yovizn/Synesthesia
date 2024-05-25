@@ -9,7 +9,7 @@ bun install
 
 ```bash web
 cd web
-bun pnpm
+pnpm install
 ```
 
 This project was initial repo for synesthesia.
