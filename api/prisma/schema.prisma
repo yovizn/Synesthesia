@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id
+  firstname   String
+  lastname    String
+  username    String        @unique
+  email       String        @unique
+  password    String
+  birth       DateTime?
+  gender      Gender
+  address     String?
+  referral    String        @unique
+  referrance  String?
+  point       Int           @default(0)
+  phoneNumber String?
+  isVerified  Boolean       @default(false)
+  isDelete    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Promotor    Promotor[]
+  Review      Review[]
+  Transaction Transaction[]
+  Voucher     Voucher[]
+
+  @@index([username, email])
+  @@map("users")
+}
+
+model Promotor {
+  id           String   @id
+  userId       String
+  promotorName String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  promotor     User     @relation(fields: [userId], references: [id])
+  Event        Event[]
+
+  @@map("promotors")
+}
+
+model Event {
+  id          String        @id
+  promotorId  String
+  title       String        @unique
+  slug        String
+  description String?
+  location    String?
+  price       Int
+  startAt     DateTime
+  endAt       DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  promotor    Promotor      @relation(fields: [promotorId], references: [id])
+  Transaction Transaction[]
+  Review      Review[]
+
+  @@map("events")
+}
+
+model Transaction {
+  id              String            @id
+  invoiceNuber    String
+  voucherId       String
+  eventId         String
+  userId          String
+  total           Decimal           @db.Decimal(18, 2)
+  discountPoint   Decimal           @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            User              @relation(fields: [userId], references: [id])
+  event           Event             @relation(fields: [eventId], references: [id])
+  Voucher         Voucher           @relation(fields: [voucherId], references: [id])
+  TransactionItem TransactionItem[]
+
+  @@map("transacitons")
+}
+
+model Voucher {
+  id            String        @id
+  userId        String
+  transactionId String?
+  isValid       Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  user          User          @relation(fields: [userId], references: [id])
+  Transaction   Transaction[]
+
+  @@map("vouchers")
+}
+
+model TransactionItem {
+  id            String      @id
+  transactionId String
+  quantity      Int         @default(0)
+  price         Decimal     @db.Decimal(18, 2)
+  discount      Decimal     @default(0) @db.Decimal(18, 2)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("transaciton_items")
+}
+
+model Review {
+  userId    String
+  eventId   String
+  rating    Decimal  @db.Decimal(2, 1)
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+
+  @@id([userId, eventId])
+  @@map("reviews")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
