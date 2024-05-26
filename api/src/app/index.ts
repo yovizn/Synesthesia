@@ -35,7 +35,11 @@ export class App {
     private errorsHandler() {
         this.app.use(
             (err: unknown, req: Request, res: Response, next: NextFunction) => {
-                if (err instanceof Error) res.status(500).send(err.message)
+                if (err instanceof Error)
+                    res.status(500).send({
+                        message: err.message,
+                        cause: err.cause,
+                    })
             }
         )
     }
