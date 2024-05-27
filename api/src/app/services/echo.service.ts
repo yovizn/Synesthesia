@@ -146,7 +146,9 @@ class EchosService {
         const checkUser = await comparePassword(data.password, password)
         if (!checkUser) throw new Error('Wrong password')
         if (!data.isVerified) {
-            const token = sign(data.id, SECRET_KEY)
+            const token = sign({ id: data.id }, SECRET_KEY, {
+                expiresIn: '15m',
+            })
             const baseUrl = BASE_URL
             const { html } = emailTemplate({
                 firstname: data.firstname,
