@@ -5,7 +5,7 @@ import ThemeSwitcher from '../ThemeSwitcher'
 export default function Header() {
   return (
     <header
-      className="fixed left-0 top-0 z-20 h-16 w-full bg-background px-6 text-foreground 2xl:px-0"
+      className="fixed left-0 top-0 z-20 h-16 w-full bg-background px-6 text-foreground xl:px-0"
     >
       <div className="mx-auto h-full max-w-[1400px]">
         <nav role='navigation' className="flex size-full items-center justify-between">
