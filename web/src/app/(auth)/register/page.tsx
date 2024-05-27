@@ -14,7 +14,7 @@ export default function RegisterPage() {
           href="/login"
           className="w-fit self-end text-muted-foreground transition-colors duration-200 hover:text-foreground"
         >
-          Already have an account
+          Already have an account?
         </Link>
       </section>
     </main>

@@ -1,3 +1,6 @@
+'use server'
+
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -20,8 +23,7 @@ export async function middleware(request: NextRequest) {
   )
     return NextResponse.redirect(new URL('/', request.url))
   else if (request.nextUrl.pathname == '/' && !isValid) {
-    // cookies().delete('refresh_token')
-    // cookies().delete('access_token')
+
     return NextResponse.redirect(new URL('/login', request.url))
   } else return NextResponse.next()
 }

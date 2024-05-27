@@ -7,6 +7,7 @@ import Header from '@/components/common/header/Header'
 import './globals.css'
 import { ThemeProvider } from '@/components/common/ThemeProvider'
 import { Toaster } from '@/components/ui/toaster'
+import AuthProvider from '@/components/common/AuthProvider'
 
 export const metadata: Metadata = {
   title: {
@@ -34,9 +35,11 @@ export default function RootLayout({
           disableTransitionOnChange
           storageKey="theme"
         >
-          <Header />
-          <LenisWrapper>{children}</LenisWrapper>
-          <Toaster />
+          <AuthProvider>
+            <Header />
+            <LenisWrapper>{children}</LenisWrapper>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

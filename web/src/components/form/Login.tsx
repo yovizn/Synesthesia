@@ -1,20 +1,29 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { cn } from '@/lib/utils'
+import { useTransition } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoginFormType, loginFormSchema } from '@/schemas/login-schema'
-import { Button } from '../ui/button'
-import {  useToast } from '../ui/use-toast'
-import { loginAction } from '@/utils/loginAction'
-import { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
 import { LoaderCircle } from 'lucide-react'
+import { AxiosError } from 'axios'
+
+import { LoginFormType, loginFormSchema } from '@/schemas/login-schema'
+import { loginAction } from '@/utils/loginAction'
+import { cn } from '@/lib/utils'
+
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Button } from '../ui/button'
+import { useToast } from '../ui/use-toast'
+import { useAuthProvider } from '@/stores/auth-provider'
+import { getCookie } from 'cookies-next'
+import { UserType } from '@/types/user.type'
+import { jwtDecode } from 'jwt-decode'
 
 export default function LoginForm() {
   const { toast } = useToast()
+  const { setUser } = useAuthProvider()
+  const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const {
     register,
@@ -30,8 +39,12 @@ export default function LoginForm() {
       toast({
         title: submit.data.title,
         description: submit.data.description,
-        duration: 10000,
+        duration: 5000,
       })
+      const token = getCookie('refresh_token') || ''
+      const user: UserType = jwtDecode(token)
+      console.log(user)
+      setUser(user)
       router.push('/')
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -39,7 +52,7 @@ export default function LoginForm() {
           title: error.response?.data.message,
           description: error.response?.data.cause,
           variant: 'destructive',
-          duration: 10000,
+          duration: 5000,
         })
       }
     }
@@ -52,15 +65,8 @@ export default function LoginForm() {
     >
       <div className="space-y-2.5">
         <Label htmlFor="username_email">
-          <span
-            className={cn(
-              'block w-fit',
-              errors.username_email ? 'text-destructive' : 'text-foreground',
-            )}
-          >
-            {!errors.username_email
-              ? 'Username or Email'
-              : errors.username_email.message}
+          <span className={cn('block w-fit', errors.username_email ? 'text-destructive' : 'text-foreground')}>
+            {!errors.username_email ? 'Username or Email' : errors.username_email.message}
           </span>
         </Label>
         <Input
@@ -72,12 +78,7 @@ export default function LoginForm() {
       </div>
       <div className="space-y-2.5">
         <Label htmlFor="username_email">
-          <span
-            className={cn(
-              'block w-fit',
-              errors.password ? 'text-destructive' : 'text-foreground',
-            )}
-          >
+          <span className={cn('block w-fit', errors.password ? 'text-destructive' : 'text-foreground')}>
             {!errors.password ? 'Password' : errors.password.message}
           </span>
         </Label>
@@ -100,7 +101,7 @@ export default function LoginForm() {
             <span className="block">Loading</span>
           </span>
         ) : (
-          <span>Create an account</span>
+          <span>Login</span>
         )}
       </Button>
     </form>

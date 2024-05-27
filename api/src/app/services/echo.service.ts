@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { sign, verify, type SignOptions } from 'jsonwebtoken'
+import { sign, verify } from 'jsonwebtoken'
 
 import { prisma } from '../../libs/prisma'
 import { nanoid, generateReferral } from '../../utils/generate'
@@ -24,7 +24,7 @@ class EchosService {
             gender,
         } = req.body as User
 
-        await prisma.$transaction(
+        return await prisma.$transaction(
             async () => {
                 const checkUser = await prisma.user.findFirst({
                     where: { OR: [{ email }, { username }] },
@@ -72,7 +72,9 @@ class EchosService {
                     password: hashPass,
                     gender,
                 }
-                const token = sign(data.id, SECRET_KEY)
+                const token = sign({ id: data.id }, SECRET_KEY, {
+                    expiresIn: '15m',
+                })
                 const baseUrl = BASE_URL
                 const { html } = emailTemplate({
                     firstname,
@@ -88,6 +90,8 @@ class EchosService {
                     subject: 'Welcome to Synesthesia',
                     html,
                 })
+
+                // return { token }
             },
             {
                 maxWait: 5000,
@@ -97,25 +101,26 @@ class EchosService {
         )
     }
 
-    async keepLogin(req: Request) {
-        const user = await prisma.user.findUnique({
-            select: {
-                id: true,
-                username: true,
-                email: true,
-                firstname: true,
-                lastname: true,
-            },
-            where: {
-                id: req.user?.id,
-            },
+    async validation(req: Request) {
+        const { token } = req.params
+        const value = verify(token, SECRET_KEY) as { id: string }
+
+        await prisma.$transaction(async () => {
+            const chechReferral = await prisma.user.findFirst({
+                where: { id: value.id },
+                select: { referrance: true },
+            })
+
+            if (chechReferral?.referrance) {
+                await prisma.voucher.create({
+                    data: { id: nanoid(), userId: value.id },
+                })
+            }
+            await prisma.user.update({
+                where: { id: value.id },
+                data: { isVerified: true },
+            })
         })
-
-        if (!user) throw new Error('Need to login')
-
-        const access_token = sign(user, SECRET_KEY, { expiresIn: '2hr' })
-
-        return { access_token }
     }
 
     async login(req: Request) {
@@ -144,25 +149,31 @@ class EchosService {
 
         if (!data?.password) throw new Error('Wrong Username or Email')
         const checkUser = await comparePassword(data.password, password)
+        const date = new Date(data.createdAt!)
+        const now = new Date()
+        const time = now.getTime() - date.getTime()
+        const tolerance = 1 * 60 * 1000
         if (!checkUser) throw new Error('Wrong password')
         if (!data.isVerified) {
-            const token = sign({ id: data.id }, SECRET_KEY, {
-                expiresIn: '15m',
-            })
-            const baseUrl = BASE_URL
-            const { html } = emailTemplate({
-                firstname: data.firstname,
-                lastname: data.lastname,
-                token,
-                baseUrl,
-            })
-            await transpoter.sendMail({
-                from: NODEMAILER_USER,
-                to: data.email,
-                subject: 'Welcome to Synesthesia',
-                html,
-            })
+            if(time > tolerance) {
+                const token = sign({ id: data.id }, SECRET_KEY, {
+                    expiresIn: '15m',
+                })
+                const baseUrl = BASE_URL
+                const { html } = emailTemplate({
+                    firstname: data.firstname,
+                    lastname: data.lastname,
+                    token,
+                    baseUrl,
+                })
 
+                await transpoter.sendMail({
+                    from: NODEMAILER_USER,
+                    to: data.email,
+                    subject: 'Welcome to Synesthesia',
+                    html,
+                })
+            }
             throw new Error('Need verify your account', {
                 cause: 'Sorry, you need to check your email or try it again',
             })
@@ -173,32 +184,33 @@ class EchosService {
         const accessToken = sign({ id: data.id }, SECRET_KEY, {
             expiresIn: '15m',
         })
+
         const refreshToken = sign(data, SECRET_KEY, {
             expiresIn: '2hr',
         })
+
         return { accessToken, refreshToken }
     }
 
-    async validation(req: Request) {
-        const { token } = req.params
-        const id = verify(token, SECRET_KEY) as string
-
-        await prisma.$transaction(async () => {
-            const chechReferral = await prisma.user.findFirst({
-                where: { id },
-                select: { referrance: true },
-            })
-            if (chechReferral?.referrance) {
-                prisma.voucher.update({
-                    where: { id },
-                    data: { userId: id },
-                })
-            }
-            await prisma.user.update({
-                where: { id },
-                data: { isVerified: true },
-            })
+    async keepLogin(req: Request) {
+        const user = await prisma.user.findUnique({
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+            },
+            where: {
+                id: req.user?.id,
+            },
         })
+
+        if (!user) throw new Error('Need to login')
+
+        const access_token = sign(user, SECRET_KEY, { expiresIn: '2hr' })
+
+        return { access_token }
     }
 }
 

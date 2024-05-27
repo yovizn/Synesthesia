@@ -24,9 +24,9 @@ class EchoController {
             await echoService.register(req)
 
             res.status(201).send({
-                title: 'Congratulations! Your email has been successfully created.',
+                title: 'Congratulations! Your Account has been successfully created.',
                 description:
-                    'Email successfully created. Please check your email inbox for further instructions.',
+                    'Please check your email inbox for further access',
             })
         } catch (error) {
             next(error)

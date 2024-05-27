@@ -3,11 +3,7 @@ import { axiosInstance } from '@/lib/axios.config'
 import Link from 'next/link'
 // import { redirect } from 'next/navigation'
 
-export default async function ValidationPage({
-  params,
-}: {
-  params: { token: string }
-}) {
+export default async function ValidationPage({ params }: { params: { token: string } }) {
   const value = await axiosInstance().get(`/echos/${params.token}`)
 
   // redirect('/login')

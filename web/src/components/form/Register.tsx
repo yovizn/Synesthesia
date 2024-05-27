@@ -47,7 +47,7 @@ export default function RegisterForm() {
       toast({
         title: submit.data.title,
         description: submit.data.description,
-        duration: 10000,
+        duration: 5000,
       })
       router.push('/login')
     } catch (error) {
@@ -56,7 +56,7 @@ export default function RegisterForm() {
           title: error.response?.data.message,
           description: error.response?.data.cause,
           variant: 'destructive',
-          duration: 10000,
+          duration: 5000,
         })
       }
     }
