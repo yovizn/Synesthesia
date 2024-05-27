@@ -1,15 +1,15 @@
-# api
+# synesthesia api
 
 To install dependencies:
 
 ```bash
 bun install
+bun migrate
+bun studio
 ```
 
 To run:
 
 ```bash
-bun run index.ts
+bun dev
 ```
-
-This project was created using `bun init` in bun v1.1.8. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
