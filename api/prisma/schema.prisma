@@ -56,13 +56,13 @@ model Promotor {
 model Event {
   id          String        @id
   promotorId  String
-  title       String        @unique
   slug        String
-  description String?
-  location    String?
+  title       String        @unique
   price       Int
   startAt     DateTime
   endAt       DateTime
+  location    String?
+  description String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
