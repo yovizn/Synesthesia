@@ -7,16 +7,19 @@ import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoginFormType, loginFormSchema } from '@/schemas/login-schema'
 import { Button } from '../ui/button'
-import { useToast } from '../ui/use-toast'
+import {  useToast } from '../ui/use-toast'
 import { loginAction } from '@/utils/loginAction'
 import { AxiosError } from 'axios'
+import { useRouter } from 'next/navigation'
+import { LoaderCircle } from 'lucide-react'
 
 export default function LoginForm() {
   const { toast } = useToast()
+  const router = useRouter()
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormType>({
     resolver: zodResolver(loginFormSchema),
   })
@@ -29,6 +32,7 @@ export default function LoginForm() {
         description: submit.data.description,
         duration: 10000,
       })
+      router.push('/')
     } catch (error) {
       if (error instanceof AxiosError) {
         toast({
@@ -74,7 +78,7 @@ export default function LoginForm() {
               errors.password ? 'text-destructive' : 'text-foreground',
             )}
           >
-            {!errors.password ? 'Username or Email' : errors.password.message}
+            {!errors.password ? 'Password' : errors.password.message}
           </span>
         </Label>
         <Input
@@ -87,9 +91,17 @@ export default function LoginForm() {
 
       <Button
         type="submit"
-        className="w-full"
+        className="flex w-full items-center justify-center"
+        disabled={isSubmitting}
       >
-        Login
+        {isSubmitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <LoaderCircle className="block size-4 motion-safe:animate-spin" />
+            <span className="block">Loading</span>
+          </span>
+        ) : (
+          <span>Create an account</span>
+        )}
       </Button>
     </form>
   )

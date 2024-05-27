@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import echoController from '../controllers/echo.controller'
+import userAuth from '../../middlewares/user.auth'
 
 class EchosRouter {
     private router: Router
@@ -9,6 +10,7 @@ class EchosRouter {
     }
 
     private initializedRoutes() {
+        this.router.get("/v3", userAuth.refreshToken,  echoController.keepLogin)
         this.router.get('/:token', echoController.validation)
         this.router.post('/v1', echoController.register)
         this.router.post('/v2', echoController.login)

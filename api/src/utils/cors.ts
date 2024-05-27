@@ -3,7 +3,7 @@ import { type CorsOptions } from 'cors'
 import { BASE_URL } from '../configs/env'
 
 const corsOptions: CorsOptions = {
-    origin: [BASE_URL],
+    origin: true,
     credentials: true,
 }
 

@@ -13,7 +13,7 @@ export default function LoginPage() {
         <LoginForm />
       </section>
       <Link
-        href="/auth/register"
+        href="/register"
         className="w-fit self-end text-end text-muted-foreground transition-colors duration-200 hover:text-foreground"
       >
         Don&apos;t have an account?

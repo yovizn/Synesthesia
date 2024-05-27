@@ -35,7 +35,7 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     setValue,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormType>({
     resolver: zodResolver(registerFormSchema),
     mode: 'onChange',
@@ -49,8 +49,7 @@ export default function RegisterForm() {
         description: submit.data.description,
         duration: 10000,
       })
-      router.refresh()
-      isSubmitSuccessful && router.push('/auth/login')
+      router.push('/login')
     } catch (error) {
       if (error instanceof AxiosError) {
         toast({
@@ -273,7 +272,7 @@ export default function RegisterForm() {
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center gap-2">
-              <LoaderCircle className="motion-safe:animate-spin block size-4" />
+              <LoaderCircle className="block size-4 motion-safe:animate-spin" />
               <span className="block">Loading</span>
             </span>
           ) : (

@@ -11,7 +11,7 @@ export default function RegisterPage() {
           <RegisterForm />
         </div>
         <Link
-          href="/auth/login"
+          href="/login"
           className="w-fit self-end text-muted-foreground transition-colors duration-200 hover:text-foreground"
         >
           Already have an account

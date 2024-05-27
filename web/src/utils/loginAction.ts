@@ -6,6 +6,8 @@ const loginAction = async (payload: LoginFormType) => {
   return await axiosInstance().post('/echos/v2', {
     username_email,
     password,
+  },{
+    withCredentials: true
   })
 }
 

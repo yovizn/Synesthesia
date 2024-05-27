@@ -1,17 +1,16 @@
 import { Prisma } from '@prisma/client'
-import { compile } from 'handlebars'
-import { readFileSync } from 'fs'
-import { sign, verify } from 'jsonwebtoken'
+import { sign, verify, type SignOptions } from 'jsonwebtoken'
 
 import { prisma } from '../../libs/prisma'
 import { nanoid, generateReferral } from '../../utils/generate'
 import { comparePassword, hashPassword } from '../../utils/hashPassword'
-import { NODEMAILER_USER, SECRET_KEY } from '../../configs/env'
-import { transpoter, verifyEmailPath } from '../../helpers/nodemailer'
+import { BASE_URL, NODEMAILER_USER, SECRET_KEY } from '../../configs/env'
+import { transpoter } from '../../helpers/nodemailer'
 
 import type { User } from '@prisma/client'
 import type { Request } from 'express'
 import type { UserType } from '../../models/user.model'
+import { emailTemplate } from '../../templates/email-template'
 
 class EchosService {
     async register(req: Request) {
@@ -27,8 +26,6 @@ class EchosService {
 
         await prisma.$transaction(
             async () => {
-                const tempSource = readFileSync(verifyEmailPath, 'utf-8')
-                const compiledTemp = compile(tempSource)
                 const checkUser = await prisma.user.findFirst({
                     where: { OR: [{ email }, { username }] },
                     select: { id: true },
@@ -76,8 +73,15 @@ class EchosService {
                     gender,
                 }
                 const token = sign(data.id, SECRET_KEY)
+                const baseUrl = BASE_URL
+                const { html } = emailTemplate({
+                    firstname,
+                    lastname,
+                    token,
+                    baseUrl,
+                })
                 await prisma.user.create({ data })
-                const html = compiledTemp({ firstname, lastname, token })
+
                 await transpoter.sendMail({
                     from: NODEMAILER_USER,
                     to: data.email,
@@ -93,11 +97,29 @@ class EchosService {
         )
     }
 
+    async keepLogin(req: Request) {
+        const user = await prisma.user.findUnique({
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+            },
+            where: {
+                id: req.user?.id,
+            },
+        })
+
+        if (!user) throw new Error('Need to login')
+
+        const access_token = sign(user, SECRET_KEY, { expiresIn: '2hr' })
+
+        return { access_token }
+    }
+
     async login(req: Request) {
         const { username_email, password } = req.body
-        const where: Prisma.UserScalarWhereWithAggregatesInput = {
-            OR: [{ email: username_email }, { email: username_email }],
-        }
         const select: Prisma.UserSelectScalar = {
             id: true,
             firstname: true,
@@ -114,23 +136,43 @@ class EchosService {
             referral: true,
         }
         const data: UserType = await prisma.user.findFirst({
-            where,
+            where: {
+                OR: [{ username: username_email }, { email: username_email }],
+            },
             select,
         })
 
         if (!data?.password) throw new Error('Wrong Username or Email')
         const checkUser = await comparePassword(data.password, password)
         if (!checkUser) throw new Error('Wrong password')
-        if (!data.isVerified)
+        if (!data.isVerified) {
+            const token = sign(data.id, SECRET_KEY)
+            const baseUrl = BASE_URL
+            const { html } = emailTemplate({
+                firstname: data.firstname,
+                lastname: data.lastname,
+                token,
+                baseUrl,
+            })
+            await transpoter.sendMail({
+                from: NODEMAILER_USER,
+                to: data.email,
+                subject: 'Welcome to Synesthesia',
+                html,
+            })
+
             throw new Error('Need verify your account', {
                 cause: 'Sorry, you need to check your email or try it again',
             })
+        }
 
         delete data.password
 
-        const accessToken = sign(data, SECRET_KEY, { expiresIn: '1m' })
-        const refreshToken = sign({ id: data.id }, SECRET_KEY, {
+        const accessToken = sign({ id: data.id }, SECRET_KEY, {
             expiresIn: '15m',
+        })
+        const refreshToken = sign(data, SECRET_KEY, {
+            expiresIn: '2hr',
         })
         return { accessToken, refreshToken }
     }

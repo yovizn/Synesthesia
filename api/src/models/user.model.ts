@@ -1,11 +1,11 @@
 import type { Gender } from '@prisma/client'
 
 export type UserType = {
-    id?: string
-    firstname?: string
-    lastname?: string
-    username?: string
-    email?: string
+    id: string
+    firstname: string
+    lastname: string
+    username: string
+    email: string
     password?: string
     birth?: Date | null
     gender?: Gender
