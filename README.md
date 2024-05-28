@@ -2,24 +2,22 @@
 
 This project was initial repo for synesthesia.
 
-Objections:
-
-
-[ ] Create a landing page for the website for a list of event and event details.
-[ ] Responsiveness is a must.
-[ ] Create feature: search, filtering(categories, location) and details.
-[ ] Create Event base on (name, price, date, location, description, available seats, and ticket types)
-[ ] Promotor could create promotion base on discount Voucher or discount base on event dates.
-[ ] Show event price in IDR formats.
-[ ] User can create event reviews and ratings.
-[ ] Authenticaion and protect routes.
-[x] Create Register and Login User.
-[x] Generate points after user.referral used.
-[ ] Create `Promotor`.
-[ ] Create `Referral` expires must be 3 months after user.referral has been used.
-[ ] Create `Dashboard` (list events, attendee registrations, transactions, and basic event statistics)
-[ ] Create graphs statistication on Dashboard.
-[ ] Shows the data in reports visualization with range per year, per month, per day.
+# Objections:
+- [ ] Create a landing page for the website for a list of event and event details.
+- [ ] Responsiveness is a must.
+- [ ] Create feature: search, filtering(categories, location) and details.
+- [ ] Create Event base on (name, price, date, location, description, available seats, and ticket types)
+- [ ] Promotor could create promotion base on discount Voucher or discount base on event dates.
+- [ ] Show event price in IDR formats.
+- [ ] User can create event reviews and ratings.
+- [ ] Authenticaion and protect routes.
+- [x] Create Register and Login User.
+- [x] Generate points after user.referral used.
+- [ ] Create `Promotor`.
+- [ ] Create `Referral` expires must be 3 months after user.referral has been used.
+- [ ] Create `Dashboard` (list events, attendee registrations, transactions, and basic event statistics)
+- [ ] Create graphs statistication on Dashboard.
+- [ ] Shows the data in reports visualization with range per year, per month, per day.
 
 
 Notes:
