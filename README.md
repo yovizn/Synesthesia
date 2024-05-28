@@ -1,4 +1,4 @@
-# synesthesia
+# Synesthesia
 
 This project was initial repo for synesthesia.
 
@@ -20,17 +20,15 @@ This project was initial repo for synesthesia.
 - [ ] Shows the data in reports visualization with range per year, per month, per day.
 
 
-Notes:
-
-
-[ ] Protected route should implemented.
-[ ] Responsiveness is a must.
-[ ] Implement debounce on search bar.
-[ ] Implement popup dialog as confirmation on modify data.
-[ ] Create unit test on each flows.
-[ ] Handle if there are no items shows in filter or search.
-[ ] Implement SQL transaction on modify action that more than one action.
-[ ] Provide data that relevant to the projects.
+#Notes:
+- [ ] Protected route should implemented.
+- [ ] Responsiveness is a must.
+- [ ] Implement debounce on search bar.
+- [ ] Implement popup dialog as confirmation on modify data.
+- [ ] Create unit test on each flows.
+- [ ] Handle if there are no items shows in filter or search.
+- [ ] Implement SQL transaction on modify action that more than one action.
+- [ ] Provide data that relevant to the projects.
 
 
 To install dependencies:
