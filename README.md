@@ -20,7 +20,7 @@ This project was initial repo for synesthesia.
 - [ ] Shows the data in reports visualization with range per year, per month, per day.
 
 
-#Notes:
+# Notes:
 - [ ] Protected route should implemented.
 - [ ] Responsiveness is a must.
 - [ ] Implement debounce on search bar.
