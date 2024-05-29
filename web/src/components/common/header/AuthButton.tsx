@@ -1,26 +1,38 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { defaultUser, useAuthProvider } from '@/stores/auth-provider'
-import { deleteCookie } from 'cookies-next'
+import { deleteCookie, getCookie } from 'cookies-next'
 
-import { cn } from '@/lib/utils'
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
+import SkeletonProfile from './SkeletonProfile'
+import AuthProfile from './AuthProfile'
 
 export default function AuthButton() {
-  const { user, setUser } = useAuthProvider()
   const pathname = usePathname()
   const checkPath = pathname.startsWith('/register') || pathname.startsWith('/login')
+  const { user, setUser } = useAuthProvider()
+
   const handleLogout = () => {
     deleteCookie('refresh_token')
     deleteCookie('access_token')
@@ -30,47 +42,13 @@ export default function AuthButton() {
 
   return (
     <div className={cn('flex items-center gap-6', checkPath && 'hidden')}>
-      <span className="block">{user.username}</span>
-
-      {!user ? (
-        <Link
-          className="flex h-9 items-center bg-foreground/90 px-4 py-2 uppercase text-background transition-all duration-200 hover:bg-foreground/70"
-          href="/login"
-        >
-          sign in
-        </Link>
+      {user.id  ? (
+        <AuthProfile
+          user={user}
+          handleLogout={handleLogout}
+        />
       ) : (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>Log out</Button>
-          </DialogTrigger>
-
-          <DialogContent>
-            <DialogHeader className="space-y-4">
-              <DialogTitle>Are you sure you want to log out?</DialogTitle>
-              <DialogDescription>
-                To log out of your account, we need confirmation. Would you like to continue?
-              </DialogDescription>
-              <div className="flex w-full flex-col items-center justify-center gap-4 md:flex-row md:gap-6">
-                <Button
-                  onClick={handleLogout}
-                  className="w-full"
-                  variant={'default'}
-                >
-                  Yes
-                </Button>
-                <DialogClose asChild>
-                  <Button
-                    className="w-full"
-                    variant={'outline'}
-                  >
-                    No
-                  </Button>
-                </DialogClose>
-              </div>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
+        <SkeletonProfile/>
       )}
     </div>
   )

@@ -4,6 +4,8 @@ import type { Application, Request, Response, NextFunction } from 'express'
 import echoRouter from './routers/echo.router'
 import { PORT } from '../configs/env'
 import { cors, corsOptions } from '../utils/cors'
+import promotorRouter from './routers/promotor.router'
+import eventRouter from './routers/event.router'
 
 export class App {
     private app: Application
@@ -16,7 +18,7 @@ export class App {
 
     private configures() {
         this.app.use(express.json())
-        this.app.use(express.urlencoded())
+        this.app.use(express.urlencoded({ extended: true }))
         this.app.use(cors(corsOptions))
     }
 
@@ -29,7 +31,8 @@ export class App {
         })
 
         this.app.use('/echos', echoRouter.getRouter())
-        // this.app.use('/deltas')
+        this.app.use('/events', eventRouter.getRouter())
+        this.app.use('/promotors', promotorRouter.getRouter())
     }
 
     private errorsHandler() {
@@ -45,6 +48,6 @@ export class App {
     }
 
     public start() {
-        this.app.listen(PORT, () => console.log('RUN ON PORT: ', PORT))
+        this.app.listen(PORT, () => console.log('RUN ON PORT:', PORT))
     }
 }

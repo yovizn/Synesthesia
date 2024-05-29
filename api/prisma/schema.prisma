@@ -6,7 +6,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextIndex"]
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
 }
 
 datasource db {
@@ -15,23 +15,26 @@ datasource db {
 }
 
 model User {
-  id          String        @id
+  id          String    @id
+  avatar      Bytes?    @db.LongBlob
   firstname   String
   lastname    String
-  username    String        @unique
-  email       String        @unique
+  username    String    @unique
+  email       String    @unique
   password    String
   birth       DateTime?
   gender      Gender
   address     String?
-  referral    String        @unique
+  referral    String    @unique
   referrance  String?
-  point       Int           @default(0)
+  point       Int       @default(0)
   phoneNumber String?
-  isVerified  Boolean       @default(false)
-  isDelete    Boolean       @default(false)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  expPoint    DateTime?
+  isVerified  Boolean   @default(false)
+  isDelete    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
   Promotor    Promotor[]
   Review      Review[]
   Transaction Transaction[]
@@ -43,28 +46,31 @@ model User {
 
 model Promotor {
   id           String   @id
+  avatar       Bytes?    @db.LongBlob
   userId       String
   promotorName String   @unique
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  promotor     User     @relation(fields: [userId], references: [id])
-  Event        Event[]
+
+  user User    @relation(fields: [userId], references: [id])
+  Event    Event[]
 
   @@map("promotors")
 }
 
 model Event {
-  id          String        @id
+  id          String   @id
   promotorId  String
   slug        String
-  title       String        @unique
+  title       String   @unique
   price       Int
   startAt     DateTime
   endAt       DateTime
   location    String?
   description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
   Transaction Transaction[]
   Review      Review[]
@@ -73,15 +79,16 @@ model Event {
 }
 
 model Transaction {
-  id              String            @id
-  invoiceNuber    String
-  voucherId       String
-  eventId         String
-  userId          String
-  total           Decimal           @db.Decimal(18, 2)
-  discountPoint   Decimal           @default(0)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id            String   @id
+  invoiceNuber  String
+  voucherId     String
+  eventId       String
+  userId        String
+  total         Decimal  @db.Decimal(18, 2)
+  discountPoint Decimal  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   user            User              @relation(fields: [userId], references: [id])
   event           Event             @relation(fields: [eventId], references: [id])
   Voucher         Voucher           @relation(fields: [voucherId], references: [id])
@@ -91,27 +98,29 @@ model Transaction {
 }
 
 model Voucher {
-  id            String        @id
+  id            String   @id
   userId        String
   transactionId String?
-  isValid       Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  user          User          @relation(fields: [userId], references: [id])
-  Transaction   Transaction[]
+  isValid       Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id])
+  Transaction Transaction[]
 
   @@map("vouchers")
 }
 
 model TransactionItem {
-  id            String      @id
+  id            String   @id
   transactionId String
-  quantity      Int         @default(0)
-  price         Decimal     @db.Decimal(18, 2)
-  discount      Decimal     @default(0) @db.Decimal(18, 2)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  quantity      Int      @default(0)
+  price         Decimal  @db.Decimal(18, 2)
+  discount      Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
 
   @@map("transaciton_items")
 }
@@ -123,8 +132,9 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
-  event     Event    @relation(fields: [eventId], references: [id])
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
 
   @@id([userId, eventId])
   @@map("reviews")

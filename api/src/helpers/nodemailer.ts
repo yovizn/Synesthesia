@@ -1,5 +1,4 @@
 import { createTransport } from 'nodemailer'
-import { compile } from 'handlebars'
 
 import path from 'path'
 import { NODEMAILER_PASSWORD, NODEMAILER_USER } from '../configs/env'
@@ -18,4 +17,10 @@ const verifyEmailPath = path.join(
     'verify-register.hbs'
 )
 
-export { transpoter, verifyEmailPath }
+const verifyForgetEmailPath = path.join(
+    __dirname,
+    '../templates',
+    'verify-forget.hbs'
+)
+
+export { transpoter, verifyEmailPath, verifyForgetEmailPath }
