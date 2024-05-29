@@ -3,32 +3,38 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { ValidateType } from './types/validate.type'
 
-// This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('refresh_token')?.value || ''
-  const res = await fetch('http://localhost:8000/echos/v3', {
+  const accessToken = request.cookies.get('access_token')?.value || ''
+  const response = NextResponse
+
+  const user = await fetch('http://localhost:8000/echos/v3', {
     method: 'GET',
+    credentials: 'include',
     headers: {
-      authorization: 'Bearer ' + token,
+      Authorization: 'Bearer ' + token,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
+  }).then(async (res: Response) => {
+    const data: ValidateType = await res.json()
+    response.next().cookies.set('access_token', data.access_token)
+    return data
   })
 
-  const isValid = res.status == 500 ? false : true
+  const access_token = user.access_token
+  request.cookies.set('access_token', access_token)
 
-  if (
-    (request.nextUrl.pathname == '/login' ||
-      request.nextUrl.pathname == '/register') &&
-    isValid
-  )
-    return NextResponse.redirect(new URL('/', request.url))
-  else if (request.nextUrl.pathname == '/' && !isValid) {
+  const isValid = (!user.title ? false : true) && accessToken
+  const auth = request.nextUrl.pathname == '/login' || request.nextUrl.pathname == '/register'
 
-    return NextResponse.redirect(new URL('/login', request.url))
-  } else return NextResponse.next()
+  if (request.nextUrl.pathname === '/dashboard' && !isValid) return response.redirect(new URL('/login', request.url))
+  if (auth && isValid) return response.redirect(new URL('/', request.url))
+  return response.next()
 }
 
-// See "Matching Paths" below to learn more
 export const config = {
-  matcher: ['/', '/login', '/register'],
+  matcher: ['/dashboard', '/login', '/register'],
 }

@@ -1,5 +1,4 @@
 import { compile } from 'handlebars'
-import { verifyEmailPath } from '../helpers/nodemailer'
 import { readFileSync } from 'fs'
 
 const emailTemplate = ({
@@ -7,13 +6,15 @@ const emailTemplate = ({
     lastname,
     token,
     baseUrl,
+    path,
 }: {
     firstname: string
     lastname: string
     token: string
     baseUrl: string
+    path: string
 }) => {
-    const tempSource = readFileSync(verifyEmailPath, 'utf-8')
+    const tempSource = readFileSync(path, 'utf-8')
     const compiledTemp = compile(tempSource)
     const html = compiledTemp({
         firstname,

@@ -1,10 +1,16 @@
-import { jwtDecode } from 'jwt-decode'
-import { useEffect, useMemo } from 'react'
-import { getCookie } from 'cookies-next'
+'use client'
 
 import { useAuthProvider } from '@/stores/auth-provider'
-import { UserType } from '@/types/user.type'
+import { loginToken } from '@/utils/loginToken'
+import { useEffect } from 'react'
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
+  const { setUser } = useAuthProvider()
+  const user = loginToken()
+
+  useEffect(() => {
+    setUser(user)
+  }, [])
+
   return children
 }

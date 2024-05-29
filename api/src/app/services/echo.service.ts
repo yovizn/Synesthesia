@@ -4,14 +4,21 @@ import { sign, verify } from 'jsonwebtoken'
 import { prisma } from '../../libs/prisma'
 import { nanoid, generateReferral } from '../../utils/generate'
 import { comparePassword, hashPassword } from '../../utils/hashPassword'
-import { BASE_URL, NODEMAILER_USER, SECRET_KEY } from '../../configs/env'
+import {
+    BASE_URL,
+    NODEMAILER_USER,
+    SECRET_KEY_ACCESS,
+    SECRET_KEY_REFRESH,
+} from '../../configs/env'
 import { transpoter } from '../../helpers/nodemailer'
 
 import type { User } from '@prisma/client'
 import type { Request } from 'express'
 import type { UserType } from '../../models/user.model'
 import { emailTemplate } from '../../templates/email-template'
-
+import { createToken } from '../../libs/jwt'
+import { add } from 'date-fns'
+import sharp from 'sharp'
 class EchosService {
     async register(req: Request) {
         const {
@@ -24,6 +31,8 @@ class EchosService {
             gender,
         } = req.body as User
 
+        const { file } = req
+
         return await prisma.$transaction(
             async () => {
                 const checkUser = await prisma.user.findFirst({
@@ -35,6 +44,7 @@ class EchosService {
                     throw new Error('Username or Email is already exist', {
                         cause: 'The provided username or email address is already associated with an existing account in the system.',
                     })
+
                 if (referrance) {
                     const checkReferral = await prisma.user.findFirst({
                         where: {
@@ -43,6 +53,7 @@ class EchosService {
                         select: {
                             id: true,
                             point: true,
+                            expPoint: true,
                         },
                     })
 
@@ -54,11 +65,20 @@ class EchosService {
                             }
                         )
 
+                    const newExpDate = add(new Date(), { months: 3 })
+
                     await prisma.user.update({
                         where: { id: checkReferral.id },
-                        data: { point: checkReferral.point + 10000 },
+                        data: {
+                            point:
+                                checkReferral.expPoint! > new Date()
+                                    ? checkReferral.point + 10000
+                                    : 10000,
+                            expPoint: newExpDate,
+                        },
                     })
                 }
+
                 const hashPass = await hashPassword(password)
                 const referral = generateReferral(1).toUpperCase()
                 const data: Prisma.UserCreateInput = {
@@ -72,7 +92,13 @@ class EchosService {
                     password: hashPass,
                     gender,
                 }
-                const token = sign({ id: data.id }, SECRET_KEY, {
+
+                if (file) {
+                    const avatar = await sharp(file.buffer).png().toBuffer()
+                    data.avatar = avatar
+                }
+
+                const token = sign({ id: data.id }, SECRET_KEY_ACCESS, {
                     expiresIn: '15m',
                 })
                 const baseUrl = BASE_URL
@@ -82,6 +108,7 @@ class EchosService {
                     token,
                     baseUrl,
                 })
+
                 await prisma.user.create({ data })
 
                 await transpoter.sendMail({
@@ -90,8 +117,6 @@ class EchosService {
                     subject: 'Welcome to Synesthesia',
                     html,
                 })
-
-                // return { token }
             },
             {
                 maxWait: 5000,
@@ -101,44 +126,26 @@ class EchosService {
         )
     }
 
-    async validation(req: Request) {
-        const { token } = req.params
-        const value = verify(token, SECRET_KEY) as { id: string }
-
-        await prisma.$transaction(async () => {
-            const chechReferral = await prisma.user.findFirst({
-                where: { id: value.id },
-                select: { referrance: true },
-            })
-
-            if (chechReferral?.referrance) {
-                await prisma.voucher.create({
-                    data: { id: nanoid(), userId: value.id },
-                })
-            }
-            await prisma.user.update({
-                where: { id: value.id },
-                data: { isVerified: true },
-            })
-        })
-    }
-
     async login(req: Request) {
         const { username_email, password } = req.body
-        const select: Prisma.UserSelectScalar = {
+        const select: Prisma.UserSelect = {
             id: true,
             firstname: true,
             lastname: true,
             username: true,
-            password: true,
-            email: true,
             address: true,
             birth: true,
+            avatar: true,
+            email: true,
             gender: true,
-            isVerified: true,
-            phoneNumber: true,
             point: true,
+            expPoint: true,
+            phoneNumber: true,
             referral: true,
+            password: true,
+            _count: {
+                select: { Transaction: true },
+            },
         }
         const data: UserType = await prisma.user.findFirst({
             where: {
@@ -155,8 +162,8 @@ class EchosService {
         const tolerance = 1 * 60 * 1000
         if (!checkUser) throw new Error('Wrong password')
         if (!data.isVerified) {
-            if(time > tolerance) {
-                const token = sign({ id: data.id }, SECRET_KEY, {
+            if (time > tolerance) {
+                const token = sign({ id: data.id }, SECRET_KEY_ACCESS, {
                     expiresIn: '15m',
                 })
                 const baseUrl = BASE_URL
@@ -181,36 +188,170 @@ class EchosService {
 
         delete data.password
 
-        const accessToken = sign({ id: data.id }, SECRET_KEY, {
-            expiresIn: '15m',
-        })
+        const access_token = createToken(data, SECRET_KEY_ACCESS, '1hr')
+        const refresh_token = createToken(
+            { id: data.id },
+            SECRET_KEY_REFRESH,
+            '20hr'
+        )
 
-        const refreshToken = sign(data, SECRET_KEY, {
-            expiresIn: '2hr',
-        })
-
-        return { accessToken, refreshToken }
+        return { access_token, refresh_token }
     }
 
     async keepLogin(req: Request) {
+        const select: Prisma.UserSelectScalar = {
+            id: true,
+            avatar: true,
+            firstname: true,
+            lastname: true,
+            username: true,
+            email: true,
+            birth: true,
+            gender: true,
+            address: true,
+            referral: true,
+            point: true,
+            phoneNumber: true,
+            expPoint: true,
+        }
+
+        return await prisma.$transaction(async () => {
+            const user = await prisma.user.findUnique({
+                select,
+                where: {
+                    id: req.user?.id,
+                },
+            })
+
+            if (!user?.id) throw new Error('Need to login')
+
+            const checkDate = user?.expPoint
+            const nowDate = new Date()
+
+            if (checkDate === nowDate)
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: { point: 0 },
+                })
+
+            const access_token = createToken(user, SECRET_KEY_ACCESS, '1hr')
+            return { access_token, is_verified: user.isVerified }
+        })
+    }
+
+    async getAvatarById(req: Request) {
+        const { id } = req.params
+
         const user = await prisma.user.findUnique({
-            select: {
-                id: true,
-                username: true,
-                email: true,
-                firstname: true,
-                lastname: true,
-            },
-            where: {
-                id: req.user?.id,
-            },
+            where: { id },
+            select: { avatar: true },
         })
 
-        if (!user) throw new Error('Need to login')
+        return user?.avatar
+    }
 
-        const access_token = sign(user, SECRET_KEY, { expiresIn: '2hr' })
+    async editPassword(req: Request) {
+        await prisma.$transaction(async () => {
+            const { username } = req.params
+            const { new_assword, password } = req.body
 
-        return { access_token }
+            const user = await prisma.user.findFirst({
+                where: { username },
+                select: { password },
+            })
+
+            const checkPassword = await comparePassword(
+                user?.password!,
+                password
+            )
+
+            if (!checkPassword)
+                throw new Error('Wrong password', {
+                    cause: 'Invalid your current password',
+                })
+
+            await prisma.user.update({
+                where: { username },
+                data: { password: await hashPassword(new_assword) },
+            })
+        })
+    }
+
+    async editUser(req: Request) {
+        const params = req.params.username
+        const {
+            firstname,
+            lastname,
+            username,
+            email,
+            address,
+            birth,
+            phoneNumber,
+        } = req.body as User
+        const { file } = req
+
+        await prisma.$transaction(async () => {
+            const data: Prisma.UserUpdateInput = {
+                firstname,
+                lastname,
+                username,
+                email,
+                address,
+                birth,
+                phoneNumber,
+            }
+
+            if (file) {
+                const avatar = await sharp(file.buffer).png().toBuffer()
+                data.avatar = avatar
+            }
+
+            await prisma.user.update({
+                data,
+                where: { username: params },
+            })
+        })
+    }
+
+    async forgetPassword(req: Request) {}
+
+    async validationEmail(req: Request) {
+        const { email } = req.body
+
+        const user = await prisma.user.findFirst({
+            where: { email },
+            select: { id: true, email: true, firstname: true, lastname: true },
+        })
+
+        if (!user?.id) throw new Error('Invalid email')
+
+        const token = sign(user, SECRET_KEY_REFRESH, { expiresIn: '15m' })
+
+        await transpoter.sendMail({
+            
+        })
+    }
+
+    async validation(req: Request) {
+        const { token } = req.params
+        const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
+
+        await prisma.$transaction(async () => {
+            const chechReferral = await prisma.user.findFirst({
+                where: { id: value.id },
+                select: { referrance: true },
+            })
+
+            if (chechReferral?.referrance) {
+                await prisma.voucher.create({
+                    data: { id: nanoid(), userId: value.id },
+                })
+            }
+            await prisma.user.update({
+                where: { id: value.id },
+                data: { isVerified: true },
+            })
+        })
     }
 }
 

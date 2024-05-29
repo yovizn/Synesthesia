@@ -1,25 +1,28 @@
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import AuthButton from './AuthButton'
-import ThemeSwitcher from '../ThemeSwitcher'
+import SkeletonProfile from './SkeletonProfile'
+import { cookies } from 'next/headers'
 
 export default function Header() {
+  const access_token = cookies().get('access_token')?.value
+  const AuthButton = dynamic(() => import('./AuthButton'), {
+    loading: () => <SkeletonProfile />,
+  })
+
   return (
-    <header
-      className="fixed left-0 top-0 z-20 h-16 w-full bg-background px-6 text-foreground xl:px-0"
-    >
-      <div className="mx-auto h-full max-w-[1400px]">
-        <nav role='navigation' className="flex size-full items-center justify-between">
+    <header className="fixed left-0 top-0 z-20 h-[88px] w-full bg-background px-6 py-4 text-foreground xl:px-0">
+      <div className="mx-auto h-full max-w-screen-2xl">
+        <nav
+          role="navigation"
+          className="flex size-full items-center justify-between"
+        >
           <Link
             href="/"
             className="text-xl font-medium transition-colors duration-200 hover:text-foreground/85 sm:text-xl"
           >
             Sysnesthesia&copy;
           </Link>
-
-          <div className="flex gap-4">
-            <AuthButton />
-            <ThemeSwitcher />
-          </div>
+          {access_token ? <AuthButton /> : <Link href={'/login'}>Login </Link>}
         </nav>
       </div>
     </header>

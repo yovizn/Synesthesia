@@ -1,0 +1,30 @@
+<html lang='en'>
+    <head>
+        <meta charset='UTF-8' />
+        <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <title>Forget password</title>
+    </head>
+    <body
+        style="font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; padding: 16px 0; display: flex; align-items: center; justify-content: center; flex-direction: column; flex-wrap: nowrap; width: 100%;"
+    >
+        <main
+            style='display: flex; flex-direction: column; gap: 24px; height: 450px; align-items: center; justify-content: center; flex-wrap: nowrap;'
+        >
+            <h1
+                style='font-size: 1.9rem; line-height: 1; letter-spacing: -0.025em; text-wrap: balance; text-align: center; width: 100%;'
+            >
+                Hello&nbsp;{{firstname}}&nbsp;{{lastname}}.
+            </h1>
+            <p
+                style='text-wrap: balance; text-align: center; max-width: 400px; margin: 0 auto;'
+            >
+                Greetings. click link down below for changing your password.
+            </p>
+
+            <a
+                href='{{baseUrl}}/forget-password/{{token}}'
+                style='height: 36px; width: 200px; padding: 0.5rem 1rem; color: white; background-color: black; border-radius: 0.5rem; max-width: fit-content; margin: 0 auto;'
+            >Verify your account</a>
+        </main>
+    </body>
+</html>

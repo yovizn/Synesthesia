@@ -1,9 +1,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { useTransition } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
 import { LoaderCircle } from 'lucide-react'
 import { AxiosError } from 'axios'
 
@@ -15,15 +13,14 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
 import { useToast } from '../ui/use-toast'
+import { useRouter } from 'next/navigation'
 import { useAuthProvider } from '@/stores/auth-provider'
-import { getCookie } from 'cookies-next'
-import { UserType } from '@/types/user.type'
-import { jwtDecode } from 'jwt-decode'
+import { loginToken } from '@/utils/loginToken'
+import { deleteCookie, setCookie } from 'cookies-next'
 
 export default function LoginForm() {
   const { toast } = useToast()
-  const { setUser } = useAuthProvider()
-  const [isPending, startTransition] = useTransition()
+  const { setUser, user } = useAuthProvider()
   const router = useRouter()
   const {
     register,
@@ -33,21 +30,28 @@ export default function LoginForm() {
     resolver: zodResolver(loginFormSchema),
   })
 
+
   const onSubmit = async (payload: LoginFormType) => {
     try {
       const submit = await loginAction(payload)
+      const u = loginToken()
+      
+      setCookie('access_token', submit.data.access_token)
+      setCookie('refresh_token', submit.data.refresh_token)
+      setUser(u)
+
       toast({
-        title: submit.data.title,
-        description: submit.data.description,
+        title: submit?.data.title,
+        description: submit?.data.description,
         duration: 5000,
       })
-      const token = getCookie('refresh_token') || ''
-      const user: UserType = jwtDecode(token)
-      console.log(user)
-      setUser(user)
-      router.push('/')
+
+      window.location.reload()
     } catch (error) {
       if (error instanceof AxiosError) {
+        deleteCookie('access_token')
+        deleteCookie('refresh_token')
+
         toast({
           title: error.response?.data.message,
           description: error.response?.data.cause,
@@ -57,6 +61,8 @@ export default function LoginForm() {
       }
     }
   }
+
+  if (user.id) router.push('/')
 
   return (
     <form

@@ -10,7 +10,7 @@ export default function LoginPage() {
             Welcome to Synesthesia
           </h1>
           <p className="text-balance">
-            Let's sign in and explore you&apos;re journey
+            Let&apos;s sign in and explore you&apos;re journey
           </p>
         </div>
 
