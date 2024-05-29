@@ -10,7 +10,11 @@ import {
     SECRET_KEY_ACCESS,
     SECRET_KEY_REFRESH,
 } from '../../configs/env'
-import { transpoter } from '../../helpers/nodemailer'
+import {
+    transpoter,
+    verifyEmailPath,
+    verifyForgetEmailPath,
+} from '../../helpers/nodemailer'
 
 import type { User } from '@prisma/client'
 import type { Request } from 'express'
@@ -40,7 +44,7 @@ class EchosService {
                     select: { id: true },
                 })
 
-                if (checkUser)
+                if (checkUser?.id)
                     throw new Error('Username or Email is already exist', {
                         cause: 'The provided username or email address is already associated with an existing account in the system.',
                     })
@@ -97,7 +101,6 @@ class EchosService {
                     const avatar = await sharp(file.buffer).png().toBuffer()
                     data.avatar = avatar
                 }
-
                 const token = sign({ id: data.id }, SECRET_KEY_ACCESS, {
                     expiresIn: '15m',
                 })
@@ -107,6 +110,7 @@ class EchosService {
                     lastname,
                     token,
                     baseUrl,
+                    path: verifyEmailPath,
                 })
 
                 await prisma.user.create({ data })
@@ -143,6 +147,7 @@ class EchosService {
             phoneNumber: true,
             referral: true,
             password: true,
+            isVerified: true,
             _count: {
                 select: { Transaction: true },
             },
@@ -172,6 +177,7 @@ class EchosService {
                     lastname: data.lastname,
                     token,
                     baseUrl,
+                    path: verifyForgetEmailPath,
                 })
 
                 await transpoter.sendMail({
@@ -327,9 +333,7 @@ class EchosService {
 
         const token = sign(user, SECRET_KEY_REFRESH, { expiresIn: '15m' })
 
-        await transpoter.sendMail({
-            
-        })
+        await transpoter.sendMail({})
     }
 
     async validation(req: Request) {

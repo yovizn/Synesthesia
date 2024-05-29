@@ -11,6 +11,8 @@ class EchosRouter {
     }
 
     private initializedRoutes() {
+        this.router.get('/verify/:token', echoController.validation)
+
         this.router.post(
             '/v1',
             blobUploader().single('avatar'),
@@ -39,9 +41,6 @@ class EchosRouter {
         )
 
         this.router.post('/edit-user/:username', echoController.editUser)
-        
-
-        this.router.get('/:token', echoController.validation)
     }
 
     public getRouter() {
