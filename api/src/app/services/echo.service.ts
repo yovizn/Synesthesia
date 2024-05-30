@@ -328,15 +328,30 @@ class EchosService {
             where: { email },
             select: { id: true, email: true, firstname: true, lastname: true },
         })
-
-        if (!user?.id) throw new Error('Invalid email')
+        if (!user)
+            throw new Error('Invalid email.', {
+                cause: 'Cannot find your account, please check your email.',
+            })
 
         const token = sign(user, SECRET_KEY_REFRESH, { expiresIn: '15m' })
 
-        await transpoter.sendMail({})
+        const { html } = emailTemplate({
+            baseUrl: BASE_URL,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            token,
+            path: verifyForgetEmailPath,
+        })
+
+        await transpoter.sendMail({
+            from: NODEMAILER_USER,
+            to: user.email,
+            subject: 'Forget password',
+            html,
+        })
     }
 
-    async validation(req: Request) {
+    async registerValidation(req: Request) {
         const { token } = req.params
         const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
 

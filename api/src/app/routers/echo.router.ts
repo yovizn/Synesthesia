@@ -11,36 +11,27 @@ class EchosRouter {
     }
 
     private initializedRoutes() {
-        this.router.get('/verify/:token', echoController.validation)
-
         this.router.post(
             '/v1',
             blobUploader().single('avatar'),
             echoController.register
         )
+        this.router.get('/v1/:token', echoController.registerValidation)
+
         this.router.post('/v2', echoController.login)
-        this.router.get(
-            '/v3',
-            userAuth.refreshToken,
-            blobUploader().single('avatar'),
-            echoController.keepLogin
-        )
-        this.router.get('/avatar/:id', echoController.getAvatarById)
+        this.router.get('/v2', userAuth.refreshToken, echoController.keepLogin)
+
+        this.router.post('/validations', echoController.validationEmail)
+
         this.router.patch(
-            '/edit-user/:username',
+            '/v3/:username',
+            userAuth.accesToken,
             blobUploader().single('avatar'),
             echoController.editUser
         )
-        this.router.post(
-            '/edit-password/:username',
-            echoController.editPassword
-        )
-        this.router.post(
-            '/forget-password/:token',
-            echoController.forgetPassword
-        )
-
-        this.router.post('/edit-user/:username', echoController.editUser)
+        this.router.post('/v3/:username', echoController.editPassword)
+        this.router.post('/forgets/:token', echoController.forgetPassword)
+        this.router.get('/avatars/:id', echoController.getAvatarById)
     }
 
     public getRouter() {

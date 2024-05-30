@@ -16,9 +16,9 @@ class EchoController {
         }
     }
 
-    async validation(req: Request, res: Response, next: NextFunction) {
+    async registerValidation(req: Request, res: Response, next: NextFunction) {
         try {
-            await echoService.validation(req)
+            await echoService.registerValidation(req)
             res.status(200).send({
                 title: "You're verify",
                 description: "You're good to go",
@@ -97,11 +97,11 @@ class EchoController {
 
     async validationEmail(req: Request, res: Response, next: NextFunction) {
         try {
-            await echoService.validation(req)
+            await echoService.validationEmail(req)
             res.send({
-                title: 'Please check your email.',
+                title: 'Password Reset Email Sent Successfully.',
                 description:
-                    'Please check your email inbox for further access.',
+                    "We've successfully sent an email to your registered email address for password reset. Please check your inbox and follow the instructions to reset your password. If you don't receive the email within a few minutes, please check your spam folder or try again later.",
             })
         } catch (error) {
             next(error)
