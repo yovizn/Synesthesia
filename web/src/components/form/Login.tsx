@@ -13,14 +13,14 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
 import { useToast } from '../ui/use-toast'
-import { useRouter } from 'next/navigation'
-import { useAuthProvider } from '@/stores/auth-provider'
+import useAuthProvider from '@/stores/auth-provider'
 import { loginToken } from '@/utils/loginToken'
 import { deleteCookie, setCookie } from 'cookies-next'
+import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
   const { toast } = useToast()
-  const { setUser, user } = useAuthProvider()
+  const { setUser } = useAuthProvider()
   const router = useRouter()
   const {
     register,
@@ -30,12 +30,11 @@ export default function LoginForm() {
     resolver: zodResolver(loginFormSchema),
   })
 
-
   const onSubmit = async (payload: LoginFormType) => {
     try {
       const submit = await loginAction(payload)
       const u = loginToken()
-      
+
       setCookie('access_token', submit.data.access_token)
       setCookie('refresh_token', submit.data.refresh_token)
       setUser(u)
@@ -46,6 +45,7 @@ export default function LoginForm() {
         duration: 5000,
       })
 
+      router.push('/')
       window.location.reload()
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -61,8 +61,6 @@ export default function LoginForm() {
       }
     }
   }
-
-  if (user.id) router.push('/')
 
   return (
     <form

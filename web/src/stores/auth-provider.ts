@@ -1,13 +1,15 @@
 import { create } from 'zustand'
 import { UserType } from '@/types/user.type'
 
-type AuthProvider = {
-  user: UserType
+type State = { user: UserType }
+
+type AuthAction = {
   setUser: (user: UserType) => void
+  resetUser: () => void
 }
 
-const defaultUser ={
-    id: '',
+const defaultUser: UserType = {
+  id: '',
   firstname: '',
   lastname: '',
   username: '',
@@ -19,11 +21,12 @@ const defaultUser ={
   phoneNumber: null,
   point: 0,
   referral: '',
-  }
+}
 
-const useAuthProvider = create<AuthProvider>()((set) => ({
+const useAuthProvider = create<State & AuthAction>()((set) => ({
   user: defaultUser,
-  setUser: (user) => set({ user }),
+  setUser: (user) => set(() => ({ user })),
+  resetUser: () => set({ user: defaultUser }),
 }))
 
-export { useAuthProvider, defaultUser }
+export default useAuthProvider

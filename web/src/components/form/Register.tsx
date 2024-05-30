@@ -49,7 +49,7 @@ export default function RegisterForm() {
         description: submit.data.description,
         duration: 5000,
       })
-      router.push('/login')
+      router.push('/auth/login')
     } catch (error) {
       if (error instanceof AxiosError) {
         toast({

@@ -15,14 +15,14 @@ export default function LoginPage() {
 
       <div className="flex w-full items-center justify-between">
         <Link
-          href="/register"
+          href="/auth/register"
           className="w-fit text-muted-foreground transition-colors duration-200 hover:text-foreground"
         >
           Don&apos;t have an account?
         </Link>
 
         <Link
-          href="/forget-password"
+          href="/auth/forget-password"
           className="w-fit text-muted-foreground transition-colors duration-200 hover:text-foreground"
         >
           Forget your password?
