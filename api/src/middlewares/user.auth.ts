@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 import { verify } from 'jsonwebtoken'
 import type { UserType } from '../models/user.model'
-import { SECRET_KEY_REFRESH } from '../configs/env'
+import { SECRET_KEY_ACCESS, SECRET_KEY_REFRESH } from '../configs/env'
 import { prisma } from '../libs/prisma'
 
 class UserAuth {
-    async checkUser(req: Request, res: Response, next: NextFunction) {
+    async accesToken(req: Request, res: Response, next: NextFunction) {
         try {
             const token =
                 req.headers.authorization?.replace('Bearer ', '') || ''
-            req.user = verify(token, SECRET_KEY_REFRESH) as UserType
+            req.user = verify(token, SECRET_KEY_ACCESS) as UserType
 
             next()
         } catch (error) {

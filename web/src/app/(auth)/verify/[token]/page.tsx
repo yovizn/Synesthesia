@@ -4,7 +4,7 @@ import Link from 'next/link'
 // import { redirect } from 'next/navigation'
 
 export default async function ValidationPage({ params }: { params: { token: string } }) {
-  const value = await axiosInstance().get(`/echos/${params.token}`)
+  const value = await axiosInstance().get(`/echos/verify/${params.token}`)
 
   // redirect('/login')
 
