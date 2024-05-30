@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('access_token')?.value || ''
   const response = NextResponse
 
-  const user = await fetch('http://localhost:8000/echos/v3', {
+  const user = await fetch('http://localhost:8000/echos/v2', {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -21,20 +21,21 @@ export async function middleware(request: NextRequest) {
   }).then(async (res: Response) => {
     const data: ValidateType = await res.json()
     response.next().cookies.set('access_token', data.access_token)
+    console.log(data)
     return data
   })
 
+  
   const access_token = user.access_token
   request.cookies.set('access_token', access_token)
 
   const isValid = (!user.title ? false : true) && accessToken
-  const auth = request.nextUrl.pathname == '/login' || request.nextUrl.pathname == '/register'
 
-  if (request.nextUrl.pathname === '/dashboard' && !isValid) return response.redirect(new URL('/login', request.url))
-  if (auth && isValid) return response.redirect(new URL('/', request.url))
+  if (request.nextUrl.pathname === '/dashboard' && !isValid) return response.redirect(new URL('/auth/login', request.url))
+  if (request.nextUrl.pathname.startsWith('/auth') && isValid) return response.redirect(new URL('/', request.url))
   return response.next()
 }
 
 export const config = {
-  matcher: ['/dashboard', '/login', '/register'],
+  matcher: ['/dashboard', '/auth/:path*'],
 }

@@ -18,7 +18,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { UserType } from '@/types/user.type'
-import Link from 'next/link';
+import Link from 'next/link'
+
+type user = UserType
 
 export default function AuthProfile({ user, handleLogout }: { user: UserType; handleLogout: () => void }) {
   return (

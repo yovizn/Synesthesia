@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuthProvider } from '@/stores/auth-provider'
+import useAuthProvider from '@/stores/auth-provider'
 import { loginToken } from '@/utils/loginToken'
 import { useEffect } from 'react'
 
@@ -10,6 +10,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     setUser(user)
+
+    console.log(user)
   }, [])
 
   return children
