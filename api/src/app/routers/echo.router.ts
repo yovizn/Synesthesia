@@ -12,6 +12,7 @@ class EchosRouter {
 
     private initializedRoutes() {
         this.router.get('/verify/:token', echoController.validation)
+        this.router.post('/validations', echoController.validationEmail)
 
         this.router.post(
             '/v1',
@@ -22,7 +23,6 @@ class EchosRouter {
         this.router.get(
             '/v3',
             userAuth.refreshToken,
-            blobUploader().single('avatar'),
             echoController.keepLogin
         )
         this.router.get('/avatar/:id', echoController.getAvatarById)
@@ -40,7 +40,11 @@ class EchosRouter {
             echoController.forgetPassword
         )
 
-        this.router.post('/edit-user/:username', echoController.editUser)
+        this.router.post(
+            '/edit-user/:username',
+            blobUploader().single('avatar'),
+            echoController.editUser
+        )
     }
 
     public getRouter() {
