@@ -319,7 +319,10 @@ class EchosService {
         })
     }
 
-    async forgetPassword(req: Request) {}
+    async forgetPassword(req: Request) {
+        const { token } = req.params
+        const id = verify(token, SECRET_KEY_REFRESH)
+    }
 
     async validationEmail(req: Request) {
         const { email } = req.body
@@ -328,12 +331,15 @@ class EchosService {
             where: { email },
             select: { id: true, email: true, firstname: true, lastname: true },
         })
+
         if (!user)
             throw new Error('Invalid email.', {
                 cause: 'Cannot find your account, please check your email.',
             })
 
-        const token = sign(user, SECRET_KEY_REFRESH, { expiresIn: '15m' })
+        const token = sign({ id: user.id }, SECRET_KEY_REFRESH, {
+            expiresIn: '15m',
+        })
 
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
@@ -349,6 +355,8 @@ class EchosService {
             subject: 'Forget password',
             html,
         })
+
+        return { token }
     }
 
     async registerValidation(req: Request) {

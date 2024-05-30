@@ -97,11 +97,12 @@ class EchoController {
 
     async validationEmail(req: Request, res: Response, next: NextFunction) {
         try {
-            await echoService.validationEmail(req)
+            const { token } = await echoService.validationEmail(req)
             res.send({
                 title: 'Password Reset Email Sent Successfully.',
                 description:
                     "We've successfully sent an email to your registered email address for password reset. Please check your inbox and follow the instructions to reset your password. If you don't receive the email within a few minutes, please check your spam folder or try again later.",
+                refresh_token: token,
             })
         } catch (error) {
             next(error)

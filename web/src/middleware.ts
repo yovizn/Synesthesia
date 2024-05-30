@@ -21,7 +21,6 @@ export async function middleware(request: NextRequest) {
   }).then(async (res: Response) => {
     const data: ValidateType = await res.json()
     response.next().cookies.set('access_token', data.access_token)
-    console.log(data)
     return data
   })
 

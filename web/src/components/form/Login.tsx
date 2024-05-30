@@ -37,7 +37,7 @@ export default function LoginForm() {
 
       setCookie('access_token', submit.data.access_token)
       setCookie('refresh_token', submit.data.refresh_token)
-      setUser(u)
+      setUser(u!)
 
       toast({
         title: submit?.data.title,
