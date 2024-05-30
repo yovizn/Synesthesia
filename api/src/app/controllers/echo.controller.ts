@@ -16,9 +16,9 @@ class EchoController {
         }
     }
 
-    async validation(req: Request, res: Response, next: NextFunction) {
+    async registerValidation(req: Request, res: Response, next: NextFunction) {
         try {
-            await echoService.validation(req)
+            await echoService.registerValidation(req)
             res.status(200).send({
                 title: "You're verify",
                 description: "You're good to go",

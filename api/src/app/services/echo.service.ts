@@ -351,7 +351,7 @@ class EchosService {
         })
     }
 
-    async validation(req: Request) {
+    async registerValidation(req: Request) {
         const { token } = req.params
         const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
 
