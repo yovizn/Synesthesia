@@ -2,6 +2,7 @@ type UserType = {
   id: string
   firstname: string
   lastname: string
+  avatar: string | null
   username: string
   email: string
   address: string | null
@@ -10,7 +11,9 @@ type UserType = {
   isVerified: boolean
   phoneNumber: number | null
   point: number
+  expPoint: Date | null
   referral: string
+  _count: { Transaction: number }
 }
 
 export { type UserType }

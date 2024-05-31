@@ -8,6 +8,8 @@ import {
     BASE_URL,
     NODEMAILER_USER,
     SECRET_KEY_ACCESS,
+    SECRET_KEY_FORGET_PASSWORD,
+    SECRET_KEY_FORGET_PASSWORD_ACCESS,
     SECRET_KEY_REFRESH,
 } from '../../configs/env'
 import {
@@ -130,6 +132,27 @@ class EchosService {
         )
     }
 
+    async registerValidation(req: Request) {
+        const { token } = req.params
+        const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
+        await prisma.$transaction(async () => {
+            const chechReferral = await prisma.user.findFirst({
+                where: { id: value.id },
+                select: { referrance: true },
+            })
+
+            if (chechReferral?.referrance) {
+                await prisma.voucher.create({
+                    data: { id: nanoid(), userId: value.id },
+                })
+            }
+            await prisma.user.update({
+                where: { id: value.id },
+                data: { isVerified: true },
+            })
+        })
+    }
+
     async login(req: Request) {
         const { username_email, password } = req.body
         const select: Prisma.UserSelect = {
@@ -193,8 +216,7 @@ class EchosService {
         }
 
         delete data.password
-
-        const access_token = createToken(data, SECRET_KEY_ACCESS, '1hr')
+        const access_token = createToken(data, SECRET_KEY_ACCESS, '15m')
         const refresh_token = createToken(
             { id: data.id },
             SECRET_KEY_REFRESH,
@@ -230,10 +252,8 @@ class EchosService {
             })
 
             if (!user?.id) throw new Error('Need to login')
-
             const checkDate = user?.expPoint
             const nowDate = new Date()
-
             if (checkDate === nowDate)
                 await prisma.user.update({
                     where: { id: user.id },
@@ -260,7 +280,6 @@ class EchosService {
         await prisma.$transaction(async () => {
             const { username } = req.params
             const { new_assword, password } = req.body
-
             const user = await prisma.user.findFirst({
                 where: { username },
                 select: { password },
@@ -295,7 +314,6 @@ class EchosService {
             phoneNumber,
         } = req.body as User
         const { file } = req
-
         await prisma.$transaction(async () => {
             const data: Prisma.UserUpdateInput = {
                 firstname,
@@ -319,21 +337,43 @@ class EchosService {
         })
     }
 
-    async forgetPassword(req: Request) {}
+    async forgetPassword(req: Request) {
+        const { token } = req.params
+        const id = verify(token, SECRET_KEY_REFRESH)
+    }
+
+    async validationForgetPassword(req: Request) {
+        const user = await prisma.user.findFirst({
+            where: { id: req.user?.id },
+            select: { username: true },
+        })
+
+        if (!user) throw new Error('Invalid User')
+
+        const token = sign(
+            { username: user.username },
+            SECRET_KEY_FORGET_PASSWORD_ACCESS,
+            { expiresIn: '20m' }
+        )
+
+        return { token }
+    }
 
     async validationEmail(req: Request) {
         const { email } = req.body
-
         const user = await prisma.user.findFirst({
             where: { email },
             select: { id: true, email: true, firstname: true, lastname: true },
         })
+
         if (!user)
             throw new Error('Invalid email.', {
                 cause: 'Cannot find your account, please check your email.',
             })
 
-        const token = sign(user, SECRET_KEY_REFRESH, { expiresIn: '15m' })
+        const token = sign({ id: user.id }, SECRET_KEY_FORGET_PASSWORD, {
+            expiresIn: '15m',
+        })
 
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
@@ -346,31 +386,11 @@ class EchosService {
         await transpoter.sendMail({
             from: NODEMAILER_USER,
             to: user.email,
-            subject: 'Forget password',
+            subject: 'Synesthesia - Forget password',
             html,
         })
-    }
 
-    async registerValidation(req: Request) {
-        const { token } = req.params
-        const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
-
-        await prisma.$transaction(async () => {
-            const chechReferral = await prisma.user.findFirst({
-                where: { id: value.id },
-                select: { referrance: true },
-            })
-
-            if (chechReferral?.referrance) {
-                await prisma.voucher.create({
-                    data: { id: nanoid(), userId: value.id },
-                })
-            }
-            await prisma.user.update({
-                where: { id: value.id },
-                data: { isVerified: true },
-            })
-        })
+        return { token }
     }
 }
 

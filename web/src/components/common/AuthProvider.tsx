@@ -5,13 +5,11 @@ import { loginToken } from '@/utils/loginToken'
 import { useEffect } from 'react'
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setUser } = useAuthProvider()
+  const setUser = useAuthProvider((state) => state.setUser)
   const user = loginToken()
 
   useEffect(() => {
-    setUser(user)
-
-    console.log(user)
+    if (user) setUser(user)
   }, [])
 
   return children
