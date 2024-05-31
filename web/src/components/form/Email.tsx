@@ -9,8 +9,8 @@ import { LoaderCircle } from 'lucide-react'
 import { emailAction } from '@/utils/emailAction'
 import { AxiosError } from 'axios'
 import { toast } from '../ui/use-toast'
-import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
+import { deleteCookie, setCookie } from 'cookies-next'
 
 export default function EmailForm() {
   const router = useRouter()
@@ -27,6 +27,7 @@ export default function EmailForm() {
   const onSubmit = async (payload: EmailFormType) => {
     try {
       const res = await emailAction(payload)
+      setCookie('forget_password_token', res.data.forget_password_token)
 
       toast({
         title: res.data.title,
@@ -36,10 +37,12 @@ export default function EmailForm() {
 
       if (res.data.title) {
         reset()
-        router.push('/login')
+        router.push('/auth/login')
       }
     } catch (error) {
       resetField('email')
+      deleteCookie('forget_password_token')
+      console.log(error)
       if (error instanceof AxiosError) {
         toast({
           title: error.response?.data.message,

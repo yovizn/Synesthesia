@@ -10,6 +10,7 @@ type AuthAction = {
 
 const defaultUser: UserType = {
   id: '',
+  avatar: null,
   firstname: '',
   lastname: '',
   username: '',
@@ -20,7 +21,9 @@ const defaultUser: UserType = {
   isVerified: false,
   phoneNumber: null,
   point: 0,
+  expPoint: null,
   referral: '',
+  _count: { Transaction: 0 },
 }
 
 const useAuthProvider = create<State & AuthAction>()((set) => ({

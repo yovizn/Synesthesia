@@ -10,7 +10,10 @@ import AuthProfile from './AuthProfile'
 
 export default function AuthButton() {
   const pathname = usePathname()
-  const checkPath = pathname.startsWith('/register') || pathname.startsWith('/login')
+  const checkPath =
+    pathname.startsWith('/auth/register') ||
+    pathname.startsWith('/auth/login') ||
+    pathname.startsWith('/auth/forget-password')
   const auth = useAuthProvider()
 
   const handleLogout = () => {

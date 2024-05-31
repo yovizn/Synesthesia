@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 
 export default function LoginForm() {
   const { toast } = useToast()
-  const { setUser } = useAuthProvider()
+  const setUser = useAuthProvider((state) => state.setUser)
   const router = useRouter()
   const {
     register,
@@ -37,7 +37,9 @@ export default function LoginForm() {
 
       setCookie('access_token', submit.data.access_token)
       setCookie('refresh_token', submit.data.refresh_token)
-      setUser(u)
+      deleteCookie('forget_password_token')
+      deleteCookie('forget_password_access_token')
+      setUser(u!)
 
       toast({
         title: submit?.data.title,
@@ -51,6 +53,8 @@ export default function LoginForm() {
       if (error instanceof AxiosError) {
         deleteCookie('access_token')
         deleteCookie('refresh_token')
+        deleteCookie('forget_password_token')
+        deleteCookie('forget_password_access_token')
 
         toast({
           title: error.response?.data.message,

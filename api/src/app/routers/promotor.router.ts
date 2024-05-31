@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import userAuth from '../../middlewares/user.auth'
+import userAuth from '../middlewares/user.auth'
 import promotorController from '../controllers/promotor.controller'
 
 class PromotorRouter {
