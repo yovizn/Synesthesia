@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import echoController from '../controllers/echo.controller'
-import userAuth from '../../middlewares/user.auth'
+import userAuth from '../middlewares/user.auth'
 import { blobUploader } from '../../libs/multer'
 
 class EchosRouter {
@@ -34,6 +34,7 @@ class EchosRouter {
 
         // Feature forget password
         this.router.post('/validations', echoController.validationEmail)
+        this.router.get('/validations', userAuth.forgetPasswordToken, echoController.forgetPasswordAccess)
         this.router.post('/validations/:token', echoController.forgetPassword)
     }
 

@@ -102,7 +102,24 @@ class EchoController {
                 title: 'Password Reset Email Sent Successfully.',
                 description:
                     "We've successfully sent an email to your registered email address for password reset. Please check your inbox and follow the instructions to reset your password. If you don't receive the email within a few minutes, please check your spam folder or try again later.",
-                refresh_token: token,
+                forget_password_token: token,
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async forgetPasswordAccess(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { token } = await echoService.validationForgetPassword(req)
+            res.send({
+                title: 'Create your new password',
+                description: 'You can create your new password',
+                forget_password_access_token: token,
             })
         } catch (error) {
             next(error)

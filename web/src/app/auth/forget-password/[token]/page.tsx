@@ -5,7 +5,5 @@ type ForgetPasswordPageType = {
 }
 
 export default async function ForgetPasswordPage({ params }: ForgetPasswordPageType) {
-  
-  
   return <div>ForgetPasswordPage</div>
 }
