@@ -45,9 +45,6 @@ model Promotor {
   Event        Event[]
   user         User     @relation(fields: [userId], references: [id])
 
-  user  User    @relation(fields: [userId], references: [id])
-  Event Event[]
-
   @@map("promotors")
 }
 
@@ -56,7 +53,6 @@ model Event {
   promotorId  String
   title       String        @unique
   slug        String
-  title       String        @unique
   price       Int
   startAt     DateTime
   endAt       DateTime
