@@ -37,6 +37,7 @@ model User {
 
 model Promotor {
   id           String   @id
+  avatar       Bytes?   @db.LongBlob
   userId       String
   promotorName String   @unique
   createdAt    DateTime @default(now())
@@ -44,7 +45,9 @@ model Promotor {
   Event        Event[]
   user         User     @relation(fields: [userId], references: [id])
 
-  @@index([userId], map: "promotors_userId_fkey")
+  user  User    @relation(fields: [userId], references: [id])
+  Event Event[]
+
   @@map("promotors")
 }
 
@@ -53,8 +56,7 @@ model Event {
   promotorId  String
   title       String        @unique
   slug        String
-  description String?
-  location    String?
+  title       String        @unique
   price       Int
   startAt     DateTime
   endAt       DateTime
