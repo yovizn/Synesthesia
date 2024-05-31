@@ -46,14 +46,14 @@ model User {
 
 model Promotor {
   id           String   @id
-  avatar       Bytes?    @db.LongBlob
+  avatar       Bytes?   @db.LongBlob
   userId       String
   promotorName String   @unique
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  user User    @relation(fields: [userId], references: [id])
-  Event    Event[]
+  user  User    @relation(fields: [userId], references: [id])
+  Event Event[]
 
   @@map("promotors")
 }
@@ -63,7 +63,8 @@ model Event {
   promotorId  String
   slug        String
   title       String   @unique
-  price       Int
+  price       Decimal  @db.Decimal(18, 2)
+  priceVip    Decimal  @map("price_vip") @db.Decimal(18, 2)
   startAt     DateTime
   endAt       DateTime
   location    String?
