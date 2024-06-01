@@ -1,44 +1,55 @@
 'use client'
 
 import { AxiosError } from 'axios'
+import Image from 'next/image'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { ChangeEvent, ElementRef, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
+import { useRouter } from 'next/navigation'
 
-import { registerFormSchema, RegisterFormType } from '@/schemas/register-schema'
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { registerAction } from '@/utils/registerAction'
+import { useToast } from '../ui/use-toast'
 
 import { cn } from '@/lib/utils'
-import { useToast } from '../ui/use-toast'
-import { useRouter } from 'next/navigation'
+import { registerFormSchema, RegisterFormType } from '@/schemas/register-schema'
 import ButtonSubmit from '../ui/button-submit'
+import placeholder from '@/public/placehorder.jpg'
 
 export default function RegisterForm() {
   const { toast } = useToast()
   const router = useRouter()
+  const inputFileRef = useRef<ElementRef<'input'> | null>(null)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false)
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false)
+  const [hasImage, setHasImage] = useState<File | null>(null)
   const {
     register,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormType>({
     resolver: zodResolver(registerFormSchema),
     mode: 'onChange',
   })
+
+  const username = getValues('username')
+  const images = getValues('avatar')
+  console.log()
+
+  const handleImageClick = () => {
+    inputFileRef.current?.click()
+  }
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const file = e.target.files![0]
+    setValue('avatar', file)
+  }
 
   const onSubmit = async (payload: RegisterFormType) => {
     try {
@@ -66,44 +77,74 @@ export default function RegisterForm() {
       onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col gap-2"
     >
-      {/* Firstname */}
-      <div className="space-y-2.5">
-        <Label
-          className={cn('block w-full text-end', errors.firstname ? 'text-destructive' : 'text-foreground opacity-0')}
-          htmlFor="firstname"
-        >
-          {errors.firstname ? errors.firstname.message : 'Firstname'}
-        </Label>
-        <Input
-          {...register('firstname')}
-          id="firstname"
-          name="firstname"
-          type="text"
-          placeholder="Firstname"
+      <div
+        onClick={handleImageClick}
+        className="mx-auto mb-6 flex cursor-pointer flex-col items-center"
+      >
+        <Image
+          src={placeholder}
+          alt="Profile Image"
+          height={140}
+          width={140}
+          className="rounded-[50%] object-cover"
         />
+        <Input
+          {...register('avatar')}
+          ref={inputFileRef}
+          type="file"
+          accept="image/*"
+          alt="Profile Image"
+          onChange={handleImageChange}
+          className="hidden"
+          disabled={isSubmitting}
+        />
+        <span className="text-destructive">{errors.avatar?.message}</span>
       </div>
 
-      {/* Lastname */}
-      <div className="space-y-2.5">
-        <Label
-          className={cn('block w-full text-end', errors.lastname ? 'text-destructive' : 'text-foreground opacity-0')}
-          htmlFor="lastname"
-        >
-          {errors.lastname ? errors.lastname.message : 'Lastname'}
-        </Label>
-        <Input
-          {...register('lastname')}
-          id="lastname"
-          name="lastname"
-          type="text"
-          placeholder="Lastname"
-        />
+      <div className="flex flex-col gap-4 sm:flex-row">
+        {/* Firstname */}
+        <div className="w-full space-y-2.5">
+          <Label
+            className={cn('block w-full', errors.firstname ? 'text-destructive' : 'text-foreground')}
+            htmlFor="firstname"
+          >
+            {errors.firstname ? errors.firstname.message : 'Firstname'}
+          </Label>
+          <Input
+            {...register('firstname')}
+            id="firstname"
+            name="firstname"
+            type="text"
+            className="bg-background/70"
+            placeholder="Firstname"
+            disabled={isSubmitting}
+          />
+        </div>
+
+        {/* Lastname */}
+        <div className="w-full space-y-2.5">
+          <Label
+            className={cn('block w-full', errors.lastname ? 'text-destructive' : 'text-foreground')}
+            htmlFor="lastname"
+          >
+            {errors.lastname ? errors.lastname.message : 'Lastname'}
+          </Label>
+          <Input
+            {...register('lastname')}
+            id="lastname"
+            name="lastname"
+            type="text"
+            className="bg-background/70"
+            placeholder="Lastname"
+            disabled={isSubmitting}
+          />
+        </div>
       </div>
 
       {/* Username */}
       <div className="space-y-2.5">
         <Label
-          className={cn('block w-full text-end', errors.username ? 'text-destructive' : 'text-foreground opacity-0')}
+          className={cn('block w-full', errors.username ? 'text-destructive' : 'text-foreground')}
           htmlFor="username"
         >
           {errors.username ? errors.username.message : 'Username'}
@@ -113,14 +154,16 @@ export default function RegisterForm() {
           id="username"
           name="username"
           type="text"
+          className="bg-background/70"
           placeholder="Username"
+          disabled={isSubmitting}
         />
       </div>
 
       {/* Email */}
       <div className="space-y-2.5">
         <Label
-          className={cn('block w-full text-end', errors.email ? 'text-destructive' : 'text-foreground opacity-0')}
+          className={cn('block w-full', errors.email ? 'text-destructive' : 'text-foreground')}
           htmlFor="email"
         >
           {errors.email ? errors.email.message : 'Email'}
@@ -130,13 +173,15 @@ export default function RegisterForm() {
           id="email"
           name="email"
           type="text"
+          className="bg-background/70"
           placeholder="Email"
+          disabled={isSubmitting}
         />
       </div>
 
       {/* Gender & Referral Code */}
       <Label
-        className={cn('block w-full text-end', errors.gender ? 'text-destructive' : 'text-foreground opacity-0')}
+        className={cn('block w-full', errors.gender ? 'text-destructive' : 'text-foreground')}
         htmlFor="gender"
       >
         {errors.gender ? 'Gender is requires, at least choose one' : 'Gender'}
@@ -145,12 +190,12 @@ export default function RegisterForm() {
         <Select onValueChange={(value: RegisterFormType['gender']) => setValue('gender', value)}>
           <SelectTrigger
             id="gender"
-            className="w-1/2"
+            className="w-1/2 bg-background/70"
           >
             <SelectValue placeholder="Choose your Gender" />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent className=" focus:ring-0">
             <SelectItem value="MALE">Male</SelectItem>
             <SelectItem value="FEMALE">Female</SelectItem>
           </SelectContent>
@@ -163,6 +208,7 @@ export default function RegisterForm() {
             name="referrance"
             type="text"
             placeholder="Referal Code"
+            className="bg-background/70"
             onChange={(val) => setValue('referrance', val.target.value.toUpperCase())}
           />
         </div>
@@ -171,7 +217,7 @@ export default function RegisterForm() {
       {/* Password */}
       <div className="space-y-2.5">
         <Label
-          className={cn('block w-full text-end', errors.password ? 'text-destructive' : 'text-foreground opacity-0')}
+          className={cn('block w-full', errors.password ? 'text-destructive' : 'text-foreground')}
           htmlFor="password"
         >
           {errors.password ? errors.password.message : 'Password'}
@@ -183,7 +229,8 @@ export default function RegisterForm() {
             name="password"
             type={!isPasswordVisible ? 'password' : 'text'}
             placeholder="Password"
-            className="block"
+            className="bg-background/70"
+            disabled={isSubmitting}
           />
           {!isPasswordVisible ? (
             <EyeClosedIcon
@@ -202,10 +249,7 @@ export default function RegisterForm() {
       {/* Confirm Password */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.confirmPassword ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full', errors.confirmPassword ? 'text-destructive' : 'text-foreground')}
           htmlFor="confirmPassword"
         >
           {errors.confirmPassword ? errors.confirmPassword.message : 'Password'}
@@ -217,7 +261,8 @@ export default function RegisterForm() {
             name="confirmPassword"
             type={!isConfirmPasswordVisible ? 'password' : 'text'}
             placeholder="Confirm Password"
-            className="block"
+            className="bg-background/70"
+            disabled={isSubmitting}
           />
           {!isConfirmPasswordVisible ? (
             <EyeClosedIcon
@@ -233,12 +278,11 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <ButtonSubmit
-          isSubmitting={isSubmitting}
-          label="Create an account"
-        />
-      </div>
+      <ButtonSubmit
+        isSubmitting={isSubmitting}
+        label="Create an account"
+        className="mt-4 w-full bg-background text-foreground hover:bg-background/70"
+      />
     </form>
   )
 }

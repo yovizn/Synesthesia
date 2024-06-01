@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  experimental: {
+    typedRoutes: true
+  },
+  images: {
+    remotePatterns: [{
+      hostname: 'localhost'
+    }]
+  }
+};
 
 export default nextConfig;

@@ -1,16 +1,18 @@
 import { LoaderCircle } from 'lucide-react'
 import { Button } from './button'
+import { cn } from '@/lib/utils'
 
 type ButtonSubmitType = {
   label: string
   isSubmitting: boolean
+  className?: string
 }
 
-export default function ButtonSubmit({ isSubmitting, label }: ButtonSubmitType) {
+export default function ButtonSubmit({ isSubmitting, className, label }: ButtonSubmitType) {
   return (
     <Button
       type="submit"
-      className="flex w-full items-center justify-center"
+      className={(cn('"flex justify-center" w-full items-center'), className)}
       disabled={isSubmitting}
     >
       {isSubmitting ? (

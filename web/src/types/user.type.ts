@@ -1,19 +1,18 @@
 type UserType = {
   id: string
+  imageId: string | null
   firstname: string
   lastname: string
-  avatar: string | null
   username: string
   email: string
-  address: string | null
   birth: Date | null
-  gender?: 'MALE' | 'FEMALE'
-  isVerified: boolean
-  phoneNumber: number | null
-  point: number
-  expPoint: Date | null
+  gender: 'MALE' | 'FEMALE'
+  address: string | null
   referral: string
-  _count: { Transaction: number }
+  referrance: string | null
+  point: number
+  phoneNumber: string | null
+  expPoint: Date | null
 }
 
 export { type UserType }

@@ -23,14 +23,13 @@ class EchosRouter {
         this.router.post('/v2', echoController.login)
         this.router.get('/v2', userAuth.refreshToken, echoController.keepLogin)
 
+        // Feature edit users
         this.router.patch(
             '/v3/:username',
             userAuth.accesToken,
             blobUploader().single('avatar'),
             echoController.editUser
         )
-        this.router.post('/v3/:username', echoController.editPassword)
-        this.router.get('/avatars/:id', echoController.getAvatarById)
 
         // Feature forget password
         this.router.post('/validations', echoController.validationEmail)
@@ -39,6 +38,9 @@ class EchosRouter {
             userAuth.forgetPasswordToken,
             echoController.forgetPassword
         )
+
+        this.router.post('/v3/:username', echoController.editPassword)
+        this.router.get('/avatars/:id', echoController.getAvatarById)
     }
 
     public getRouter() {

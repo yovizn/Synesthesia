@@ -69,6 +69,7 @@ export default function ForgetPasswordForm({ params }: { params: string }) {
             {...register('password')}
             id="password"
             type={!isPasswordVisible ? 'password' : 'text'}
+            disabled={isSubmitting}
           />
           {!isPasswordVisible ? (
             <EyeClosedIcon
@@ -96,6 +97,7 @@ export default function ForgetPasswordForm({ params }: { params: string }) {
             {...register('confirmPassword')}
             id="confirmPassword"
             type={!isConfirmPasswordVisible ? 'password' : 'text'}
+            disabled={isSubmitting}
           />
           {!isConfirmPasswordVisible ? (
             <EyeClosedIcon

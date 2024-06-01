@@ -65,12 +65,13 @@ export default function EmailForm() {
         name="email"
         type="text"
         placeholder="Email"
+        disabled={isSubmitting}
       />
 
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full md:w-auto"
+        className="w-full"
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
