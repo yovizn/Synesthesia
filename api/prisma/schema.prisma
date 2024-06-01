@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id          String    @id
-  avatar      Bytes?    @db.LongBlob
+  imageId     String?
   firstname   String
   lastname    String
   username    String    @unique
@@ -28,13 +28,14 @@ model User {
   referral    String    @unique
   referrance  String?
   point       Int       @default(0)
-  phoneNumber String?
-  expPoint    DateTime?
+  phoneNumber String?   @map("phone_number")
+  expPoint    DateTime? @map("exp_point")
   isVerified  Boolean   @default(false)
   isDelete    Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  image       Image?        @relation(fields: [imageId], references: [id])
   Promotor    Promotor[]
   Review      Review[]
   Transaction Transaction[]
@@ -58,6 +59,16 @@ model Promotor {
   @@map("promotors")
 }
 
+model Image {
+  id        String   @id
+  blob      Bytes    @db.LongBlob
+  User      User[]
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("images")
+}
+
 model Event {
   id          String   @id
   promotorId  String
@@ -65,8 +76,8 @@ model Event {
   title       String   @unique
   price       Decimal  @db.Decimal(18, 2)
   priceVip    Decimal  @map("price_vip") @db.Decimal(18, 2)
-  startAt     DateTime
-  endAt       DateTime
+  startAt     DateTime @map("start_at")
+  endAt       DateTime @map("end_at")
   location    String?
   description String?
   createdAt   DateTime @default(now())

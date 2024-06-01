@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import Image from 'next/image'
+
 import {
   Dialog,
   DialogClose,
@@ -18,7 +21,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { UserType } from '@/types/user.type'
-import Link from 'next/link'
+import { renderImage } from '@/utils/render'
+import placeholder from '@/public/placehorder.jpg'
 
 type user = UserType
 
@@ -31,11 +35,17 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
             variant="ghost"
             className="space-x-4 py-7"
           >
-            <span className="block size-9 rounded-[50%] bg-foreground" />
             <span className="block md:w-[119px]">
               <span className="block w-full truncate text-start font-medium">{user.username}</span>
               <span className="block w-full truncate text-start font-light">{user.firstname}</span>
             </span>
+            <Image
+              src={user.imageId ? renderImage.webp(user.imageId) : placeholder}
+              className="rounded-[50%] object-cover aspect-square"
+              width={50}
+              height={50}
+              alt={`${user.username} Profile Page`}
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

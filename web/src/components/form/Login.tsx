@@ -71,7 +71,7 @@ export default function LoginForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-6"
+      className="w-full space-y-6"
     >
       <div className="space-y-2.5">
         <Label htmlFor="username_email">
@@ -84,6 +84,7 @@ export default function LoginForm() {
           id="username_email"
           name="username_email"
           type="text"
+          disabled={isSubmitting}
         />
       </div>
       <div className="space-y-2.5">
@@ -99,6 +100,7 @@ export default function LoginForm() {
             id="password"
             name="password"
             type={!isPasswordVisible ? 'password' : 'text'}
+            disabled={isSubmitting}
           />
           {!isPasswordVisible ? (
             <EyeClosedIcon
@@ -117,6 +119,7 @@ export default function LoginForm() {
       <ButtonSubmit
         isSubmitting={isSubmitting}
         label="Login"
+        className="w-full"
       />
     </form>
   )
