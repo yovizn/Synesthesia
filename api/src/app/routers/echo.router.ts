@@ -34,8 +34,11 @@ class EchosRouter {
 
         // Feature forget password
         this.router.post('/validations', echoController.validationEmail)
-        this.router.get('/validations', userAuth.forgetPasswordToken, echoController.forgetPasswordAccess)
-        this.router.post('/validations/:token', echoController.forgetPassword)
+        this.router.post(
+            '/validations/:token',
+            userAuth.forgetPasswordToken,
+            echoController.forgetPassword
+        )
     }
 
     public getRouter() {

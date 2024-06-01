@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
-import { LoaderCircle } from 'lucide-react'
 
 import { registerFormSchema, RegisterFormType } from '@/schemas/register-schema'
 
@@ -17,13 +16,13 @@ import {
   SelectValue,
 } from '../ui/select'
 import { Input } from '../ui/input'
-import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { registerAction } from '@/utils/registerAction'
 
 import { cn } from '@/lib/utils'
 import { useToast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
+import ButtonSubmit from '../ui/button-submit'
 
 export default function RegisterForm() {
   const { toast } = useToast()
@@ -70,10 +69,7 @@ export default function RegisterForm() {
       {/* Firstname */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.firstname ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full text-end', errors.firstname ? 'text-destructive' : 'text-foreground opacity-0')}
           htmlFor="firstname"
         >
           {errors.firstname ? errors.firstname.message : 'Firstname'}
@@ -90,10 +86,7 @@ export default function RegisterForm() {
       {/* Lastname */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.lastname ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full text-end', errors.lastname ? 'text-destructive' : 'text-foreground opacity-0')}
           htmlFor="lastname"
         >
           {errors.lastname ? errors.lastname.message : 'Lastname'}
@@ -110,10 +103,7 @@ export default function RegisterForm() {
       {/* Username */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.username ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full text-end', errors.username ? 'text-destructive' : 'text-foreground opacity-0')}
           htmlFor="username"
         >
           {errors.username ? errors.username.message : 'Username'}
@@ -130,10 +120,7 @@ export default function RegisterForm() {
       {/* Email */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.email ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full text-end', errors.email ? 'text-destructive' : 'text-foreground opacity-0')}
           htmlFor="email"
         >
           {errors.email ? errors.email.message : 'Email'}
@@ -149,20 +136,13 @@ export default function RegisterForm() {
 
       {/* Gender & Referral Code */}
       <Label
-        className={cn(
-          'block w-full text-end',
-          errors.gender ? 'text-destructive' : 'text-foreground opacity-0',
-        )}
+        className={cn('block w-full text-end', errors.gender ? 'text-destructive' : 'text-foreground opacity-0')}
         htmlFor="gender"
       >
         {errors.gender ? 'Gender is requires, at least choose one' : 'Gender'}
       </Label>
       <div className="flex items-end gap-4">
-        <Select
-          onValueChange={(value: RegisterFormType['gender']) =>
-            setValue('gender', value)
-          }
-        >
+        <Select onValueChange={(value: RegisterFormType['gender']) => setValue('gender', value)}>
           <SelectTrigger
             id="gender"
             className="w-1/2"
@@ -183,9 +163,7 @@ export default function RegisterForm() {
             name="referrance"
             type="text"
             placeholder="Referal Code"
-            onChange={(val) =>
-              setValue('referrance', val.target.value.toUpperCase())
-            }
+            onChange={(val) => setValue('referrance', val.target.value.toUpperCase())}
           />
         </div>
       </div>
@@ -193,10 +171,7 @@ export default function RegisterForm() {
       {/* Password */}
       <div className="space-y-2.5">
         <Label
-          className={cn(
-            'block w-full text-end',
-            errors.password ? 'text-destructive' : 'text-foreground opacity-0',
-          )}
+          className={cn('block w-full text-end', errors.password ? 'text-destructive' : 'text-foreground opacity-0')}
           htmlFor="password"
         >
           {errors.password ? errors.password.message : 'Password'}
@@ -229,9 +204,7 @@ export default function RegisterForm() {
         <Label
           className={cn(
             'block w-full text-end',
-            errors.confirmPassword
-              ? 'text-destructive'
-              : 'text-foreground opacity-0',
+            errors.confirmPassword ? 'text-destructive' : 'text-foreground opacity-0',
           )}
           htmlFor="confirmPassword"
         >
@@ -248,16 +221,12 @@ export default function RegisterForm() {
           />
           {!isConfirmPasswordVisible ? (
             <EyeClosedIcon
-              onClick={() =>
-                setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
-              }
+              onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
             />
           ) : (
             <EyeOpenIcon
-              onClick={() =>
-                setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
-              }
+              onClick={() => setIsConfirmPasswordVisible(!isConfirmPasswordVisible)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
             />
           )}
@@ -265,20 +234,10 @@ export default function RegisterForm() {
       </div>
 
       <div className="mt-4">
-        <Button
-          type="submit"
-          className="flex w-full items-center justify-center"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? (
-            <span className="flex items-center justify-center gap-2">
-              <LoaderCircle className="block size-4 motion-safe:animate-spin" />
-              <span className="block">Loading</span>
-            </span>
-          ) : (
-            <span>Create an account</span>
-          )}
-        </Button>
+        <ButtonSubmit
+          isSubmitting={isSubmitting}
+          label="Create an account"
+        />
       </div>
     </form>
   )
