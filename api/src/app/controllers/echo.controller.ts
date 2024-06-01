@@ -109,23 +109,6 @@ class EchoController {
         }
     }
 
-    async forgetPasswordAccess(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const { token } = await echoService.validationForgetPassword(req)
-            res.send({
-                title: 'Create your new password',
-                description: 'You can create your new password',
-                forget_password_access_token: token,
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
     async forgetPassword(req: Request, res: Response, next: NextFunction) {
         try {
             await echoService.forgetPassword(req)

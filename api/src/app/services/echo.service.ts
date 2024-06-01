@@ -337,33 +337,17 @@ class EchosService {
         })
     }
 
-    async forgetPassword(req: Request) {
-        const { token } = req.params
-        const id = verify(token, SECRET_KEY_REFRESH)
-    }
-
-    async validationForgetPassword(req: Request) {
-        const user = await prisma.user.findFirst({
-            where: { id: req.user?.id },
-            select: { username: true },
-        })
-
-        if (!user) throw new Error('Invalid User')
-
-        const token = sign(
-            { username: user.username },
-            SECRET_KEY_FORGET_PASSWORD_ACCESS,
-            { expiresIn: '20m' }
-        )
-
-        return { token }
-    }
-
     async validationEmail(req: Request) {
         const { email } = req.body
         const user = await prisma.user.findFirst({
             where: { email },
-            select: { id: true, email: true, firstname: true, lastname: true },
+            select: {
+                id: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+                username: true,
+            },
         })
 
         if (!user)
@@ -375,11 +359,19 @@ class EchosService {
             expiresIn: '15m',
         })
 
+        const token_access = sign(
+            { username: user.username },
+            SECRET_KEY_FORGET_PASSWORD_ACCESS,
+            {
+                expiresIn: '15m',
+            }
+        )
+
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
             firstname: user.firstname,
             lastname: user.lastname,
-            token,
+            token: token_access,
             path: verifyForgetEmailPath,
         })
 
@@ -390,7 +382,23 @@ class EchosService {
             html,
         })
 
-        return { token }
+        return { token } // { id: string }
+    }
+
+    async forgetPassword(req: Request) {
+        const { token } = req.params
+        const { password } = req.body
+        const username = req.user?.username
+        const { id } = verify(token, SECRET_KEY_FORGET_PASSWORD) as {
+            id: string
+        }
+        await prisma.$transaction(async () => {
+            const newPassword = await hashPassword(password)
+            await prisma.user.update({
+                where: { id, username },
+                data: { password: newPassword },
+            })
+        })
     }
 }
 

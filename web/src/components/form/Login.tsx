@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoaderCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { AxiosError } from 'axios'
+import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 
 import { LoginFormType, loginFormSchema } from '@/schemas/login-schema'
 import { loginAction } from '@/utils/loginAction'
@@ -11,16 +13,16 @@ import { cn } from '@/lib/utils'
 
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { Button } from '../ui/button'
 import { useToast } from '../ui/use-toast'
 import useAuthProvider from '@/stores/auth-provider'
 import { loginToken } from '@/utils/loginToken'
 import { deleteCookie, setCookie } from 'cookies-next'
-import { useRouter } from 'next/navigation'
+import ButtonSubmit from '../ui/button-submit'
 
 export default function LoginForm() {
   const { toast } = useToast()
   const setUser = useAuthProvider((state) => state.setUser)
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const router = useRouter()
   const {
     register,
@@ -90,28 +92,32 @@ export default function LoginForm() {
             {!errors.password ? 'Password' : errors.password.message}
           </span>
         </Label>
-        <Input
-          {...register('password')}
-          id="password"
-          name="password"
-          type="password"
-        />
+
+        <div className="relative">
+          <Input
+            {...register('password')}
+            id="password"
+            name="password"
+            type={!isPasswordVisible ? 'password' : 'text'}
+          />
+          {!isPasswordVisible ? (
+            <EyeClosedIcon
+              onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
+            />
+          ) : (
+            <EyeOpenIcon
+              onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer opacity-70 hover:opacity-100"
+            />
+          )}
+        </div>
       </div>
 
-      <Button
-        type="submit"
-        className="flex w-full items-center justify-center"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <span className="flex items-center justify-center gap-2">
-            <LoaderCircle className="block size-4 motion-safe:animate-spin" />
-            <span className="block">Loading</span>
-          </span>
-        ) : (
-          <span>Login</span>
-        )}
-      </Button>
+      <ButtonSubmit
+        isSubmitting={isSubmitting}
+        label="Login"
+      />
     </form>
   )
 }
