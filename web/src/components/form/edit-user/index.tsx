@@ -96,8 +96,6 @@ export default function EditUserForm({ params }: { params: { username: string } 
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0]
-                        console.log(file)
-
                         fieldValues.onChange(file)
                       }}
                     />

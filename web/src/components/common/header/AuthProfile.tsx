@@ -27,6 +27,7 @@ import placeholder from '@/public/placehorder.jpg'
 type user = UserType
 
 export default function AuthProfile({ user, handleLogout }: { user: UserType; handleLogout: () => void }) {
+
   return (
     <Dialog>
       <DropdownMenu>

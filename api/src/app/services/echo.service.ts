@@ -109,9 +109,11 @@ class EchosService {
                 await prisma.user.create({ data })
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
+                    const name = file.fieldname + new Date()
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
+                        name,
                     }
                     await prisma.image.create({
                         data: image,

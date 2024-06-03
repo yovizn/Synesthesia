@@ -1,7 +1,6 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { ForgetPasswordType, forgetPasswordSchema } from '@/schemas/forget-password-schema'
 import { zodResolver } from '@hookform/resolvers/zod'

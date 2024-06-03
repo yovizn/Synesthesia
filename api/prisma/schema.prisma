@@ -78,7 +78,6 @@ model Image {
 model Event {
   id          String    @id
   promotorId  String
-
   slug        String
   title       String   @unique
   price       Decimal  @db.Decimal(18, 2)
@@ -90,8 +89,8 @@ model Event {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   city        String    @db.VarChar(55)
-  venueType   VenueType @map("venue_type")
   category    String
+  venueType   VenueType @map("venue_type")
 
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
   Transaction Transaction[]
