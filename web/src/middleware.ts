@@ -56,7 +56,8 @@ export async function middleware(request: NextRequest) {
   if (isDashboard && !isValidUser) return NextResponse.redirect(new URL('/auth/login', request.url))
   if (isValidUser && isLoginUser) return NextResponse.redirect(new URL('/', request.url))
   if (isValidUser && isForgetPassword && !isValidForgetPassword) return NextResponse.redirect(new URL('/', request.url))
-  if (isForgetPassword && forgetPasswordToken) return NextResponse.redirect(new URL('/auth/forget-password', request.url))
+  if (isForgetPassword && forgetPasswordToken)
+    return NextResponse.redirect(new URL('/auth/forget-password', request.url))
 
   return response
 }

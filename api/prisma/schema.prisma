@@ -59,18 +59,21 @@ model Promotor {
 }
 
 model Event {
-  id          String   @id
+  id          String    @id
   promotorId  String
-  slug        String
-  title       String   @unique
-  price       Decimal  @db.Decimal(18, 2)
-  priceVip    Decimal  @map("price_vip") @db.Decimal(18, 2)
+  slug        String    @unique
+  title       String
+  price       Decimal   @db.Decimal(18, 2)
+  priceVip    Decimal   @map("price_vip") @db.Decimal(18, 2)
   startAt     DateTime
   endAt       DateTime
   location    String?
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  city        String    @db.VarChar(55)
+  venueType   VenueType @map("venue_type")
+  category    String
 
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
   Transaction Transaction[]
@@ -79,16 +82,23 @@ model Event {
   @@map("events")
 }
 
+enum StatusTransaction {
+  UNPAID
+  PENDING
+  SUCCESS
+}
+
 model Transaction {
-  id            String   @id
+  id            String            @id
   invoiceNuber  String
   voucherId     String
   eventId       String
   userId        String
-  total         Decimal  @db.Decimal(18, 2)
-  discountPoint Decimal  @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  total         Decimal           @db.Decimal(18, 2)
+  discountPoint Decimal           @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  status        StatusTransaction @default(PENDING)
 
   user            User              @relation(fields: [userId], references: [id])
   event           Event             @relation(fields: [eventId], references: [id])
@@ -144,4 +154,9 @@ model Review {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum VenueType {
+  INDOOR
+  OUTDOOR
 }
