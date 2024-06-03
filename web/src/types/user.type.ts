@@ -1,18 +1,23 @@
 type UserType = {
   id: string
-  imageId: string | null
+  imageId: string | undefined // FE: imageId | BE: avatar (referance by Images.id)
   firstname: string
   lastname: string
   username: string
   email: string
-  birth: Date | null
-  gender: 'MALE' | 'FEMALE'
-  address: string | null
+  birth: Date | undefined
+  gender: 'MALE' | 'FEMALE' | undefined
+  address: string | undefined
   referral: string
-  referrance: string | null
+  referrance: string | undefined
   point: number
-  phoneNumber: string | null
-  expPoint: Date | null
+  phoneNumber: string | undefined
+  expPoint: Date | undefined
+  image:
+    | {
+        name: string
+      }
+    | undefined
 }
 
 export { type UserType }

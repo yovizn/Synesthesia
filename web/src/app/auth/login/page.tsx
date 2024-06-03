@@ -1,4 +1,4 @@
-import LoginForm from '@/components/form/Login'
+import LoginForm from '@/components/form/login'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'

@@ -39,7 +39,6 @@ export default function RegisterForm() {
 
   const username = getValues('username')
   const images = getValues('avatar')
-  console.log()
 
   const handleImageClick = () => {
     inputFileRef.current?.click()

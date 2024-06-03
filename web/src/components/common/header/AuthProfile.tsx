@@ -40,10 +40,10 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
               <span className="block w-full truncate text-start font-light">{user.firstname}</span>
             </span>
             <Image
-              src={user.imageId ? renderImage.webp(user.imageId) : placeholder}
-              className="rounded-[50%] object-cover aspect-square"
-              width={50}
-              height={50}
+              src={user.image?.name ? renderImage.webp(user.image?.name!) : placeholder}
+              className="aspect-square rounded-full object-cover"
+              width={40}
+              height={40}
               alt={`${user.username} Profile Page`}
             />
           </Button>
@@ -61,8 +61,8 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
 
           <DropdownMenuItem>Events</DropdownMenuItem>
 
-          <DropdownMenuItem>
-            <Link href="/">Settings</Link>
+          <DropdownMenuItem asChild>
+            <Link href={`/auth/edit/${user.username}`}>Settings</Link>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

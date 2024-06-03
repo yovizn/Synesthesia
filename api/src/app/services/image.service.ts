@@ -3,9 +3,9 @@ import { prisma } from '../../libs/prisma'
 
 class ImageService {
     async renderWebp(req: Request) {
-        const { id } = req.params
+        const { name } = req.params
         const image = await prisma.image.findFirst({
-            where: { id },
+            where: { name },
             select: { blob: true },
         })
 

@@ -11,7 +11,7 @@ class EchosRouter {
     }
 
     private initializedRoutes() {
-        // Feature register
+        // [x] Feature register
         this.router.post(
             '/v1',
             blobUploader().single('avatar'),
@@ -19,19 +19,20 @@ class EchosRouter {
         )
         this.router.get('/v1/:token', echoController.registerValidation)
 
-        // Feature login
+        // [x] Feature login
         this.router.post('/v2', echoController.login)
         this.router.get('/v2', userAuth.refreshToken, echoController.keepLogin)
 
-        // Feature edit users
+        // [ ] Feature edit users
         this.router.patch(
-            '/v3/:username',
+            '/v2/:username',
             userAuth.accesToken,
             blobUploader().single('avatar'),
+            blobUploader().array("images",3),
             echoController.editUser
         )
 
-        // Feature forget password
+        // [x] Feature forget password
         this.router.post('/validations', echoController.validationEmail)
         this.router.post(
             '/validations/:token',
@@ -39,8 +40,8 @@ class EchosRouter {
             echoController.forgetPassword
         )
 
-        this.router.post('/v3/:username', echoController.editPassword)
-        this.router.get('/avatars/:id', echoController.getAvatarById)
+        // this.router.post('/v3/:username', echoController.editPassword)
+        // this.router.get('/avatars/:id', echoController.getAvatarById)
     }
 
     public getRouter() {
