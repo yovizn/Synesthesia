@@ -1,16 +1,14 @@
-'use server'
-
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { ValidateType } from './types/validate.type'
+import { API_BASE_URL } from './configs/env'
 
 export async function middleware(request: NextRequest) {
+  const response = NextResponse.next()
   const token = request.cookies.get('refresh_token')?.value || ''
   const accessToken = request.cookies.get('access_token')?.value || ''
-  const response = NextResponse
 
-  const user = await fetch('http://localhost:8000/echos/v3', {
+  const user = await fetch(`${API_BASE_URL}/echos/v2`, {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -20,21 +18,24 @@ export async function middleware(request: NextRequest) {
     },
   }).then(async (res: Response) => {
     const data: ValidateType = await res.json()
-    response.next().cookies.set('access_token', data.access_token)
+    if (data.access_token) response.cookies.set('access_token', data.access_token)
     return data
   })
 
-  const access_token = user.access_token
-  request.cookies.set('access_token', access_token)
+  const isValidUser = user.title && accessToken
+  const isLoginUser =
+    request.nextUrl.pathname == '/auth/login' ||
+    request.nextUrl.pathname == '/auth/register' ||
+    request.nextUrl.pathname.startsWith('/auth/forget-password')
+  const isProtected =
+    request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/auth/edit')
 
-  const isValid = (!user.title ? false : true) && accessToken
-  const auth = request.nextUrl.pathname == '/login' || request.nextUrl.pathname == '/register'
+  if (isProtected && !isValidUser) return NextResponse.redirect(new URL('/auth/login', request.url))
+  if (isValidUser && isLoginUser) return NextResponse.redirect(new URL('/', request.url))
 
-  if (request.nextUrl.pathname === '/dashboard' && !isValid) return response.redirect(new URL('/login', request.url))
-  if (auth && isValid) return response.redirect(new URL('/', request.url))
-  return response.next()
+  return response
 }
 
 export const config = {
-  matcher: ['/dashboard', '/login', '/register'],
+  matcher: ['/dashboard/:path*', '/auth/register', '/auth/forget-password/:path*', '/auth/login', '/auth/edit/:path*'],
 }

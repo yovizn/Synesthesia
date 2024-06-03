@@ -2,6 +2,8 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import SkeletonProfile from './SkeletonProfile'
 import { cookies } from 'next/headers'
+import { Button } from '@/components/ui/button'
+import AuthLoginButton from './AuthLoginButton'
 
 export default function Header() {
   const access_token = cookies().get('access_token')?.value
@@ -10,7 +12,7 @@ export default function Header() {
   })
 
   return (
-    <header className="fixed left-0 top-0 z-20 h-[88px] w-full bg-background px-6 py-4 text-foreground xl:px-0">
+    <header className="fixed left-0 top-0 z-20 h-[88px] w-full bg-background px-6 py-4 text-foreground">
       <div className="mx-auto h-full max-w-screen-2xl">
         <nav
           role="navigation"
@@ -22,7 +24,11 @@ export default function Header() {
           >
             Sysnesthesia&copy;
           </Link>
-          {access_token ? <AuthButton /> : <Link href={'/login'}>Login </Link>}
+          {access_token ? (
+            <AuthButton />
+          ) : (
+            <AuthLoginButton />
+          )}
         </nav>
       </div>
     </header>

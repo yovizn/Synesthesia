@@ -10,9 +10,9 @@ type LoginActionResponseType = {
   }
 }
 
-const loginAction = async (payload: LoginFormType) => {
+const loginAction = async (payload: LoginFormType): Promise<LoginActionResponseType> => {
   const { username_email, password } = payload
-  const res: LoginActionResponseType = await axiosInstance().post(
+  return await axiosInstance().post(
     '/echos/v2',
     {
       username_email,
@@ -22,8 +22,6 @@ const loginAction = async (payload: LoginFormType) => {
       withCredentials: true,
     },
   )
-
-  return res
 }
 
 export { loginAction }
