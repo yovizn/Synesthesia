@@ -1,22 +1,22 @@
-import 'dotenv/config'
+import "dotenv/config";
 
-const PORT = process.env.API_PORT || 8001
-const SECRET_KEY_ACCESS = process.env.SECRET_KEY_ACCESS || ''
-const SECRET_KEY_REFRESH = process.env.SECRET_KEY_REFRESH || ''
-const SECRET_KEY_FORGET_PASSWORD = process.env.SECRET_KEY_FORGET_PASSWORD || ''
+const PORT = process.env.API_PORT || 8001;
+const SECRET_KEY_ACCESS = process.env.SECRET_KEY_ACCESS || "";
+const SECRET_KEY_REFRESH = process.env.SECRET_KEY_REFRESH || "";
+const SECRET_KEY_FORGET_PASSWORD = process.env.SECRET_KEY_FORGET_PASSWORD || "";
 const SECRET_KEY_FORGET_PASSWORD_ACCESS =
-    process.env.SECRET_KEY_FORGET_PASSWORD_ACCESS || ''
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
-const NODEMAILER_USER = process.env.NODEMAILER_USER || ''
-const NODEMAILER_PASSWORD = process.env.NODEMAILER_PASSWORD || ''
+  process.env.SECRET_KEY_FORGET_PASSWORD_ACCESS || "";
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
+const NODEMAILER_USER = process.env.NODEMAILER_USER || "";
+const NODEMAILER_PASSWORD = process.env.NODEMAILER_PASSWORD || "";
 
 export {
-    PORT,
-    SECRET_KEY_ACCESS,
-    SECRET_KEY_REFRESH,
-    SECRET_KEY_FORGET_PASSWORD,
-    SECRET_KEY_FORGET_PASSWORD_ACCESS,
-    BASE_URL,
-    NODEMAILER_PASSWORD,
-    NODEMAILER_USER,
-}
+  PORT,
+  SECRET_KEY_ACCESS,
+  SECRET_KEY_REFRESH,
+  SECRET_KEY_FORGET_PASSWORD,
+  SECRET_KEY_FORGET_PASSWORD_ACCESS,
+  BASE_URL,
+  NODEMAILER_PASSWORD,
+  NODEMAILER_USER,
+};
