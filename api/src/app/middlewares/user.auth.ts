@@ -3,8 +3,8 @@ import { verify } from 'jsonwebtoken'
 import type { UserType } from '../../models/user.model'
 import {
     SECRET_KEY_ACCESS,
-    SECRET_KEY_FORGET_PASSWORD,
     SECRET_KEY_REFRESH,
+    SECRET_KEY_FORGET_PASSWORD_ACCESS,
 } from '../../configs/env'
 
 class UserAuth {
@@ -34,7 +34,10 @@ class UserAuth {
         try {
             const token =
                 req.headers.authorization?.replace('Bearer ', '') || ''
-            req.user = verify(token, SECRET_KEY_FORGET_PASSWORD) as UserType // { id: string }
+            req.user = verify(
+                token,
+                SECRET_KEY_FORGET_PASSWORD_ACCESS
+            ) as UserType // { username: string }
             next()
         } catch (error) {
             next(error)

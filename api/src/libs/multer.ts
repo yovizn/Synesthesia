@@ -1,22 +1,18 @@
-import multer, { type FileFilterCallback } from 'multer'
+import multer from 'multer'
 import { join } from 'path'
 import { type Request } from 'express'
 import type { DestinationCb, FilenameCb } from '../models/multer.model'
 
-const maxSize = 1048576
+const maxSize = 1024 * 1024 * 2
 
 const multerConfig: multer.Options = {
-    fileFilter: (
-        req,
-        file,
-        cb
-    ) => {
+    fileFilter: (req, file, cb) => {
         if (file.mimetype.split('/')[0] !== 'image') {
             return cb(new Error("file type isn't image"))
         }
         const fileSize = parseInt(req.headers['content-length'] || '')
         if (fileSize > maxSize) {
-            return cb(new Error('max size 1mb'))
+            return cb(new Error('Max size 2mb'))
         }
         return cb(null, true)
     },

@@ -1,33 +1,41 @@
-import LoginForm from '@/components/form/Login'
+import LoginForm from '@/components/form/login'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 
 export default function LoginPage() {
   return (
     <main className="flex h-screen w-full flex-col justify-center gap-6 px-16">
       <section className="w-full space-y-16 text-center">
-        <div className="space-y-2">
-          <h1 className="text-balance text-3xl font-medium uppercase md:text-6xl">Welcome to Synesthesia</h1>
-          <p className="text-balance">Let&apos;s sign in and explore you&apos;re journey</p>
-        </div>
+        <Card
+          about="Synesthesia login page"
+          className="mx-auto w-full max-w-[380px] md:max-w-[680px]"
+        >
+          <CardHeader className="space-y-4">
+            <CardTitle className="text-balance text-3xl font-medium md:text-5xl">Welcome to Synesthesia</CardTitle>
+            <CardDescription className="text-balance">
+              Let&apos;s login and explore you&apos;re journey
+            </CardDescription>
+            <span className="block">OR</span>
+            <Button asChild variant={'secondary'}>
+              <Link href="/auth/register">Create your account</Link>
+            </Button>
+          </CardHeader>
 
-        <LoginForm />
+          <CardContent>
+            <LoginForm />
+          </CardContent>
+
+          <CardFooter>
+            <Link
+              href="/auth/forget-password"
+              className="block w-fit text-start text-muted-foreground transition-colors duration-200 hover:text-foreground"
+            >
+              Forget your password?
+            </Link>
+          </CardFooter>
+        </Card>
       </section>
-
-      <div className="flex w-full items-center justify-between">
-        <Link
-          href="/auth/register"
-          className="w-fit text-muted-foreground transition-colors duration-200 hover:text-foreground"
-        >
-          Don&apos;t have an account?
-        </Link>
-
-        <Link
-          href="/auth/forget-password"
-          className="w-fit text-muted-foreground transition-colors duration-200 hover:text-foreground"
-        >
-          Forget your password?
-        </Link>
-      </div>
     </main>
   )
 }

@@ -57,7 +57,7 @@ export default function EmailForm() {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4"
+      className="space-y-6"
     >
       <span className="block text-destructive">{errors.email?.message}</span>
       <Input
@@ -65,11 +65,13 @@ export default function EmailForm() {
         name="email"
         type="text"
         placeholder="Email"
+        disabled={isSubmitting}
       />
 
       <Button
         type="submit"
         disabled={isSubmitting}
+        className="w-full"
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
@@ -77,7 +79,7 @@ export default function EmailForm() {
             <span className="block">Loading</span>
           </span>
         ) : (
-          <span>Forget password</span>
+          <span>Enter your email</span>
         )}
       </Button>
     </form>

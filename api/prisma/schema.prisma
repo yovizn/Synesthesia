@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id          String    @id
-  avatar      Bytes?    @db.LongBlob
+  imageId     String?
   firstname   String
   lastname    String
   username    String    @unique
@@ -28,13 +28,14 @@ model User {
   referral    String    @unique
   referrance  String?
   point       Int       @default(0)
-  phoneNumber String?
-  expPoint    DateTime?
+  phoneNumber String?   @map("phone_number")
+  expPoint    DateTime? @map("exp_point")
   isVerified  Boolean   @default(false)
   isDelete    Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  image       Image?        @relation(fields: [imageId], references: [id])
   Promotor    Promotor[]
   Review      Review[]
   Transaction Transaction[]
@@ -45,28 +46,45 @@ model User {
 }
 
 model Promotor {
-  id           String   @id
-  avatar       Bytes?   @db.LongBlob
-  userId       String
-  promotorName String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String   @id
+  promotorImageId     String?
+  userId              String
+  promotorName        String   @unique
+  promotorDescription String?
+  balance             Decimal  @default(0) @db.Decimal(18, 2)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  user  User    @relation(fields: [userId], references: [id])
-  Event Event[]
+  promotorImage Image?  @relation(fields: [promotorImageId], references: [id])
+  user          User    @relation(fields: [userId], references: [id])
+  Event         Event[]
 
   @@map("promotors")
+}
+
+model Image {
+  id        String   @id
+  blob      Bytes    @db.LongBlob
+  name      String?  @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  User     User[]
+  Promotor Promotor[]
+
+  @@map("images")
 }
 
 model Event {
   id          String    @id
   promotorId  String
-  slug        String    @unique
-  title       String
-  price       Decimal   @db.Decimal(18, 2)
-  priceVip    Decimal   @map("price_vip") @db.Decimal(18, 2)
-  startAt     DateTime
-  endAt       DateTime
+
+  slug        String
+  title       String   @unique
+  price       Decimal  @db.Decimal(18, 2)
+  priceVip    Decimal  @map("price_vip") @db.Decimal(18, 2)
+  startAt     DateTime @map("start_at")
+  endAt       DateTime @map("end_at")
   location    String?
   description String?
   createdAt   DateTime  @default(now())

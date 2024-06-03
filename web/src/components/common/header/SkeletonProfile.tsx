@@ -1,15 +1,17 @@
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function SkeletonProfile() {
   return (
-    <div className="flex items-center gap-6">
-      <div className="flex gap-4">
-        <Skeleton className="block size-9 rounded-[50%]" />
-        <div className="flex flex-col gap-2 md:w-[119px]">
-          <Skeleton className="block w-full h-4" />
-          <Skeleton className="block w-full h-4" />
-        </div>
+    <Button
+      className="flex space-x-4 py-7"
+      variant={'ghost'}
+    >
+      <div className="md:w-[119px] space-y-1.5">
+        <Skeleton className="block h-3 w-full" />
+        <Skeleton className="block h-3 w-full" />
       </div>
-    </div>
+      <Skeleton className="size-[50px] rounded-[50%]" />
+    </Button>
   )
 }

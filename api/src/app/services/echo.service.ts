@@ -45,12 +45,10 @@ class EchosService {
                     where: { OR: [{ email }, { username }] },
                     select: { id: true },
                 })
-
                 if (checkUser?.id)
                     throw new Error('Username or Email is already exist', {
                         cause: 'The provided username or email address is already associated with an existing account in the system.',
                     })
-
                 if (referrance) {
                     const checkReferral = await prisma.user.findFirst({
                         where: {
@@ -62,7 +60,6 @@ class EchosService {
                             expPoint: true,
                         },
                     })
-
                     if (!checkReferral)
                         throw new Error(
                             'Invalid referral code. Please check and try again. ',
@@ -70,9 +67,7 @@ class EchosService {
                                 cause: 'The referral code provided does not match the expected format or is incorrect.',
                             }
                         )
-
                     const newExpDate = add(new Date(), { months: 3 })
-
                     await prisma.user.update({
                         where: { id: checkReferral.id },
                         data: {
@@ -84,7 +79,6 @@ class EchosService {
                         },
                     })
                 }
-
                 const hashPass = await hashPassword(password)
                 const referral = generateReferral(1).toUpperCase()
                 const data: Prisma.UserCreateInput = {
@@ -99,24 +93,34 @@ class EchosService {
                     gender,
                 }
 
-                if (file) {
-                    const avatar = await sharp(file.buffer).png().toBuffer()
-                    data.avatar = avatar
-                }
                 const token = sign({ id: data.id }, SECRET_KEY_ACCESS, {
                     expiresIn: '15m',
                 })
+                const path = verifyEmailPath
                 const baseUrl = BASE_URL
                 const { html } = emailTemplate({
                     firstname,
                     lastname,
                     token,
                     baseUrl,
-                    path: verifyEmailPath,
+                    path,
                 })
 
                 await prisma.user.create({ data })
-
+                if (file) {
+                    const blob = await sharp(file.buffer).webp().toBuffer()
+                    const image: Prisma.ImageCreateInput = {
+                        id: nanoid(),
+                        blob,
+                    }
+                    await prisma.image.create({
+                        data: image,
+                    })
+                    await prisma.user.update({
+                        where: { id: data.id },
+                        data: { imageId: image.id },
+                    })
+                }
                 await transpoter.sendMail({
                     from: NODEMAILER_USER,
                     to: data.email,
@@ -135,44 +139,57 @@ class EchosService {
     async registerValidation(req: Request) {
         const { token } = req.params
         const value = verify(token, SECRET_KEY_ACCESS) as { id: string }
-        await prisma.$transaction(async () => {
-            const chechReferral = await prisma.user.findFirst({
-                where: { id: value.id },
-                select: { referrance: true },
-            })
-
-            if (chechReferral?.referrance) {
-                await prisma.voucher.create({
-                    data: { id: nanoid(), userId: value.id },
+        await prisma.$transaction(
+            async () => {
+                const chechReferral = await prisma.user.findFirst({
+                    where: { id: value.id },
+                    select: { referrance: true },
                 })
+
+                if (chechReferral?.referrance) {
+                    await prisma.voucher.create({
+                        data: { id: nanoid(), userId: value.id },
+                    })
+                }
+                await prisma.user.update({
+                    where: { id: value.id },
+                    data: { isVerified: true },
+                })
+            },
+            {
+                maxWait: 5000,
+                timeout: 10000,
+                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
             }
-            await prisma.user.update({
-                where: { id: value.id },
-                data: { isVerified: true },
-            })
-        })
+        )
     }
 
     async login(req: Request) {
         const { username_email, password } = req.body
         const select: Prisma.UserSelect = {
             id: true,
+            imageId: true,
             firstname: true,
             lastname: true,
             username: true,
-            address: true,
-            birth: true,
-            avatar: true,
             email: true,
-            gender: true,
-            point: true,
-            expPoint: true,
-            phoneNumber: true,
-            referral: true,
             password: true,
+            birth: true,
+            gender: true,
+            address: true,
+            referral: true,
+            referrance: true,
+            point: true,
+            phoneNumber: true,
+            expPoint: true,
             isVerified: true,
-            _count: {
-                select: { Transaction: true },
+            isDelete: true,
+            createdAt: true,
+            updatedAt: true,
+            image: {
+                select: {
+                    name: true,
+                },
             },
         }
         const data: UserType = await prisma.user.findFirst({
@@ -215,6 +232,10 @@ class EchosService {
             })
         }
 
+        delete data.isVerified
+        delete data.isDelete
+        delete data.createdAt
+        delete data.updatedAt
         delete data.password
         const access_token = createToken(data, SECRET_KEY_ACCESS, '15m')
         const refresh_token = createToken(
@@ -227,9 +248,9 @@ class EchosService {
     }
 
     async keepLogin(req: Request) {
-        const select: Prisma.UserSelectScalar = {
+        const select: Prisma.UserSelect = {
             id: true,
-            avatar: true,
+            imageId: true,
             firstname: true,
             lastname: true,
             username: true,
@@ -238,9 +259,15 @@ class EchosService {
             gender: true,
             address: true,
             referral: true,
+            referrance: true,
             point: true,
             phoneNumber: true,
             expPoint: true,
+            image: {
+                select: {
+                    name: true,
+                },
+            },
         }
 
         return await prisma.$transaction(async () => {
@@ -265,43 +292,6 @@ class EchosService {
         })
     }
 
-    async getAvatarById(req: Request) {
-        const { id } = req.params
-
-        const user = await prisma.user.findUnique({
-            where: { id },
-            select: { avatar: true },
-        })
-
-        return user?.avatar
-    }
-
-    async editPassword(req: Request) {
-        await prisma.$transaction(async () => {
-            const { username } = req.params
-            const { new_assword, password } = req.body
-            const user = await prisma.user.findFirst({
-                where: { username },
-                select: { password },
-            })
-
-            const checkPassword = await comparePassword(
-                user?.password!,
-                password
-            )
-
-            if (!checkPassword)
-                throw new Error('Wrong password', {
-                    cause: 'Invalid your current password',
-                })
-
-            await prisma.user.update({
-                where: { username },
-                data: { password: await hashPassword(new_assword) },
-            })
-        })
-    }
-
     async editUser(req: Request) {
         const params = req.params.username
         const {
@@ -309,61 +299,57 @@ class EchosService {
             lastname,
             username,
             email,
-            address,
+            password,
             birth,
+            address,
             phoneNumber,
         } = req.body as User
-        const { file } = req
-        await prisma.$transaction(async () => {
-            const data: Prisma.UserUpdateInput = {
-                firstname,
-                lastname,
-                username,
-                email,
-                address,
-                birth,
-                phoneNumber,
+        const { file } = req // avatar: imageId
+        await prisma.$transaction(
+            async (prisma) => {
+                const data: Prisma.UserUpdateInput = {
+                    ...(firstname && { firstname: firstname }),
+                    ...(lastname && { lastname: lastname }),
+                    ...(username && { username: username }),
+                    ...(email && { email: email }),
+                    ...(password && { password: await hashPassword(password) }),
+                    ...(birth && { birth: birth }),
+                    ...(address && { address: address }),
+                    ...(phoneNumber && { phoneNumber: phoneNumber }),
+                }
+                const user = await prisma.user.update({
+                    data,
+                    where: { username: params },
+                })
+
+                if (file) {
+                    const blob = await sharp(file.buffer).webp().toBuffer()
+                    const name = file.fieldname + new Date()
+                    await prisma.image.update({
+                        data: { blob, name },
+                        where: { id: user.imageId! },
+                    })
+                }
+            },
+            {
+                maxWait: 5000,
+                timeout: 10000,
+                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
             }
-
-            if (file) {
-                const avatar = await sharp(file.buffer).png().toBuffer()
-                data.avatar = avatar
-            }
-
-            await prisma.user.update({
-                data,
-                where: { username: params },
-            })
-        })
-    }
-
-    async forgetPassword(req: Request) {
-        const { token } = req.params
-        const id = verify(token, SECRET_KEY_REFRESH)
-    }
-
-    async validationForgetPassword(req: Request) {
-        const user = await prisma.user.findFirst({
-            where: { id: req.user?.id },
-            select: { username: true },
-        })
-
-        if (!user) throw new Error('Invalid User')
-
-        const token = sign(
-            { username: user.username },
-            SECRET_KEY_FORGET_PASSWORD_ACCESS,
-            { expiresIn: '20m' }
         )
-
-        return { token }
     }
 
     async validationEmail(req: Request) {
         const { email } = req.body
         const user = await prisma.user.findFirst({
             where: { email },
-            select: { id: true, email: true, firstname: true, lastname: true },
+            select: {
+                id: true,
+                email: true,
+                firstname: true,
+                lastname: true,
+                username: true,
+            },
         })
 
         if (!user)
@@ -375,11 +361,19 @@ class EchosService {
             expiresIn: '15m',
         })
 
+        const token_access = sign(
+            { username: user.username },
+            SECRET_KEY_FORGET_PASSWORD_ACCESS,
+            {
+                expiresIn: '15m',
+            }
+        )
+
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
             firstname: user.firstname,
             lastname: user.lastname,
-            token,
+            token: token_access,
             path: verifyForgetEmailPath,
         })
 
@@ -390,7 +384,30 @@ class EchosService {
             html,
         })
 
-        return { token }
+        return { token } // { id: string }
+    }
+
+    async forgetPassword(req: Request) {
+        const { token } = req.params
+        const { password } = req.body
+        const username = req.user?.username
+        const { id } = verify(token, SECRET_KEY_FORGET_PASSWORD) as {
+            id: string
+        }
+        await prisma.$transaction(
+            async () => {
+                const newPassword = await hashPassword(password)
+                await prisma.user.update({
+                    where: { id, username },
+                    data: { password: newPassword },
+                })
+            },
+            {
+                maxWait: 5000,
+                timeout: 10000,
+                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+            }
+        )
     }
 }
 
