@@ -1,14 +1,15 @@
-import { Router } from 'express'
-import echoController from '../controllers/echo.controller'
-import userAuth from '../middlewares/user.auth'
-import { blobUploader } from '../../libs/multer'
+import { Router } from "express";
+import echoController from "../controllers/echo.controller";
+import userAuth from "../middlewares/user.auth";
+import { blobUploader } from "../../libs/multer";
 
 class EchosRouter {
-    private router: Router
-    constructor() {
-        this.router = Router()
-        this.initializedRoutes()
-    }
+  private router: Router;
+  constructor() {
+    this.router = Router();
+    this.initializedRoutes();
+  }
+
 
     private initializedRoutes() {
         // [x] Feature register
@@ -44,9 +45,10 @@ class EchosRouter {
         // this.router.get('/avatars/:id', echoController.getAvatarById)
     }
 
-    public getRouter() {
-        return this.router
-    }
+
+  public getRouter() {
+    return this.router;
+  }
 }
 
-export default new EchosRouter()
+export default new EchosRouter();
