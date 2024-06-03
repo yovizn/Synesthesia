@@ -60,35 +60,13 @@ class EchoController {
         }
     }
 
-    async getAvatarById(req: Request, res: Response, next: NextFunction) {
-        try {
-            const avatar = await echoService.getAvatarById(req)
-            res.set('Content-type', 'image/png')
-            res.send(avatar)
-        } catch (error) {
-            console.log('test')
-            next(error)
-        }
-    }
-
     async editUser(req: Request, res: Response, next: NextFunction) {
         try {
             await echoService.editUser(req)
             res.send({
-                title: '',
+                title: 'Successfully edit your profile',
                 description: '',
-            })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    async editPassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            await echoService.editPassword(req)
-            res.send({
-                title: 'Your password has been changed',
-                description: 'successfully changing password',
+                // message:"halo"
             })
         } catch (error) {
             next(error)
@@ -121,6 +99,29 @@ class EchoController {
             next(error)
         }
     }
+
+    /* async getAvatarById(req: Request, res: Response, next: NextFunction) {
+        try {
+            const avatar = await echoService.getAvatarById(req)
+            res.set('Content-type', 'image/png')
+            res.send(avatar)
+        } catch (error) {
+            console.log('test')
+            next(error)
+        }
+    } */
+
+    /* async editPassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            await echoService.editPassword(req)
+            res.send({
+                title: 'Your password has been changed',
+                description: 'successfully changing password',
+            })
+        } catch (error) {
+            next(error)
+        }
+    } */
 }
 
 export default new EchoController()

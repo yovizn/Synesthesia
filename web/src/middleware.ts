@@ -1,5 +1,3 @@
-'use server'
-
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { ValidateType } from './types/validate.type'
@@ -26,17 +24,18 @@ export async function middleware(request: NextRequest) {
 
   const isValidUser = user.title && accessToken
   const isLoginUser =
-    request.nextUrl.pathname === '/auth/login' ||
-    request.nextUrl.pathname === '/auth/register' ||
-    request.nextUrl.pathname === '/auth/forget-password'
-  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard')
+    request.nextUrl.pathname == '/auth/login' ||
+    request.nextUrl.pathname == '/auth/register' ||
+    request.nextUrl.pathname.startsWith('/auth/forget-password')
+  const isProtected =
+    request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/auth/edit')
 
-  if (isDashboard && !isValidUser) return NextResponse.redirect(new URL('/auth/login', request.url))
+  if (isProtected && !isValidUser) return NextResponse.redirect(new URL('/auth/login', request.url))
   if (isValidUser && isLoginUser) return NextResponse.redirect(new URL('/', request.url))
 
   return response
 }
 
 export const config = {
-  matcher: ['/dashboard', '/auth/register', '/auth/login'],
+  matcher: ['/dashboard/:path*', '/auth/register', '/auth/forget-password/:path*', '/auth/login', '/auth/edit/:path*'],
 }

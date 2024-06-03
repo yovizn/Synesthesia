@@ -186,6 +186,11 @@ class EchosService {
             isDelete: true,
             createdAt: true,
             updatedAt: true,
+            image: {
+                select: {
+                    name: true,
+                },
+            },
         }
         const data: UserType = await prisma.user.findFirst({
             where: {
@@ -243,7 +248,7 @@ class EchosService {
     }
 
     async keepLogin(req: Request) {
-        const select: Prisma.UserSelectScalar = {
+        const select: Prisma.UserSelect = {
             id: true,
             imageId: true,
             firstname: true,
@@ -258,6 +263,11 @@ class EchosService {
             point: true,
             phoneNumber: true,
             expPoint: true,
+            image: {
+                select: {
+                    name: true,
+                },
+            },
         }
 
         return await prisma.$transaction(async () => {
@@ -282,39 +292,6 @@ class EchosService {
         })
     }
 
-    async editPassword(req: Request) {
-        await prisma.$transaction(
-            async () => {
-                const { username } = req.params
-                const { new_assword, password } = req.body
-                const user = await prisma.user.findFirst({
-                    where: { username },
-                    select: { password },
-                })
-
-                const checkPassword = await comparePassword(
-                    user?.password!,
-                    password
-                )
-
-                if (!checkPassword)
-                    throw new Error('Wrong password', {
-                        cause: 'Invalid your current password',
-                    })
-
-                await prisma.user.update({
-                    where: { username },
-                    data: { password: await hashPassword(new_assword) },
-                })
-            },
-            {
-                maxWait: 5000,
-                timeout: 10000,
-                isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
-            }
-        )
-    }
-
     async editUser(req: Request) {
         const params = req.params.username
         const {
@@ -322,23 +299,24 @@ class EchosService {
             lastname,
             username,
             email,
-            address,
+            password,
             birth,
+            address,
             phoneNumber,
         } = req.body as User
-        const { file } = req
+        const { file } = req // avatar: imageId
         await prisma.$transaction(
-            async () => {
+            async (prisma) => {
                 const data: Prisma.UserUpdateInput = {
-                    firstname,
-                    lastname,
-                    username,
-                    email,
-                    address,
-                    birth,
-                    phoneNumber,
+                    ...(firstname && { firstname: firstname }),
+                    ...(lastname && { lastname: lastname }),
+                    ...(username && { username: username }),
+                    ...(email && { email: email }),
+                    ...(password && { password: await hashPassword(password) }),
+                    ...(birth && { birth: birth }),
+                    ...(address && { address: address }),
+                    ...(phoneNumber && { phoneNumber: phoneNumber }),
                 }
-
                 const user = await prisma.user.update({
                     data,
                     where: { username: params },
@@ -346,9 +324,9 @@ class EchosService {
 
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-
+                    const name = file.fieldname + new Date()
                     await prisma.image.update({
-                        data: { blob },
+                        data: { blob, name },
                         where: { id: user.imageId! },
                     })
                 }

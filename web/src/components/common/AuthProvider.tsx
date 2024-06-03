@@ -10,7 +10,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     if (user) setUser(user)
-      console.log(user)
   }, [])
 
   return children
