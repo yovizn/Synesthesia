@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { UserType } from '@/types/user.type'
-import { renderImage } from '@/utils/render'
+import { renderImage } from '@/utils/action/render'
 import placeholder from '@/public/placehorder.jpg'
 
 type user = UserType
@@ -33,10 +33,10 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="space-x-4 py-7"
+            className="group space-x-4 py-7"
           >
-            <span className="block md:w-[119px]">
-              <span className="block w-full truncate text-start font-medium">{user.username}</span>
+            <span className="block text-muted-foreground duration-200 group-hover:text-foreground md:w-[119px]">
+              <span className="block w-full truncate text-start font-medium text-foreground">{user.username}</span>
               <span className="block w-full truncate text-start font-light">{user.firstname}</span>
             </span>
             <Image
@@ -59,7 +59,7 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
 
           <DropdownMenuItem>Transaction</DropdownMenuItem>
 
-          <DropdownMenuItem>Events</DropdownMenuItem>
+          <DropdownMenuItem>Tickets</DropdownMenuItem>
 
           <DropdownMenuItem asChild>
             <Link href={`/auth/edit/${user.username}`}>Settings</Link>

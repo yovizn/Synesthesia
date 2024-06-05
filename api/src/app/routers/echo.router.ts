@@ -1,15 +1,14 @@
-import { Router } from "express";
-import echoController from "../controllers/echo.controller";
-import userAuth from "../middlewares/user.auth";
-import { blobUploader } from "../../libs/multer";
+import { Router } from 'express'
+import echoController from '../controllers/echo.controller'
+import userAuth from '../middlewares/user.auth'
+import { blobUploader } from '../../libs/multer'
 
 class EchosRouter {
-  private router: Router;
-  constructor() {
-    this.router = Router();
-    this.initializedRoutes();
-  }
-
+    private router: Router
+    constructor() {
+        this.router = Router()
+        this.initializedRoutes()
+    }
 
     private initializedRoutes() {
         // [x] Feature register
@@ -29,11 +28,11 @@ class EchosRouter {
             '/v2/:username',
             userAuth.accesToken,
             blobUploader().single('avatar'),
-            blobUploader().array("images",3),
             echoController.editUser
         )
 
         // [x] Feature forget password
+        this.router.get('/validations/:username', echoController.getForgetUser)
         this.router.post('/validations', echoController.validationEmail)
         this.router.post(
             '/validations/:token',
@@ -45,10 +44,9 @@ class EchosRouter {
         // this.router.get('/avatars/:id', echoController.getAvatarById)
     }
 
-
-  public getRouter() {
-    return this.router;
-  }
+    public getRouter() {
+        return this.router
+    }
 }
 
-export default new EchosRouter();
+export default new EchosRouter()

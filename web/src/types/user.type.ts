@@ -17,7 +17,14 @@ type UserType = {
     | {
         name: string
       }
-    | undefined
+    | null
+  Promotor: {
+    id: string
+    promotorName: string
+    promotorDescription: string | null
+    promotorImage: { name: string | null } | null
+    balance: number
+  } | null
 }
 
 export { type UserType }
