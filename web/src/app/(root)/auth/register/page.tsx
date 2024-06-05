@@ -5,7 +5,7 @@ import Link from 'next/link'
 export default function RegisterPage() {
   return (
     <main className="min-h-screen w-full">
-      <section className="py-24">
+      <section className="py-24 px-6">
         <Card className="mx-auto w-full max-w-screen-sm bg-secondary">
           <CardHeader>
             <CardTitle className="text-3xl font-semibold">Create your account</CardTitle>

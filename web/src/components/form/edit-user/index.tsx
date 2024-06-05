@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { AxiosError } from 'axios'
 
@@ -16,8 +15,7 @@ import { toast } from '@/components/ui/use-toast'
 import { Input } from '@/components/ui/input'
 import { editUserAciton } from '@/utils/action/editUserAction'
 import { renderImage } from '@/utils/action/render'
-import { redirect, useRouter } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
+import { useRouter } from 'next/navigation'
 import { setCookie } from 'cookies-next'
 
 export default function EditUserForm({ params }: { params: { username: string } }) {
@@ -58,16 +56,16 @@ export default function EditUserForm({ params }: { params: { username: string } 
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className='space-y-5'
       >
-        <div className="flex flex-col items-center justify-center">
+        <div className='mx-auto w-fit md:mx-0'>
           <FormField
             control={form.control}
             name="avatar"
             render={({ field: { value, ...fieldValues } }) => {
               return (
                 <FormItem>
-                  <FormLabel className="mx-auto flex flex-col items-center justify-center">
+                  <FormLabel>
                     <Image
                       src={form.getValues('avatar') ? window.URL.createObjectURL(form.getValues('avatar')!) : source}
                       alt="Profile Image"
@@ -75,7 +73,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
                       height={160}
                       className="aspect-square rounded-full object-cover"
                     />
-                    Change profile
+                    <span></span>
                   </FormLabel>
 
                   <FormControl>

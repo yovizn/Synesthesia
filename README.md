@@ -13,7 +13,7 @@ This project was initial repo for synesthesia.
 - [ ] Authenticaion and protect routes.
 - [x] Create Register and Login User.
 - [x] Generate points after user.referral used.
-- [ ] Create `Promotor`.
+- [x] Create `Promotor`
 - [x] Create `Referral` expires must be 3 months after user.referral has been used.
 - [ ] Create `Dashboard` (list events, attendee registrations, transactions, and basic event statistics)
 - [ ] Create graphs statistication on Dashboard.
