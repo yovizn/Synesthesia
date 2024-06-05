@@ -36,7 +36,7 @@ model User {
   updatedAt   DateTime  @updatedAt
 
   image       Image?        @relation(fields: [imageId], references: [id])
-  Promotor    Promotor[]
+  Promotor    Promotor?
   Review      Review[]
   Transaction Transaction[]
   Voucher     Voucher[]
@@ -48,7 +48,7 @@ model User {
 model Promotor {
   id                  String   @id
   promotorImageId     String?
-  userId              String
+  userId              String   @unique
   promotorName        String   @unique
   promotorDescription String?
   balance             Decimal  @default(0) @db.Decimal(18, 2)
@@ -76,22 +76,21 @@ model Image {
 }
 
 model Event {
-  id         String @id
-  promotorId String
-
+  id          String    @id
+  promotorId  String
   slug        String
   title       String    @unique
   price       Decimal   @db.Decimal(18, 2)
   priceVip    Decimal   @map("price_vip") @db.Decimal(18, 2)
   startAt     DateTime  @map("start_at")
   endAt       DateTime  @map("end_at")
+  city        String    @db.VarChar(55)
   location    String?
   description String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  city        String    @db.VarChar(55)
-  venueType   VenueType @map("venue_type")
   category    String
+  venueType   VenueType @map("venue_type")
 
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
   Transaction Transaction[]

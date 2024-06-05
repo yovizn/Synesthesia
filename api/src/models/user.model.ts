@@ -1,4 +1,5 @@
-import type { $Enums, User } from "@prisma/client"
+import type { $Enums } from '@prisma/client'
+import type { Decimal } from '@prisma/client/runtime/library'
 
 export type UserType = {
     id: string
@@ -20,6 +21,12 @@ export type UserType = {
     isDelete?: boolean
     createdAt?: Date
     updatedAt?: Date
+    image: { name: string | null } | null
+    Promotor: {
+        id: string
+        promotorName: string
+        promotorDescription: string | null
+        promotorImage: { name: string | null } | null
+        balance: Decimal
+    } | null
 } | null
-
-type u = User

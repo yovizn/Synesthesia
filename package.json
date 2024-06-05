@@ -1,9 +1,20 @@
 {
     "name": "synesthesia",
+    "scripts": {
+        "server": "cd api && bun dev",
+        "client": "cd web && pnpm dev",
+        "studio": "cd api && bun studio",
+        "dev": "concurrently \"bun server\" \"pnpm client\"",
+        "ia": "cd api && bun add",
+        "iw":"cd web && pnpm add"
+    },
     "devDependencies": {
         "@types/bun": "latest"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "concurrently": "^8.2.2"
     }
 }

@@ -1,0 +1,1 @@
+const eventCategory = ['Rock', 'Metal', '']

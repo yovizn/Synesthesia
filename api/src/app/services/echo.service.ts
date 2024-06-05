@@ -109,13 +109,13 @@ class EchosService {
                 await prisma.user.create({ data })
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
+                    const name = file.fieldname + new Date()
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
+                        name,
                     }
-                    await prisma.image.create({
-                        data: image,
-                    })
+                    await prisma.image.create({ data: image })
                     await prisma.user.update({
                         where: { id: data.id },
                         data: { imageId: image.id },
@@ -186,18 +186,23 @@ class EchosService {
             isDelete: true,
             createdAt: true,
             updatedAt: true,
-            image: {
+            image: { select: { name: true } },
+            Promotor: {
                 select: {
-                    name: true,
+                    id: true,
+                    promotorName: true,
+                    promotorDescription: true,
+                    promotorImage: { select: { name: true } },
+                    balance: true,
                 },
             },
         }
-        const data: UserType = await prisma.user.findFirst({
+        const data = (await prisma.user.findFirst({
             where: {
                 OR: [{ username: username_email }, { email: username_email }],
             },
             select,
-        })
+        })) as UserType
 
         if (!data?.password) throw new Error('Wrong Username or Email')
         const checkUser = await comparePassword(data.password, password)
@@ -268,6 +273,15 @@ class EchosService {
                     name: true,
                 },
             },
+            Promotor: {
+                select: {
+                    id: true,
+                    promotorName: true,
+                    promotorDescription: true,
+                    promotorImage: { select: { name: true } },
+                    balance: true,
+                },
+            },
         }
 
         return await prisma.$transaction(async () => {
@@ -299,36 +313,59 @@ class EchosService {
             lastname,
             username,
             email,
-            password,
-            birth,
+            // password,
+            // birth,
             address,
             phoneNumber,
         } = req.body as User
         const { file } = req // avatar: imageId
-        await prisma.$transaction(
+        return await prisma.$transaction(
             async (prisma) => {
                 const data: Prisma.UserUpdateInput = {
                     ...(firstname && { firstname: firstname }),
                     ...(lastname && { lastname: lastname }),
                     ...(username && { username: username }),
                     ...(email && { email: email }),
-                    ...(password && { password: await hashPassword(password) }),
-                    ...(birth && { birth: birth }),
+                    // ...(password && { password: await hashPassword(password) }),
+                    // ...(birth && { birth: birth }),
                     ...(address && { address: address }),
                     ...(phoneNumber && { phoneNumber: phoneNumber }),
                 }
-                const user = await prisma.user.update({
-                    data,
-                    where: { username: params },
-                })
 
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
                     const name = file.fieldname + new Date()
-                    await prisma.image.update({
-                        data: { blob, name },
-                        where: { id: user.imageId! },
+                    const image: Prisma.ImageCreateInput = {
+                        id: nanoid(),
+                        blob,
+                        name,
+                    }
+
+                    if (req.user?.imageId) {
+                        await prisma.image.update({
+                            data: { blob, name },
+                            where: { id: req.user?.imageId! },
+                        })
+                    } else {
+                        await prisma.image.create({
+                            data: { ...image },
+                        })
+                        await prisma.user.update({
+                            where: { id: req.user?.id },
+                            data: { imageId: image.id },
+                        })
+                    }
+
+                    const user = await prisma.user.update({
+                        data,
+                        where: { username: params, id: req.user?.id },
                     })
+
+                    const access_token = sign({ ...user }, SECRET_KEY_ACCESS, {
+                        expiresIn: '15m',
+                    })
+
+                    return access_token
                 }
             },
             {
@@ -408,6 +445,14 @@ class EchosService {
                 isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
             }
         )
+    }
+
+    async getForgetUser(req: Request) {
+        const { username } = req.params
+        return await prisma.user.findFirst({
+            where: { username },
+            select: { username: true, id: true },
+        })
     }
 }
 

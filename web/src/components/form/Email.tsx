@@ -6,7 +6,7 @@ import { Input } from '../ui/input'
 import { EmailFormType, emailFormSchema } from '@/schemas/email-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderCircle } from 'lucide-react'
-import { emailAction } from '@/utils/emailAction'
+import { emailAction } from '@/utils/action/emailAction'
 import { AxiosError } from 'axios'
 import { toast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
@@ -60,28 +60,30 @@ export default function EmailForm() {
       className="space-y-6"
     >
       <span className="block text-destructive">{errors.email?.message}</span>
-      <Input
-        {...register('email')}
-        name="email"
-        type="text"
-        placeholder="Email"
-        disabled={isSubmitting}
-      />
+      <div className="flex flex-col gap-6 sm:flex-row">
+        <Input
+          {...register('email')}
+          name="email"
+          type="text"
+          placeholder="Email"
+          disabled={isSubmitting}
+        />
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full"
-      >
-        {isSubmitting ? (
-          <span className="flex items-center justify-center gap-2">
-            <LoaderCircle className="block size-4 motion-safe:animate-spin" />
-            <span className="block">Loading</span>
-          </span>
-        ) : (
-          <span>Enter your email</span>
-        )}
-      </Button>
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full sm:w-fit"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <LoaderCircle className="block size-4 motion-safe:animate-spin" />
+              <span className="block">Loading</span>
+            </span>
+          ) : (
+            <span>Enter your email</span>
+          )}
+        </Button>
+      </div>
     </form>
   )
 }
