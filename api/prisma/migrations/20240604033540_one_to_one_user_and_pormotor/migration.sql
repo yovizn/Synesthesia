@@ -1,6 +1,7 @@
 -- CreateTable
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
+    `imageId` VARCHAR(191) NULL,
     `firstname` VARCHAR(191) NOT NULL,
     `lastname` VARCHAR(191) NOT NULL,
     `username` VARCHAR(191) NOT NULL,
@@ -11,8 +12,9 @@ CREATE TABLE `users` (
     `address` VARCHAR(191) NULL,
     `referral` VARCHAR(191) NOT NULL,
     `referrance` VARCHAR(191) NULL,
-    `point` INTEGER NOT NULL,
-    `phoneNumber` VARCHAR(191) NULL,
+    `point` INTEGER NOT NULL DEFAULT 0,
+    `phone_number` VARCHAR(191) NULL,
+    `exp_point` DATETIME(3) NULL,
     `isVerified` BOOLEAN NOT NULL DEFAULT false,
     `isDelete` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -28,12 +30,28 @@ CREATE TABLE `users` (
 -- CreateTable
 CREATE TABLE `promotors` (
     `id` VARCHAR(191) NOT NULL,
+    `promotorImageId` VARCHAR(191) NULL,
     `userId` VARCHAR(191) NOT NULL,
     `promotorName` VARCHAR(191) NOT NULL,
+    `promotorDescription` VARCHAR(191) NULL,
+    `balance` DECIMAL(18, 2) NOT NULL DEFAULT 0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `promotors_userId_key`(`userId`),
     UNIQUE INDEX `promotors_promotorName_key`(`promotorName`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `images` (
+    `id` VARCHAR(191) NOT NULL,
+    `blob` LONGBLOB NOT NULL,
+    `name` VARCHAR(191) NULL,
+    `updatedAt` DATETIME(3) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `images_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -41,15 +59,19 @@ CREATE TABLE `promotors` (
 CREATE TABLE `events` (
     `id` VARCHAR(191) NOT NULL,
     `promotorId` VARCHAR(191) NOT NULL,
-    `title` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `price` DECIMAL(18, 2) NOT NULL,
+    `price_vip` DECIMAL(18, 2) NOT NULL,
+    `start_at` DATETIME(3) NOT NULL,
+    `end_at` DATETIME(3) NOT NULL,
+    `city` VARCHAR(55) NOT NULL,
     `location` VARCHAR(191) NULL,
-    `price` INTEGER NOT NULL,
-    `startAt` DATETIME(3) NOT NULL,
-    `endAt` DATETIME(3) NOT NULL,
+    `description` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `category` VARCHAR(191) NOT NULL,
+    `venue_type` ENUM('INDOOR', 'OUTDOOR') NOT NULL,
 
     UNIQUE INDEX `events_title_key`(`title`),
     PRIMARY KEY (`id`)
@@ -66,6 +88,7 @@ CREATE TABLE `transacitons` (
     `discountPoint` DECIMAL(65, 30) NOT NULL DEFAULT 0,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `status` ENUM('UNPAID', 'PENDING', 'SUCCESS') NOT NULL DEFAULT 'PENDING',
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -74,7 +97,7 @@ CREATE TABLE `transacitons` (
 CREATE TABLE `vouchers` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
-    `transactionId` VARCHAR(191) NOT NULL,
+    `transactionId` VARCHAR(191) NULL,
     `isValid` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -106,6 +129,12 @@ CREATE TABLE `reviews` (
 
     PRIMARY KEY (`userId`, `eventId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `users` ADD CONSTRAINT `users_imageId_fkey` FOREIGN KEY (`imageId`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `promotors` ADD CONSTRAINT `promotors_promotorImageId_fkey` FOREIGN KEY (`promotorImageId`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `promotors` ADD CONSTRAINT `promotors_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

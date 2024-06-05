@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Input } from '../ui/input'
-import { registerAction } from '@/utils/registerAction'
+import { registerAction } from '@/utils/action/registerAction'
 import { useToast } from '../ui/use-toast'
 
 import { registerFormSchema, RegisterFormType } from '@/schemas/register-schema'
@@ -93,13 +93,7 @@ export default function RegisterForm() {
                   type="file"
                   className="hidden"
                   disabled={formState.isSubmitting}
-                  onChange={
-                    //   (e) => {
-                    //   const file = e.target.files?.[0]
-                    //   fieldValues.onChange(file)
-                    // }
-                    handleChange
-                  }
+                  onChange={handleChange}
                 />
               </FormControl>
               <FormMessage />
@@ -204,7 +198,7 @@ export default function RegisterForm() {
                       <SelectValue placeholder="Choose your gander" />
                     </FormControl>
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent >
                     <SelectItem value="MALE">Male</SelectItem>
                     <SelectItem value="FEMALE">Female</SelectItem>
                   </SelectContent>
@@ -304,7 +298,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           ref={submitRef}
-          className='hidden'
+          className="hidden"
         >
           Submit
         </button>

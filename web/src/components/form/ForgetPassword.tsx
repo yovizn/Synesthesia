@@ -84,7 +84,7 @@ export default function ForgetPasswordForm({ params }: { params: string }) {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 sm">
         <Label
           htmlFor="confirmPassword"
           className={errors.confirmPassword ? 'text-destructive' : ''}

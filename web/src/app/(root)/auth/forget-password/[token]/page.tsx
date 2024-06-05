@@ -1,4 +1,7 @@
 import ForgetPasswordForm from '@/components/form/ForgetPassword'
+import { API_BASE_URL } from '@/configs/env'
+import { axiosInstance } from '@/lib/axios.config'
+import { UserType } from '@/types/user.type'
 import { JwtPayload, jwtDecode } from 'jwt-decode'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -10,9 +13,18 @@ type ForgetPasswordPageType = {
 }
 
 export default async function ForgetPasswordPage({ params }: ForgetPasswordPageType) {
-  const forget_password_token = cookies().get('forget_password_token')?.value
-  const user = jwtDecode(params.token) as JwtPayload & { username: string }
-  if (!forget_password_token || !user.username) redirect('/auth/login')
+  const forget_password_token = cookies().get('forget_password_token')?.value || ''
+  const user = (await axiosInstance()
+    .get(`${API_BASE_URL}/echos/validations/${params.token}`)
+    .then((res) => res.data)) as UserType
+
+  if (!forget_password_token) redirect('/auth/forget-password')
+  if (forget_password_token) {
+    const decode = jwtDecode(forget_password_token) as UserType
+
+    if (decode.id !== user.id) redirect('/auth/forget-password')
+  }
+  console.log(user)
 
   return (
     <main className="min-h-screen px-6 py-40">

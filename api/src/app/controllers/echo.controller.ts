@@ -62,11 +62,11 @@ class EchoController {
 
     async editUser(req: Request, res: Response, next: NextFunction) {
         try {
-            await echoService.editUser(req)
+            const access_token = await echoService.editUser(req)
             res.send({
                 title: 'Successfully edit your profile',
                 description: '',
-                // message:"halo"
+                access_token
             })
         } catch (error) {
             next(error)
@@ -82,6 +82,15 @@ class EchoController {
                     "We've successfully sent an email to your registered email address for password reset. Please check your inbox and follow the instructions to reset your password. If you don't receive the email within a few minutes, please check your spam folder or try again later.",
                 forget_password_token: token,
             })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    async getForgetUser(req: Request, res: Response, next: NextFunction) {
+        try {
+            const data = await echoService.getForgetUser(req)
+            res.send({ ...data })
         } catch (error) {
             next(error)
         }
