@@ -76,15 +76,15 @@ model Image {
 }
 
 model Event {
-  id          String    @id
-  promotorId  String
+  id         String @id
+  promotorId String
 
   slug        String
-  title       String   @unique
-  price       Decimal  @db.Decimal(18, 2)
-  priceVip    Decimal  @map("price_vip") @db.Decimal(18, 2)
-  startAt     DateTime @map("start_at")
-  endAt       DateTime @map("end_at")
+  title       String    @unique
+  price       Decimal   @db.Decimal(18, 2)
+  priceVip    Decimal   @map("price_vip") @db.Decimal(18, 2)
+  startAt     DateTime  @map("start_at")
+  endAt       DateTime  @map("end_at")
   location    String?
   description String?
   createdAt   DateTime  @default(now())
