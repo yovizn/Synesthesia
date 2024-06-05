@@ -2,62 +2,50 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { AxiosError } from 'axios'
 
-import useAuthProvider from '@/stores/auth-provider'
 import ButtonSubmit from '@/components/ui/button-submit'
 import placeholder from '@/public/placehorder.jpg'
+import { useAuthProvider } from '@/components/common/AuthProvider'
 
 import { EditUserFormType, editUserFormSchema } from '@/schemas/edit-user-schema'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../ui/form'
 import { toast } from '@/components/ui/use-toast'
 import { Input } from '@/components/ui/input'
-import { editUserAciton } from '@/utils/editUserAction'
-import { renderImage } from '@/utils/render'
+import { editUserAciton } from '@/utils/action/editUserAction'
+import { renderImage } from '@/utils/action/render'
 import { useRouter } from 'next/navigation'
+import { setCookie } from 'cookies-next'
 
 export default function EditUserForm({ params }: { params: { username: string } }) {
-  const user = useAuthProvider((state) => state.user)
+  const { user } = useAuthProvider((state) => state)
   const router = useRouter()
-  const source = renderImage.webp(user.image?.name!) || placeholder
+  const source = user.image?.name ? renderImage.webp(user.image?.name!) : placeholder
   const form = useForm<EditUserFormType>({
     resolver: zodResolver(editUserFormSchema),
-    defaultValues: {
-      firstname: user.firstname,
-      lastname: user.lastname,
-      username: user.username,
-      email: user.email,
-      address: user.address,
-      phoneNumber: user.phoneNumber,
-    },
-    mode: 'onChange',
   })
-  useEffect(() => {
-    if (user)
-      Object.entries(user).forEach(([key, value]) => {
-        form.setValue(
-          key as 'firstname' | 'lastname' | 'username' | 'email' | 'address' | 'phoneNumber',
-          value as 'string | number | Date | undefined',
-        )
-      })
-  }, [user])
 
   const onSubmit = async (payload: EditUserFormType) => {
     try {
-      const submit = await editUserAciton(payload, params.username)
+      const submit = await editUserAciton(payload, params.username).then(async (res) => {
+        const token = await res.data.access_token
+        setCookie('access_token', token)
+        return res
+      })
+
       toast({
         title: submit.data.title,
         description: submit.data.description,
       })
-      window.location.reload()
-      router.push('/')
+
+      router.back()
     } catch (error) {
+      console.log(error)
       if (error instanceof AxiosError) {
         toast({
           variant: 'destructive',
-          title: error.response?.data.title,
+          title: error.response?.data.message,
           description: error.response?.data.cause,
         })
       }
@@ -68,16 +56,16 @@ export default function EditUserForm({ params }: { params: { username: string } 
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className='space-y-5'
       >
-        <div className="flex flex-col items-center justify-center">
+        <div className='mx-auto w-fit md:mx-0'>
           <FormField
             control={form.control}
             name="avatar"
             render={({ field: { value, ...fieldValues } }) => {
               return (
                 <FormItem>
-                  <FormLabel className="mx-auto flex flex-col items-center justify-center">
+                  <FormLabel>
                     <Image
                       src={form.getValues('avatar') ? window.URL.createObjectURL(form.getValues('avatar')!) : source}
                       alt="Profile Image"
@@ -85,7 +73,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
                       height={160}
                       className="aspect-square rounded-full object-cover"
                     />
-                    Change profile
+                    <span></span>
                   </FormLabel>
 
                   <FormControl>
@@ -96,8 +84,6 @@ export default function EditUserForm({ params }: { params: { username: string } 
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0]
-                        console.log(file)
-
                         fieldValues.onChange(file)
                       }}
                     />
@@ -117,6 +103,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Firstname</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.firstname && user.firstname}
                   placeholder={user.firstname || 'Firstname'}
                   {...field}
                 />
@@ -134,6 +121,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Lastname</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.lastname && user.lastname}
                   placeholder={user.lastname || 'Lastname'}
                   {...field}
                 />
@@ -151,6 +139,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.username && user.username}
                   placeholder={user.username || 'Username'}
                   {...field}
                 />
@@ -168,6 +157,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.email && user.email}
                   placeholder={user.email || 'Email'}
                   {...field}
                 />
@@ -185,6 +175,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Address</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.address && user.address}
                   placeholder={user.address || 'Address'}
                   {...field}
                 />
@@ -202,6 +193,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
               <FormLabel>Phone number</FormLabel>
               <FormControl>
                 <Input
+                  defaultValue={user.phoneNumber && user.phoneNumber}
                   placeholder={user.phoneNumber || 'Phone Number'}
                   {...field}
                 />

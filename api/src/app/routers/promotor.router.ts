@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import userAuth from '../middlewares/user.auth'
 import promotorController from '../controllers/promotor.controller'
+import { blobUploader } from '../../libs/multer'
 
 class PromotorRouter {
     private router
@@ -10,9 +11,15 @@ class PromotorRouter {
     }
 
     private initializedRoutes() {
+        this.router.get(
+            '/v1',
+            userAuth.accesToken,
+            promotorController.getPromotor
+        )
         this.router.post(
-            '/',
-            userAuth.refreshToken,
+            '/v1',
+            userAuth.accesToken,
+            blobUploader().single('avatar'),
             promotorController.register
         )
     }

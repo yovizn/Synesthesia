@@ -2,10 +2,11 @@ import type { NextFunction, Request, Response } from 'express'
 import { verify } from 'jsonwebtoken'
 import type { UserType } from '../../models/user.model'
 import {
-    SECRET_KEY_ACCESS,
     SECRET_KEY_REFRESH,
     SECRET_KEY_FORGET_PASSWORD_ACCESS,
+    SECRET_KEY_ACCESS,
 } from '../../configs/env'
+import { prisma } from '../../libs/prisma'
 
 class UserAuth {
     async accesToken(req: Request, res: Response, next: NextFunction) {

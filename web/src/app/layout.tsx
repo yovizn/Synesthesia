@@ -1,13 +1,12 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 
+import { Toaster } from '@/components/ui/toaster'
+import { ThemeProvider } from '@/components/common/ThemeProvider'
 import LenisWrapper from '@/components/common/LenisWrapper'
-import Header from '@/components/common/header/Header'
+import AuthProvider from '@/components/common/AuthProvider'
 
 import './globals.css'
-import { ThemeProvider } from '@/components/common/ThemeProvider'
-import { Toaster } from '@/components/ui/toaster'
-import AuthProvider from '@/components/common/AuthProvider'
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +24,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      suppressHydrationWarning
+      suppressHydrationWarning={true}
     >
       <body className={GeistSans.className}>
         <ThemeProvider
@@ -36,7 +35,6 @@ export default function RootLayout({
           storageKey="theme"
         >
           <AuthProvider>
-            <Header />
             <LenisWrapper>{children}</LenisWrapper>
             <Toaster />
           </AuthProvider>

@@ -1,3 +1,23 @@
+import type { Request } from 'express'
+import { prisma } from '../../libs/prisma'
+
+class EventServices {
+    async getEvent(req: Request) {
+        const { promotor } = req.params
+        const promotorId = promotor
+        const data = await prisma.event.findFirst({
+            where: { promotorId },
+        })
+    }
+
+    async createEvent(req: Request) {
+      const {} = req.params
+      const {} = req.body
+    }
+}
+
+export default new EventServices()
+
 // import { Request } from "express";
 
 // import { throwError, validator } from "../utils/validator";
