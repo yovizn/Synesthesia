@@ -18,7 +18,7 @@ model User {
   id          String    @id
   imageId     String?
   firstname   String
-  lastname    String
+  lastname    String?
   username    String    @unique
   email       String    @unique
   password    String
@@ -55,7 +55,7 @@ model Promotor {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  promotorImage Image?  @relation(fields: [promotorImageId], references: [id])
+  promotorImage Image?  @relation(fields: [promotorImageId], references: [id], onDelete: Restrict)
   user          User    @relation(fields: [userId], references: [id])
   Event         Event[]
 

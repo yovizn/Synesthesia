@@ -1,3 +1,4 @@
+import HeaderDashboard from '@/components/common/dashboard/header'
 import { ReactNode } from 'react'
 
 export const metadata = {

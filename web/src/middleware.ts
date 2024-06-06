@@ -64,6 +64,7 @@ export async function middleware(request: NextRequest) {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
+    next: { revalidate: 60 },
   }).then(async (res: Response) => {
     const data: ValidateType = await res.json()
     if (data.access_token) {
