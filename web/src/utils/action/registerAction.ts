@@ -1,5 +1,3 @@
-'use server'
-
 import { axiosInstance } from '@/lib/axios.config'
 import { RegisterFormType } from '@/schemas/register-schema'
 
