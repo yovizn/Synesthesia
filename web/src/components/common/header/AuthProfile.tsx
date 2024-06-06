@@ -33,11 +33,11 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="group space-x-4 py-7"
+            className="group md:space-x-4 py-7"
           >
-            <span className="block text-muted-foreground duration-200 group-hover:text-foreground md:w-[119px]">
-              <span className="block w-full truncate text-start font-medium text-foreground">{user.username}</span>
-              <span className="block w-full truncate text-start font-light">{user.firstname}</span>
+            <span className="hidden text-muted-foreground duration-200 group-hover:text-foreground sm:block md:w-[119px]">
+              <span className="hidden md:block w-full truncate text-start font-medium text-foreground">{user.username}</span>
+              <span className="hidden md:block w-full truncate text-start font-light">{user.firstname}</span>
             </span>
             <Image
               src={user.image?.name ? renderImage.webp(user.image?.name!) : placeholder}
@@ -59,10 +59,12 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
 
           <DropdownMenuItem>Transaction</DropdownMenuItem>
 
-          <DropdownMenuItem>Tickets</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/auth/user/${user.username}/tickets`}>Tickets</Link>
+          </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
-            <Link href={`/auth/edit/${user.username}`}>Settings</Link>
+            <Link href={`/auth/user/${user.username}/settings`}>Settings</Link>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />

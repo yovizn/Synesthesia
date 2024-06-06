@@ -64,7 +64,10 @@ class PromotorService {
 
             if (file) {
                 const blob = await sharp(file.buffer).webp().toBuffer()
-                const name = file.fieldname + new Date()
+                const name = (file.fieldname + nanoid(15))
+                    .toLocaleLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/[^\w-]+/g, '')
                 const image: Prisma.ImageCreateInput = {
                     id: nanoid(),
                     blob,
@@ -96,6 +99,7 @@ class PromotorService {
             promotorDescription: true,
             balance: true,
             promotorImage: { select: { name: true } },
+            Event: { select: { id: true } },
         }
 
         return await prisma.promotor.findFirst({

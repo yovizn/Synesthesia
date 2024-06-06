@@ -12,6 +12,7 @@ class EchoController {
                     'Please check your email inbox for further access.',
             })
         } catch (error) {
+            console.log(error)
             next(error)
         }
     }
