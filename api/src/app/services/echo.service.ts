@@ -100,7 +100,7 @@ class EchosService {
                 const baseUrl = BASE_URL
                 const { html } = emailTemplate({
                     firstname,
-                    lastname,
+                    ...(lastname ? { lastname } : { lastname: '' }),
                     token,
                     baseUrl,
                     path,
@@ -109,7 +109,10 @@ class EchosService {
                 await prisma.user.create({ data })
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-                    const name = file.fieldname + new Date()
+                    const name = (file.fieldname + nanoid(15))
+                        .toLocaleLowerCase()
+                        .replace(/ /g, '-')
+                        .replace(/[^\w-]+/g, '')
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
@@ -334,7 +337,10 @@ class EchosService {
 
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-                    const name = file.fieldname + new Date()
+                    const name = (file.fieldname + nanoid(15))
+                        .toLocaleLowerCase()
+                        .replace(/ /g, '-')
+                        .replace(/[^\w-]+/g, '')
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
