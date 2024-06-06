@@ -1,6 +1,7 @@
 import type { Request } from "express";
 import { prisma } from "../../libs/prisma";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { Event } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 class EventServices {
@@ -16,6 +17,7 @@ class EventServices {
 
     filterParams["endAt"] = { gt: new Date() };
     return await prisma.event.findMany({
+      include: { tickets: true },
       where: filterParams,
       take: pageSize < 100 ? pageSize : 20,
       skip: page * pageSize || 0,
@@ -23,11 +25,12 @@ class EventServices {
   }
 
   async getEventDetail(req: Request) {
-    const { eventId } = req.body;
+    const { eventId } = req.params;
+    console.log(eventId, "<><><><><><><><>>");
 
     return await prisma.event.findFirst({
       where: { id: eventId },
-      include: { promotor: true },
+      include: { promotor: true, tickets: true },
     });
   }
 
@@ -36,8 +39,6 @@ class EventServices {
     const {
       slug,
       title,
-      price,
-      priceVip,
       startAt,
       endAt,
       location,
@@ -45,14 +46,21 @@ class EventServices {
       city,
       venueType,
       category,
+      useVoucher,
+      priceReguler,
+      capacityReguler,
+      capacityVip,
+      priceVip,
     } = req.body;
 
+    const isTitleExist = await prisma.event.findFirst({ where: { title } });
+    if (isTitleExist) throw new Error("title already exist");
+
+    const eventId = nanoid();
     const data: Prisma.EventCreateInput = {
-      id: nanoid(),
+      id: eventId,
       slug,
       title,
-      price,
-      priceVip,
       startAt,
       endAt,
       location,
@@ -60,10 +68,89 @@ class EventServices {
       city,
       venueType,
       category,
+      use_voucher: useVoucher,
       promotor: { connect: { id: req.user?.Promotor!.id } },
     };
-    console.log(data);
-    await prisma.event.create({ data });
+
+    const ticketRegulerData: Prisma.ticketsCreateInput = {
+      id: nanoid(),
+      events: { connect: { id: eventId } },
+      ticketType: "reguler",
+      price: priceReguler,
+      capacity: capacityReguler,
+    };
+    const ticketVipData: Prisma.ticketsCreateInput = {
+      id: nanoid(),
+      events: { connect: { id: eventId } },
+      ticketType: "vip",
+      price: priceVip,
+      capacity: capacityVip,
+    };
+
+    const transaction_ops: any[] = [prisma.event.create({ data })];
+    if (capacityReguler && capacityReguler > 0)
+      transaction_ops.push(
+        prisma.tickets.upsert({
+          create: ticketRegulerData,
+          where: {
+            eventId_ticketType: { eventId: eventId, ticketType: "reguler" },
+          },
+          update: {
+            price: ticketRegulerData.price,
+            capacity: ticketRegulerData.capacity,
+          },
+        })
+      );
+
+    if (capacityVip && capacityVip > 0)
+      transaction_ops.push(
+        prisma.tickets.upsert({
+          create: ticketVipData,
+          where: {
+            eventId_ticketType: { eventId: eventId, ticketType: "vip" },
+          },
+          update: {
+            price: ticketVipData.price,
+            capacity: ticketVipData.capacity,
+          },
+        })
+      );
+
+    await prisma.$transaction(transaction_ops);
+    return eventId;
+  }
+
+  async editEvent(req: Request) {
+    const params = req.params.event;
+    const {
+      slug,
+      title,
+      startAt,
+      endAt,
+      city,
+      location,
+      description,
+      category,
+      venueType,
+    } = req.body as Event;
+
+    await prisma.$transaction(async (prisma) => {
+      const { id } = req.params;
+      await prisma.event.update({
+        where: { id },
+        data: {
+          slug,
+          title,
+          startAt,
+          endAt,
+          city,
+          location,
+          description,
+          category,
+          venueType,
+        },
+      });
+    });
   }
 }
 

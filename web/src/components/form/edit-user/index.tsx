@@ -2,13 +2,15 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
 import { AxiosError } from 'axios'
+import { setCookie } from 'cookies-next'
+
+import Image from 'next/image'
 
 import ButtonSubmit from '@/components/ui/button-submit'
 import placeholder from '@/public/placehorder.jpg'
 import { useAuthProvider } from '@/components/common/AuthProvider'
+import { useRouter } from 'next/navigation'
 
 import { EditUserFormType, editUserFormSchema } from '@/schemas/edit-user-schema'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../../ui/form'
@@ -16,9 +18,6 @@ import { toast } from '@/components/ui/use-toast'
 import { Input } from '@/components/ui/input'
 import { editUserAciton } from '@/utils/action/editUserAction'
 import { renderImage } from '@/utils/action/render'
-import { redirect, useRouter } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
-import { setCookie } from 'cookies-next'
 
 export default function EditUserForm({ params }: { params: { username: string } }) {
   const { user } = useAuthProvider((state) => state)
@@ -30,18 +29,15 @@ export default function EditUserForm({ params }: { params: { username: string } 
 
   const onSubmit = async (payload: EditUserFormType) => {
     try {
-      const submit = await editUserAciton(payload, params.username).then(async (res) => {
-        const token = await res.data.access_token
-        setCookie('access_token', token)
-        return res
-      })
+      const submit = await editUserAciton(payload, params.username)
+      setCookie('access_token', submit.data.access_token)
 
       toast({
         title: submit.data.title,
         description: submit.data.description,
       })
 
-      router.back()
+      router.push('/')
     } catch (error) {
       console.log(error)
       if (error instanceof AxiosError) {
@@ -58,16 +54,16 @@ export default function EditUserForm({ params }: { params: { username: string } 
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4"
+        className="space-y-5"
       >
-        <div className="flex flex-col items-center justify-center">
+        <div className="mx-auto w-fit md:mx-0">
           <FormField
             control={form.control}
             name="avatar"
             render={({ field: { value, ...fieldValues } }) => {
               return (
                 <FormItem>
-                  <FormLabel className="mx-auto flex flex-col items-center justify-center">
+                  <FormLabel>
                     <Image
                       src={form.getValues('avatar') ? window.URL.createObjectURL(form.getValues('avatar')!) : source}
                       alt="Profile Image"
@@ -75,7 +71,7 @@ export default function EditUserForm({ params }: { params: { username: string } 
                       height={160}
                       className="aspect-square rounded-full object-cover"
                     />
-                    Change profile
+                    <span></span>
                   </FormLabel>
 
                   <FormControl>

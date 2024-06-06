@@ -25,6 +25,7 @@ import { emailTemplate } from "../../templates/email-template";
 import { createToken } from "../../libs/jwt";
 import { add } from "date-fns";
 import sharp from "sharp";
+
 class EchosService {
   async register(req: Request) {
     const {
@@ -102,7 +103,7 @@ class EchosService {
         const baseUrl = BASE_URL;
         const { html } = emailTemplate({
           firstname,
-          lastname,
+          ...(lastname ? { lastname } : { lastname: "" }),
           token,
           baseUrl,
           path,
@@ -111,7 +112,10 @@ class EchosService {
         await prisma.user.create({ data });
         if (file) {
           const blob = await sharp(file.buffer).webp().toBuffer();
-          const name = file.fieldname + new Date();
+          const name = (file.fieldname + nanoid(15))
+            .toLocaleLowerCase()
+            .replace(/ /g, "-")
+            .replace(/[^\w-]+/g, "");
           const image: Prisma.ImageCreateInput = {
             id: nanoid(),
             blob,
@@ -150,7 +154,11 @@ class EchosService {
 
         if (chechReferral?.referrance) {
           await prisma.voucher.create({
-            data: { id: nanoid(), userId: value.id },
+            data: {
+              id: nanoid(),
+              userId: value.id,
+              from_userId: chechReferral.referrance,
+            },
           });
         }
         await prisma.user.update({
@@ -204,10 +212,9 @@ class EchosService {
         OR: [{ username: username_email }, { email: username_email }],
       },
       select,
-      // include: { Promotor: true }
     })) as UserType;
+
     if (!data?.password) throw new Error("Wrong Username or Email");
-    // data.Promotor = data.Promotor[0]; -> rubah jadi object instead of [{promotor}]
     const checkUser = await comparePassword(data.password, password);
     const date = new Date(data.createdAt!);
     const now = new Date();
@@ -337,7 +344,10 @@ class EchosService {
 
         if (file) {
           const blob = await sharp(file.buffer).webp().toBuffer();
-          const name = file.fieldname + new Date();
+          const name = (file.fieldname + nanoid(15))
+            .toLocaleLowerCase()
+            .replace(/ /g, "-")
+            .replace(/[^\w-]+/g, "");
           const image: Prisma.ImageCreateInput = {
             id: nanoid(),
             blob,
@@ -412,7 +422,7 @@ class EchosService {
     const { html } = emailTemplate({
       baseUrl: BASE_URL,
       firstname: user.firstname,
-      lastname: user.lastname,
+      lastname: user.lastname!,
       token: token_access,
       path: verifyForgetEmailPath,
     });

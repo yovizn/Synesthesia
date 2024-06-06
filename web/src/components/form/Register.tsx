@@ -112,7 +112,7 @@ export default function RegisterForm() {
                 <Input
                   {...field}
                   type="text"
-                  placeholder="Lastname"
+                  placeholder="Username"
                   className="bg-background/70"
                   disabled={formState.isSubmitting}
                 />
@@ -198,7 +198,7 @@ export default function RegisterForm() {
                       <SelectValue placeholder="Choose your gander" />
                     </FormControl>
                   </SelectTrigger>
-                  <SelectContent >
+                  <SelectContent>
                     <SelectItem value="MALE">Male</SelectItem>
                     <SelectItem value="FEMALE">Female</SelectItem>
                   </SelectContent>

@@ -1,10 +1,16 @@
+'use client'
+
 import { GitHubLogoIcon, InstagramLogoIcon } from '@radix-ui/react-icons'
 import Logo from '../Logo'
 import ThemeSwitcher from '../ThemeSwitcher'
+import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 export default function Footer() {
+  const pathname = usePathname()
+  const path = pathname.startsWith('/auth')
   return (
-    <div className="w-full">
+    <div className={cn('w-full', path && 'hidden')}>
       <div className="mx-auto w-full max-w-screen-xl">
         <div className="flex min-h-[400px] flex-col space-y-9 py-9">
           <div className="h-full grow">

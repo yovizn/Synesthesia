@@ -16,7 +16,6 @@ class EchoController {
   }
 
   async registerValidation(req: Request, res: Response, next: NextFunction) {
-    console.log("hi");
     try {
       await echoService.registerValidation(req);
       res.status(200).send({
