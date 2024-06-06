@@ -60,7 +60,7 @@ class EventServices {
       city,
       venueType,
       category,
-      promotor: { connect: { id: req.user?.Promotor[0]?.id } },
+      promotor: { connect: { id: req.user?.Promotor!.id } },
     };
     console.log(data);
     await prisma.event.create({ data });

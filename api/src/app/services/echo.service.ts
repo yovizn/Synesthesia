@@ -167,46 +167,47 @@ class EchosService {
   }
 
   async login(req: Request) {
-        const { username_email, password } = req.body
-        const select: Prisma.UserSelect = {
-            id: true,
-            imageId: true,
-            firstname: true,
-            lastname: true,
-            username: true,
-            email: true,
-            password: true,
-            birth: true,
-            gender: true,
-            address: true,
-            referral: true,
-            referrance: true,
-            point: true,
-            phoneNumber: true,
-            expPoint: true,
-            isVerified: true,
-            isDelete: true,
-            createdAt: true,
-            updatedAt: true,
-            image: { select: { name: true } },
-            Promotor: {
-                select: {
-                    id: true,
-                    promotorName: true,
-                    promotorDescription: true,
-                    promotorImage: { select: { name: true } },
-                    balance: true,
-                },
-            },
+    const { username_email, password } = req.body;
+    const select: Prisma.UserSelect = {
+      id: true,
+      imageId: true,
+      firstname: true,
+      lastname: true,
+      username: true,
+      email: true,
+      password: true,
+      birth: true,
+      gender: true,
+      address: true,
+      referral: true,
+      referrance: true,
+      point: true,
+      phoneNumber: true,
+      expPoint: true,
+      isVerified: true,
+      isDelete: true,
+      createdAt: true,
+      updatedAt: true,
+      image: { select: { name: true } },
+      Promotor: {
+        select: {
+          id: true,
+          promotorName: true,
+          promotorDescription: true,
+          promotorImage: { select: { name: true } },
+          balance: true,
+        },
+      },
     };
     const data = (await prisma.user.findFirst({
       where: {
         OR: [{ username: username_email }, { email: username_email }],
       },
       select,
+      // include: { Promotor: true }
     })) as UserType;
-    console.log(data);
     if (!data?.password) throw new Error("Wrong Username or Email");
+    // data.Promotor = data.Promotor[0]; -> rubah jadi object instead of [{promotor}]
     const checkUser = await comparePassword(data.password, password);
     const date = new Date(data.createdAt!);
     const now = new Date();
