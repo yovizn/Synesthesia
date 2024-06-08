@@ -1,5 +1,7 @@
 import { Router } from 'express'
+import userAuth from '../middlewares/user.auth'
 import eventController from '../controllers/event.controller'
+import { blobUploader } from '../../libs/multer'
 
 class EventRouter {
     private router
@@ -9,7 +11,23 @@ class EventRouter {
     }
 
     private initializedRoutes() {
-        this.router.get('/v1/:promotor', eventController.getEvent)
+        this.router.get('/v1', userAuth.accesToken, eventController.getEvent)
+        this.router.post(
+            '/v1',
+            userAuth.accesToken,
+            blobUploader().single('avatar'),
+            eventController.createEvent
+        )
+        this.router.patch(
+            '/v1/:id',
+            userAuth.accesToken,
+            eventController.editEvent
+        )
+        this.router.get(
+            '/v1/:eventId',
+            userAuth.accesToken,
+            eventController.getEventDetail
+        )
     }
 
     public getRouter() {

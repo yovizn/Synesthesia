@@ -1,12 +1,15 @@
 'use client'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Card } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { PromotorType } from '@/types/promotor.type'
 import { renderImage } from '@/utils/action/render'
 import { getPromotor } from '@/utils/session/get-promotor'
-import { Separator } from '@radix-ui/react-separator'
 import { useAuthProvider } from '../../AuthProvider'
+import { Separator } from '@/components/ui/separator'
+import { PersonIcon } from '@radix-ui/react-icons'
+import Link from 'next/link'
+import { CalendarPlus } from 'lucide-react'
 
 export default function DashboardHeader() {
   const data = useAuthProvider((state) => state.user.Promotor)
@@ -16,20 +19,34 @@ export default function DashboardHeader() {
         style: 'currency',
         currency: 'IDR',
       })
-    : 0
+    : 'Rp 0,00'
 
   return (
-    <Card className="flex h-20 w-full items-center justify-between px-8">
-      <div className="flex items-center gap-6">
-        <h3 className="text-2xl font-bold">Dashboard</h3>
-        <p className="hidden sm:block">{data?.promotorName}</p>
+    <Card className="flex h-20 justify-between px-6">
+      <div className="flex items-center space-x-4">
+        <div className="text-xl font-bold md:text-3xl">Dashboard</div>
+        <Separator orientation="vertical" />
+        <div className="text-card-foreground max-lg:hidden">{data?.promotorName}</div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <p>{balance}</p>
-        <Avatar>
+      <div className="flex items-center space-x-4">
+        <Link
+          href="/promotor/create-event"
+          className="hidden items-center gap-4 pl-4 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground md:flex lg:text-base"
+        >
+          <span className="block">Create Event</span>
+          <CalendarPlus className="size-4 shrink-0" />
+        </Link>
+        <Separator
+          orientation="vertical"
+          className="max-md:hidden"
+        />
+        <div className="font-extralight text-card-foreground">{balance}</div>
+        <Avatar title="Profile">
           <AvatarImage src={renderImage.webp(data?.promotorImage?.name!)} />
-          <AvatarFallback>{data?.promotorName.split('')[0]}</AvatarFallback>
+          <AvatarFallback>
+            <PersonIcon />
+          </AvatarFallback>
         </Avatar>
       </div>
     </Card>

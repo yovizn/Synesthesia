@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextIndex", "fullTextSearch"]
@@ -15,33 +9,34 @@ datasource db {
 }
 
 model User {
-  id          String    @id
-  imageId     String?
-  firstname   String
-  lastname    String?
-  username    String    @unique
-  email       String    @unique
-  password    String
-  birth       DateTime?
-  gender      Gender
-  address     String?
-  referral    String    @unique
-  referrance  String?
-  point       Int       @default(0)
-  phoneNumber String?   @map("phone_number")
-  expPoint    DateTime? @map("exp_point")
-  isVerified  Boolean   @default(false)
-  isDelete    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  image       Image?        @relation(fields: [imageId], references: [id])
-  Promotor    Promotor?
-  Review      Review[]
-  Transaction Transaction[]
-  Voucher     Voucher[]
+  id                                   String         @id
+  imageId                              String?
+  firstname                            String
+  lastname                             String?
+  username                             String         @unique
+  email                                String         @unique
+  password                             String
+  birth                                DateTime?
+  gender                               Gender
+  address                              String?
+  referral                             String         @unique
+  referrance                           String?
+  point                                Int            @default(0)
+  phoneNumber                          String?        @map("phone_number")
+  expPoint                             DateTime?      @map("exp_point")
+  isVerified                           Boolean        @default(false)
+  isDelete                             Boolean        @default(false)
+  createdAt                            DateTime       @default(now())
+  updatedAt                            DateTime       @updatedAt
+  Promotor                             Promotor?
+  Review                               Review[]
+  transactions                         transactions[]
+  image                                Image?         @relation(fields: [imageId], references: [id])
+  vouchers_vouchers_from_userIdTousers Voucher[]      @relation("vouchers_from_userIdTousers")
+  Voucher                              Voucher[]
 
   @@index([username, email])
+  @@index([imageId], map: "users_imageId_fkey")
   @@map("users")
 }
 
@@ -51,26 +46,26 @@ model Promotor {
   userId              String   @unique
   promotorName        String   @unique
   promotorDescription String?
-  balance             Decimal  @default(0) @db.Decimal(18, 2)
+  balance             Decimal  @default(0.00) @db.Decimal(18, 2)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  Event               Event[]
+  promotorImage       Image?   @relation(fields: [promotorImageId], references: [id], onDelete: Restrict)
+  user                User     @relation(fields: [userId], references: [id])
 
-  promotorImage Image?  @relation(fields: [promotorImageId], references: [id], onDelete: Restrict)
-  user          User    @relation(fields: [userId], references: [id])
-  Event         Event[]
-
+  @@index([promotorImageId], map: "promotors_promotorImageId_fkey")
   @@map("promotors")
 }
 
 model Image {
-  id        String   @id
-  blob      Bytes    @db.LongBlob
-  name      String?  @unique
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  User     User[]
-  Promotor Promotor[]
+  id        String     @id
+  blob      Bytes
+  name      String?    @unique
+  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now())
+  Promotor  Promotor[]
+  User      User[]
+  Event     Event[]
 
   @@map("images")
 }
@@ -78,79 +73,42 @@ model Image {
 model Event {
   id          String    @id
   promotorId  String
+  imageId     String
   slug        String
   title       String    @unique
-  price       Decimal   @db.Decimal(18, 2)
-  priceVip    Decimal   @map("price_vip") @db.Decimal(18, 2)
   startAt     DateTime  @map("start_at")
   endAt       DateTime  @map("end_at")
-  city        String    @db.VarChar(55)
+  city        String?    @db.VarChar(55)
   location    String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
   category    String
   venueType   VenueType @map("venue_type")
-
-  promotor    Promotor      @relation(fields: [promotorId], references: [id])
-  Transaction Transaction[]
+  use_voucher Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  promotor    Promotor  @relation(fields: [promotorId], references: [id])
+  eventImage  Image     @relation(fields: [imageId], references: [id])
   Review      Review[]
+  tickets     tickets[]
 
+  @@index([promotorId], map: "events_promotorId_fkey")
   @@map("events")
 }
 
-enum StatusTransaction {
-  UNPAID
-  PENDING
-  SUCCESS
-}
-
-model Transaction {
-  id            String            @id
-  invoiceNuber  String
-  voucherId     String
-  eventId       String
-  userId        String
-  total         Decimal           @db.Decimal(18, 2)
-  discountPoint Decimal           @default(0)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  status        StatusTransaction @default(PENDING)
-
-  user            User              @relation(fields: [userId], references: [id])
-  event           Event             @relation(fields: [eventId], references: [id])
-  Voucher         Voucher           @relation(fields: [voucherId], references: [id])
-  TransactionItem TransactionItem[]
-
-  @@map("transacitons")
-}
-
 model Voucher {
-  id            String   @id
-  userId        String
-  transactionId String?
-  isValid       Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                                String   @id
+  userId                            String
+  from_userId                       String
+  transactionId                     String?
+  isValid                           Boolean  @default(true)
+  createdAt                         DateTime @default(now())
+  updatedAt                         DateTime @updatedAt
+  users_vouchers_from_userIdTousers User     @relation("vouchers_from_userIdTousers", fields: [from_userId], references: [id])
+  user                              User     @relation(fields: [userId], references: [id])
 
-  user        User          @relation(fields: [userId], references: [id])
-  Transaction Transaction[]
-
+  @@unique([userId, from_userId], map: "user_referral_unique_combination_key")
+  @@index([from_userId], map: "vouchers_from_userId_fkey")
   @@map("vouchers")
-}
-
-model TransactionItem {
-  id            String   @id
-  transactionId String
-  quantity      Int      @default(0)
-  price         Decimal  @db.Decimal(18, 2)
-  discount      Decimal  @default(0) @db.Decimal(18, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  transaction Transaction @relation(fields: [transactionId], references: [id])
-
-  @@map("transaciton_items")
 }
 
 model Review {
@@ -160,12 +118,56 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, eventId])
+  @@index([eventId], map: "reviews_eventId_fkey")
   @@map("reviews")
+}
+
+model tickets {
+  id                String              @id
+  eventId           String
+  ticketType        tickets_ticketType? @default(reguler)
+  price             Decimal             @default(0.00) @db.Decimal(18, 2)
+  capacity          Int
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now())
+  events            Event               @relation(fields: [eventId], references: [id], map: "ticket_event_fkey")
+  transaction_items transaction_items[]
+
+  @@unique([eventId, ticketType], map: "event_ticket_unique_key")
+}
+
+model transaction_items {
+  transactionId String
+  ticketId      String
+  quantity      Int          @default(0)
+  price         Decimal      @default(0.00) @db.Decimal(18, 2)
+  discount      Decimal      @default(0.00) @db.Decimal(18, 2)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime
+  tickets       tickets      @relation(fields: [ticketId], references: [id], map: "transaction_items_ticket_fkey")
+  transactions  transactions @relation(fields: [transactionId], references: [id])
+
+  @@id([transactionId, ticketId])
+  @@index([ticketId], map: "transaction_items_ticket_fkey")
+}
+
+model transactions {
+  id                String              @id
+  invoiceNuber      String
+  userId            String
+  totalPrice        Decimal             @default(0.00) @db.Decimal(18, 2)
+  discountPoint     Decimal             @default(0.000000000000000000000000000000)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime
+  status            transactions_status @default(PENDING)
+  transaction_items transaction_items[]
+  users             User                @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "transactions_userId_fkey")
 }
 
 enum Gender {
@@ -176,4 +178,15 @@ enum Gender {
 enum VenueType {
   INDOOR
   OUTDOOR
+}
+
+enum tickets_ticketType {
+  vip
+  reguler
+}
+
+enum transactions_status {
+  UNPAID
+  PENDING
+  SUCCESS
 }

@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 export default async function DashboardPage() {
   return (
-    <div className="space-y-6">
-        <DashboardMain />
-        <DashboardChart />
+    <div className="space-y-4">
+      <DashboardMain />
+      <DashboardChart />
     </div>
   )
 }

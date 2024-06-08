@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function PromotorLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return <div className='flex flex-col min-h-screen'>{children}</div>
 }

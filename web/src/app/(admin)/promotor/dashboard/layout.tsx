@@ -3,9 +3,9 @@ import DashboardSideBar from '@/components/common/dashboard/sidebar'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen flex-col md:flex-row">
+    <div className="flex min-h-screen bg-muted/20 gap-4">
       <DashboardSideBar />
-      <main className="relative min-h-screen grow space-y-6 bg-secondary/20 p-6 mb-24 md:mb-0">
+      <main className="flex size-full flex-col py-4 pr-4 max-md:px-4 gap-4 mb-20 md:mb-0">
         <DashboardHeader />
         {children}
       </main>

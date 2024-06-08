@@ -28,7 +28,7 @@ export default function Header() {
           </Link>
           <div className="flex items-center gap-6">
             <Link
-              href="/promotor/dashboard"
+              href="/promotor/create-event"
               className="group flex items-center gap-1.5"
             >
               <CalendarPlus className="size-4 stroke-muted-foreground transition-all duration-200 group-hover:stroke-foreground" />
