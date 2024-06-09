@@ -29,6 +29,7 @@ import RichText from '@/components/common/RichText'
 import ButtonSubmit from '@/components/ui/button-submit'
 import { Switch } from '@/components/ui/switch'
 import { createEventAction } from '@/utils/action/createEventAction'
+import { AxiosError } from 'axios'
 
 export default function CreateEventForm() {
   const form = useForm<CreateEventType>({
@@ -62,10 +63,11 @@ export default function CreateEventForm() {
         title: action.data.title,
       })
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof AxiosError) {
         toast({
-          title: error.message,
-          description: error.cause as string,
+          variant: 'destructive',
+          title: error.response?.data.message,
+          description: error.response?.data.cause,
         })
       } else {
         console.log(error)

@@ -22,8 +22,8 @@ class EventController {
     }
 
     async createEvent(req: Request, res: Response, next: NextFunction) {
-        if (!userAuth.isPromotor(req.user))
-            res.status(403).render('no access privilege')
+        // if (!userAuth.isPromotor(req.user))
+        //     res.status(403).render('no access privilege')
         try {
             const eventId = await eventService.createEvent(req)
             res.send({ title: 'Successed create event', eventId })

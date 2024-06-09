@@ -23,7 +23,7 @@ const numericRequiredStr = requiredStr.regex(/^\Rp\d+(\.\d{2})?$/, 'Must be vali
 const avatar = z
   .custom<File | undefined>()
   .refine((file) => !file || (file instanceof File && file.type.startsWith('image/')), 'Must be an image File')
-  .refine((file) => !file || file.size < 1024 * 1024 * 2, 'Image Must be less than 2MB')
+  .refine((file) => !file || file.size < 1024 * 1024 * 2, 'Image Must be less than 2MB').optional()
 
 const description = requiredStr.max(5000).optional()
 const venueType = requiredStr.refine((value) => VENUE_TYPE.includes(value), 'Invalid Venue Type')

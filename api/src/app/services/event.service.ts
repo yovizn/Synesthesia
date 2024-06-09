@@ -56,18 +56,18 @@ class EventServices {
         } = req.body
 
         const { file } = req
+        const findTitle = await prisma.event.findFirst({
+            where: { title },
+            select: { title: true },
+        })
 
-        const eventCreate = await prisma.$transaction(async (prisma) => {
+        if (findTitle?.title)
+            throw new Error('Title is used, try another title')
+
+        return await prisma.$transaction(async (prisma) => {
             const generateSlug = `${toSlug(title.trim())}-${nanoid(10)}`
-            const eventId = nanoid()
-            const imageId = nanoid()
-            const isTitleExist = await prisma.event.findFirst({
-                where: { title },
-                select: { title: true },
-            })
-            if (isTitleExist?.title) throw new Error('Title already exist')
             const data: Prisma.EventCreateInput = {
-                id: eventId,
+                id: nanoid(),
                 slug: generateSlug,
                 title,
                 startAt,
@@ -77,60 +77,134 @@ class EventServices {
                 city,
                 venueType,
                 category,
-                use_voucher: useVoucher === 'true' ? true : false,
+                useVoucher: useVoucher === 'true' ? true : false,
                 promotor: { connect: { id: req.user?.Promotor?.id } },
-                eventImage: { connect: { id: imageId } },
-            }
-
-            if (file) {
-                const blob = await sharp(file.buffer).webp().toBuffer()
-                const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
-                const name = `promotor_poster/${slug}`
-
-                const image: Prisma.ImageCreateInput = {
-                    id: imageId,
-                    blob,
-                    name,
-                }
-                await prisma.image.create({
-                    data: image,
-                })
             }
 
             const event = await prisma.event.create({
                 data,
             })
 
-            return { id: event.id }
-        })
-
-        await prisma.$transaction(async (prisma) => {
-            const dataTicketsReguler: Prisma.ticketsCreateInput = {
-                id: nanoid(),
-                capacity: capacityReguler,
-                events: { connect: { id: eventCreate.id } },
-                price: !priceReguler ? 0 : priceReguler,
-                ticketType: 'reguler',
-            }
-            if (priceVip && capacityVip) {
-                const dataTicketsVip: Prisma.ticketsCreateInput = {
+            if (file) {
+                const blob = await sharp(file.buffer).webp().toBuffer()
+                const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                const name = `promotor_poster/${slug}`
+                const image: Prisma.ImageCreateInput = {
                     id: nanoid(),
-                    capacity: capacityVip,
-                    events: { connect: { id: eventCreate.id } },
-                    price: !priceVip ? 0 : priceReguler,
-                    ticketType: 'vip',
+                    blob,
+                    name,
+                    Event: { connect: { id: event.id } },
+                }
+                await prisma.image.create({
+                    data: image,
+                })
+            }
+
+            const dataTicket: Prisma.TicketsCreateInput = {
+                id: nanoid(),
+                type: 'REGULER',
+                capacity: Number(capacityReguler),
+                price: Number(priceReguler),
+                event: { connect: { id: event.id } },
+            }
+
+            await prisma.tickets.create({
+                data: dataTicket,
+            })
+
+            if (priceVip && capacityVip) {
+                const dataTicket: Prisma.TicketsCreateInput = {
+                    id: nanoid(),
+                    type: 'VIP',
+                    capacity: Number(capacityVip),
+                    price: Number(priceVip),
+                    event: { connect: { id: event.id } },
                 }
 
                 await prisma.tickets.create({
-                    data: dataTicketsVip,
+                    data: dataTicket,
                 })
             }
-            await prisma.tickets.create({
-                data: dataTicketsReguler,
-            })
+
+            return { id: event.id }
         })
 
-        return eventCreate.id
+        // return createEvent.id
+
+        // const eventCreate = await prisma.$transaction(async (prisma) => {
+        //     const generateSlug = `${toSlug(title.trim())}-${nanoid(10)}`
+        //     const eventId = nanoid()
+        //     const imageId = nanoid()
+        //     const isTitleExist = await prisma.event.findFirst({
+        //         where: { title },
+        //         select: { title: true },
+        //     })
+        //     if (isTitleExist?.title) throw new Error('Title already exist')
+        //     const data: Prisma.EventCreateInput = {
+        //         id: eventId,
+        //         slug: generateSlug,
+        //         title,
+        //         startAt,
+        //         endAt,
+        //         location,
+        //         description,
+        //         city,
+        //         venueType,
+        //         category,
+        //         use_voucher: useVoucher === 'true' ? true : false,
+        //         promotor: { connect: { id: req.user?.Promotor?.id } },
+        //         // eventImage: { connect: { id: imageId } },
+        //     }
+
+        //     const event = await prisma.event.create({
+        //         data,
+        //     })
+
+        //     if (file) {
+        //         const blob = await sharp(file.buffer).webp().toBuffer()
+        //         const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+        //         const name = `promotor_poster/${slug}`
+        //         const image: Prisma.ImageCreateInput = {
+        //             id: imageId,
+        //             blob,
+        //             name,
+        //         }
+        //         await prisma.image.create({
+        //             data: image,
+        //         })
+        //     }
+
+        //     const dataTicketsReguler: Prisma.ticketsCreateInput = {
+        //         id: nanoid(),
+        //         capacity: capacityReguler,
+        //         events: { connect: { id: eventCreate.id } },
+        //         price: !priceReguler ? 0 : priceReguler,
+        //         ticketType: 'reguler',
+        //     }
+        //     if (priceVip && capacityVip) {
+        //         const dataTicketsVip: Prisma.ticketsCreateInput = {
+        //             id: nanoid(),
+        //             capacity: capacityVip,
+        //             events: { connect: { id: eventCreate.id } },
+        //             price: !priceVip ? 0 : priceVip,
+        //             ticketType: 'vip',
+        //         }
+
+        //         await prisma.tickets.create({
+        //             data: dataTicketsVip,
+        //         })
+        //     }
+        //     await prisma.tickets.create({
+        //         data: dataTicketsReguler,
+        //     })
+        //     return { id: event.id }
+        // })
+
+        // await prisma.$transaction(async (prisma) => {
+
+        // })
+
+        // return eventCreate.id
 
         // const isTitleExist = await prisma.event.findFirst({ where: { title } })
         // if (isTitleExist) throw new Error('title already exist')
