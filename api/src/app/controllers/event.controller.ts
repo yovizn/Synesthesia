@@ -26,7 +26,7 @@ class EventController {
             res.status(403).render('no access privilege')
         try {
             const eventId = await eventService.createEvent(req)
-            res.send({ eventId })
+            res.send({ title: 'Successed create event', eventId })
         } catch (error) {
             next(error)
         }
