@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import AuthLoginButton from './AuthLoginButton'
 import Logo from '../Logo'
 import { CalendarPlus } from 'lucide-react'
+import PromotorButton from './PromotorButton'
 
 export default function Header() {
   const access_token = cookies().get('access_token')?.value
@@ -27,15 +28,7 @@ export default function Header() {
             <Logo />
           </Link>
           <div className="flex items-center gap-6">
-            <Link
-              href="/promotor/create-event"
-              className="group flex items-center gap-1.5"
-            >
-              <CalendarPlus className="size-4 stroke-muted-foreground transition-all duration-200 group-hover:stroke-foreground" />
-              <span className="block text-muted-foreground transition-all duration-200 group-hover:text-foreground">
-                Create Event
-              </span>
-            </Link>
+            <PromotorButton />
             {access_token ? <AuthButton /> : <AuthLoginButton />}
           </div>
         </nav>

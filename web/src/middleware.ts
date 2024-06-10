@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
 
   const isLogoutPath = pathname.startsWith('/auth/user')
   const isForgetPath = request.nextUrl.pathname.startsWith('/auth/forget-password/')
-  const isPromotorPath = pathname.startsWith('/promotor/register') || pathname.startsWith('/promotor/dashboard')
+  const isPromotorPath = pathname.startsWith('/promotor/dashboard') || pathname.startsWith('/promotor/create-event')
   const isLoginPath =
     pathname.startsWith('/auth/login') ||
     pathname.startsWith('/auth/register') ||
@@ -86,7 +86,7 @@ export async function middleware(request: NextRequest) {
 
   // Login
   if (access_token && isLoginPath) return NextResponse.redirect(new URL('/', request.url))
-  if (pathname.startsWith('/promotor/dashboard') && !user.Promotor?.id)
+  if (isPromotorPath && !user.Promotor?.id)
     return NextResponse.redirect(new URL('/promotor/register', request.url))
 
   if (pathname.startsWith('/promotor/register') && user.Promotor?.id)

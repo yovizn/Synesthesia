@@ -25,6 +25,7 @@ import { emailTemplate } from '../../templates/email-template'
 import { createToken } from '../../libs/jwt'
 import { add } from 'date-fns'
 import sharp from 'sharp'
+import { toSlug } from '../../utils/toSlug'
 class EchosService {
     async register(req: Request) {
         const {
@@ -109,10 +110,8 @@ class EchosService {
                 await prisma.user.create({ data })
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-                    const name = (file.fieldname + nanoid(15))
-                        .toLocaleLowerCase()
-                        .replace(/ /g, '-')
-                        .replace(/[^\w-]+/g, '')
+                    const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                    const name = `user_avatar-${slug}`
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,

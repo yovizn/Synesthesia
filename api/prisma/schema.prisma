@@ -70,26 +70,27 @@ model Image {
 }
 
 model Event {
-  id          String        @id
+  id          String    @id
+  posterId    String?
   promotorId  String
   slug        String
-  title       String        @unique
-  startAt     DateTime      @map("start_at")
-  endAt       DateTime      @map("end_at")
-  city        String        @db.VarChar(55)
+  title       String    @unique
+  startAt     DateTime  @map("start_at")
+  endAt       DateTime  @map("end_at")
+  city        String    @db.VarChar(55)
   location    String?
   description String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
   category    String
-  posterId    String?
-  useVoucher  Boolean       @default(false)
   venueType   VenueType
-  poster      Image?        @relation(fields: [posterId], references: [id])
+  useVoucher  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  poster      Image?    @relation(fields: [posterId], references: [id])
   promotor    Promotor      @relation(fields: [promotorId], references: [id])
+
+  Transaction Transaction[]
   Review      Review[]
   Tickets     Tickets[]
-  Transaction Transaction[]
 
   @@index([posterId], map: "events_posterId_fkey")
   @@index([promotorId], map: "events_promotorId_fkey")

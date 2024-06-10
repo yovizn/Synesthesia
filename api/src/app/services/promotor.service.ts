@@ -5,6 +5,7 @@ import { nanoid } from '../../utils/generate'
 import sharp from 'sharp'
 import { sign } from 'jsonwebtoken'
 import { SECRET_KEY_ACCESS } from '../../configs/env'
+import { toSlug } from '../../utils/toSlug'
 
 class PromotorService {
     async register(req: Request) {
@@ -64,10 +65,8 @@ class PromotorService {
 
             if (file) {
                 const blob = await sharp(file.buffer).webp().toBuffer()
-                const name = (file.fieldname + nanoid(15))
-                    .toLocaleLowerCase()
-                    .replace(/ /g, '-')
-                    .replace(/[^\w-]+/g, '')
+                const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                const name = `promotor_avatar-${slug}`
                 const image: Prisma.ImageCreateInput = {
                     id: nanoid(),
                     blob,

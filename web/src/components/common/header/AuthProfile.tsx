@@ -33,11 +33,13 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="group md:space-x-4 py-7"
+            className="group py-7 md:space-x-4"
           >
             <span className="hidden text-muted-foreground duration-200 group-hover:text-foreground sm:block md:w-[119px]">
-              <span className="hidden md:block w-full truncate text-start font-medium text-foreground">{user.username}</span>
-              <span className="hidden md:block w-full truncate text-start font-light">{user.firstname}</span>
+              <span className="hidden w-full truncate text-start font-medium text-foreground md:block">
+                {user.username}
+              </span>
+              <span className="hidden w-full truncate text-start font-light md:block">{user.firstname}</span>
             </span>
             <Image
               src={user.image?.name ? renderImage.webp(user.image?.name!) : placeholder}
@@ -56,6 +58,14 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
 
           <DropdownMenuSeparator />
+
+          <DropdownMenuItem asChild>
+            {!user.Promotor?.id ? (
+              <Link href="/promotor/register">Join with us.</Link>
+            ) : (
+              <Link href="/promotor/dashboard">Dashboard</Link>
+            )}
+          </DropdownMenuItem>
 
           <DropdownMenuItem>Transaction</DropdownMenuItem>
 
