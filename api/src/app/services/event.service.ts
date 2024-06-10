@@ -8,21 +8,36 @@ import { toSlug } from '../../utils/toSlug'
 
 class EventServices {
     async getEvent(req: Request) {
-        const { pageStr, pageSizeStr } = req.params
-        const pageSize = parseInt(pageSizeStr, 10)
-        const page = parseInt(pageStr, 10)
+        // const { pageStr, pageSizeStr } = req.params
+        // const pageSize = parseInt(pageSizeStr, 10)
+        // const page = parseInt(pageStr, 10)
 
-        const { location, category } = req.body
-        let filterParams: any = {}
-        if (location) filterParams['location'] = location
-        if (category) filterParams['category'] = category
+        // const { location, category } = req.body
+        // let filterParams: any = {}
+        // if (location) filterParams['location'] = location
+        // if (category) filterParams['category'] = category
 
-        filterParams['endAt'] = { gt: new Date() }
+        // filterParams['endAt'] = { gt: new Date() }
+        // return await prisma.event.findMany({
+        //     include: { Tickets: true },
+        //     where: filterParams,
+        //     take: pageSize < 100 ? pageSize : 20,
+        //     skip: page * pageSize || 0,
+        // })
         return await prisma.event.findMany({
-            include: { tickets: true },
-            where: filterParams,
-            take: pageSize < 100 ? pageSize : 20,
-            skip: page * pageSize || 0,
+            take: 10,
+            skip: 0,
+            include: {
+                poster: { select: { name: true } },
+                Tickets: {
+                    select: {
+                        price: true,
+                        type: true,
+                        id: true,
+                        capacity: true,
+                    },
+                },
+            },
         })
     }
 
@@ -32,7 +47,7 @@ class EventServices {
 
         return await prisma.event.findFirst({
             where: { id: eventId },
-            include: { promotor: true, tickets: true },
+            include: { promotor: true, Tickets: true },
         })
     }
 
@@ -88,7 +103,7 @@ class EventServices {
             if (file) {
                 const blob = await sharp(file.buffer).webp().toBuffer()
                 const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
-                const name = `promotor_poster/${slug}`
+                const name = `event_poster-${slug}`
                 const image: Prisma.ImageCreateInput = {
                     id: nanoid(),
                     blob,
@@ -126,7 +141,7 @@ class EventServices {
                 })
             }
 
-            return { id: event.id }
+            return { title: event.title }
         })
 
         // return createEvent.id

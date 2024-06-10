@@ -11,7 +11,11 @@ class EventRouter {
     }
 
     private initializedRoutes() {
-        this.router.get('/v1', userAuth.accesToken, eventController.getEvent)
+        this.router.get(
+            '/v1',
+            //  userAuth.accesToken,
+            eventController.getEvent
+        )
         this.router.post(
             '/v1',
             userAuth.accesToken,

@@ -30,8 +30,10 @@ import ButtonSubmit from '@/components/ui/button-submit'
 import { Switch } from '@/components/ui/switch'
 import { createEventAction } from '@/utils/action/createEventAction'
 import { AxiosError } from 'axios'
+import { useRouter } from 'next/navigation'
 
 export default function CreateEventForm() {
+  const router = useRouter()
   const form = useForm<CreateEventType>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
@@ -62,6 +64,7 @@ export default function CreateEventForm() {
       toast({
         title: action.data.title,
       })
+      router.push('/promotor/dashboard')
     } catch (error) {
       if (error instanceof AxiosError) {
         toast({
