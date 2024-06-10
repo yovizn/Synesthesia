@@ -1,13 +1,12 @@
-import HeaderDashboard from '@/components/common/dashboard/header'
-import { ReactNode } from 'react'
+import { Metadata } from 'next'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: {
     default: 'Dashboard',
     template: '%s | Dashboard',
   },
 }
 
-export default function PromotorLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>
+export default function PromotorLayout({ children }: { children: React.ReactNode }) {
+  return <div className='flex flex-col min-h-screen'>{children}</div>
 }

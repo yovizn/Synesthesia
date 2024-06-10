@@ -4,9 +4,10 @@
         "server": "cd api && bun dev",
         "client": "cd web && pnpm dev",
         "studio": "cd api && bun studio",
+        "migrate": "cd api && bun migrate",
         "dev": "concurrently \"bun server\" \"pnpm client\"",
         "ia": "cd api && bun add",
-        "iw":"cd web && pnpm add"
+        "iw": "cd web && pnpm add"
     },
     "devDependencies": {
         "@types/bun": "latest"

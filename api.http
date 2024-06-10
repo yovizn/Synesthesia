@@ -1,0 +1,83 @@
+POST http://localhost:8000/echos/v1 HTTP/1.1
+content-type: application/json
+
+{
+    "username": "ibnu_basalamah",
+    "email": "ibnubasalamah@yahoo.com",
+    "referrance": null,
+    "firstname": "ibnu",
+    "lastname": "basalamah",
+    "password": "pwsd_12345",
+    "gender": "MALE"
+}
+
+###### 
+
+POST http://localhost:8000/echos/v2 HTTP/1.1
+content-type: application/json
+
+{
+    "username_email": "ibnubasalamah@yahoo.com",
+    "password": "pwsd_12345"
+}
+
+
+#######
+
+GET http://localhost:8000/events/v1 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkhRS1ZOVUY4MkIiLCJpbWFnZUlkIjpudWxsLCJmaXJzdG5hbWUiOiJpYm51IiwibGFzdG5hbWUiOiJiYXNhbGFtYWgiLCJ1c2VybmFtZSI6ImlibnVfYmFzYWxhbWFoIiwiZW1haWwiOiJpYm51YmFzYWxhbWFoQHlhaG9vLmNvbSIsImJpcnRoIjpudWxsLCJnZW5kZXIiOiJNQUxFIiwiYWRkcmVzcyI6bnVsbCwicmVmZXJyYWwiOiJBTEFFLUlBSEgiLCJyZWZlcnJhbmNlIjpudWxsLCJwb2ludCI6MCwicGhvbmVOdW1iZXIiOm51bGwsImV4cFBvaW50IjpudWxsLCJpbWFnZSI6bnVsbCwiUHJvbW90b3IiOnsiaWQiOiIzMV8wRFIzMkhFIiwicHJvbW90b3JOYW1lIjoiaWJudSBjb3JwIiwicHJvbW90b3JEZXNjcmlwdGlvbiI6Imphc2Egd2ViIiwicHJvbW90b3JJbWFnZSI6bnVsbCwiYmFsYW5jZSI6IjAifSwiaWF0IjoxNzE3Njc4NDAyLCJleHAiOjE3MTc2NzkzMDJ9.9l0Mhoo1QzT_hW8Ti_ESAyiWDo8s_rZzetnj6ll2hQA
+
+
+#### 
+
+GET http://localhost:8000/events/v1/Qhp_Ne3cImoXUgrQfLzev HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkhRS1ZOVUY4MkIiLCJpbWFnZUlkIjpudWxsLCJmaXJzdG5hbWUiOiJpYm51IiwibGFzdG5hbWUiOiJiYXNhbGFtYWgiLCJ1c2VybmFtZSI6ImlibnVfYmFzYWxhbWFoIiwiZW1haWwiOiJpYm51YmFzYWxhbWFoQHlhaG9vLmNvbSIsImJpcnRoIjpudWxsLCJnZW5kZXIiOiJNQUxFIiwiYWRkcmVzcyI6bnVsbCwicmVmZXJyYWwiOiJBTEFFLUlBSEgiLCJyZWZlcnJhbmNlIjpudWxsLCJwb2ludCI6MCwicGhvbmVOdW1iZXIiOm51bGwsImV4cFBvaW50IjpudWxsLCJpbWFnZSI6bnVsbCwiUHJvbW90b3IiOnsiaWQiOiIzMV8wRFIzMkhFIiwicHJvbW90b3JOYW1lIjoiaWJudSBjb3JwIiwicHJvbW90b3JEZXNjcmlwdGlvbiI6Imphc2Egd2ViIiwicHJvbW90b3JJbWFnZSI6bnVsbCwiYmFsYW5jZSI6IjAifSwiaWF0IjoxNzE3Njc4NDAyLCJleHAiOjE3MTc2NzkzMDJ9.9l0Mhoo1QzT_hW8Ti_ESAyiWDo8s_rZzetnj6ll2hQA
+
+######   
+POST http://localhost:8000/events/v1 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjlDVDBBWkY1SUEiLCJpbWFnZUlkIjpudWxsLCJmaXJzdG5hbWUiOiJpYm51IiwibGFzdG5hbWUiOiJiYXNhbGFtYWgiLCJ1c2VybmFtZSI6ImlibnVfYmFzYWxhbWFoIiwiZW1haWwiOiJpYm51YmFzYWxhbWFoQHlhaG9vLmNvbSIsImJpcnRoIjpudWxsLCJnZW5kZXIiOiJNQUxFIiwiYWRkcmVzcyI6bnVsbCwicmVmZXJyYWwiOiJITklMLUFJTU4iLCJyZWZlcnJhbmNlIjpudWxsLCJwb2ludCI6MCwicGhvbmVOdW1iZXIiOm51bGwsImV4cFBvaW50IjpudWxsLCJpbWFnZSI6bnVsbCwiUHJvbW90b3IiOnsiaWQiOiJFQVFCVFJaQk40IiwicHJvbW90b3JOYW1lIjoiaWJudSBjb3JwIiwicHJvbW90b3JEZXNjcmlwdGlvbiI6Imphc2Egd2ViIiwicHJvbW90b3JJbWFnZSI6bnVsbCwiYmFsYW5jZSI6IjAifSwiaWF0IjoxNzE3OTIzMjUzLCJleHAiOjE3MTc5MjQxNTN9.H7TbS0h7ZG507GV-b8u8SOcYcc_3lzSqpjtSGNjumDo
+Content-Type: multipart/form-data;
+Accept: application/json
+Content-Disposition: form-data; name="images"; filename="my_image.jpg"
+
+{
+      "slug": "tokopedia.com",
+      "title": "krabby patty 8",
+      "priceReguler": 50000,
+      "priceVip": 10000,
+      "capacityReguler": 0,
+      "capacityVip": 1000,
+      "startAt": "2025-04-01T18:00:00.000Z",
+      "endAt": "2025-04-04T18:00:00.000Z",
+      "location": "Indonesia",
+      "description": "",
+      "city": "Depok",
+      "venueType": "INDOOR",
+      "category": ""
+}
+
+##### 
+
+POST http://localhost:8000/promotors/v1 HTTP/1.1
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjlDVDBBWkY1SUEiLCJpbWFnZUlkIjpudWxsLCJmaXJzdG5hbWUiOiJpYm51IiwibGFzdG5hbWUiOiJiYXNhbGFtYWgiLCJ1c2VybmFtZSI6ImlibnVfYmFzYWxhbWFoIiwiZW1haWwiOiJpYm51YmFzYWxhbWFoQHlhaG9vLmNvbSIsImJpcnRoIjpudWxsLCJnZW5kZXIiOiJNQUxFIiwiYWRkcmVzcyI6bnVsbCwicmVmZXJyYWwiOiJITklMLUFJTU4iLCJyZWZlcnJhbmNlIjpudWxsLCJwb2ludCI6MCwicGhvbmVOdW1iZXIiOm51bGwsImV4cFBvaW50IjpudWxsLCJpbWFnZSI6bnVsbCwiUHJvbW90b3IiOm51bGwsImlhdCI6MTcxNzkyMzIzNywiZXhwIjoxNzE3OTI0MTM3fQ.lkh9rdOj2DLwgKILQd0eMDNs61GjSvX4wV4LXHwWXg8
+
+{
+     "promotorName": "ibnu corp", 
+     "promotorDescription": "jasa web"
+}
+
+####
+
+GET http://localhost:8000/ HTTP/1.1
+
+
+    # Promotor: {
+    #     id: string
+    #     promotorName: string
+    #     promotorDescription: string | null
+    #     promotorImage: { name: string | null } | null
+    #     balance: Decimal
+    # }

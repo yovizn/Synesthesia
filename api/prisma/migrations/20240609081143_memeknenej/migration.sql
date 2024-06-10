@@ -3,7 +3,7 @@ CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `imageId` VARCHAR(191) NULL,
     `firstname` VARCHAR(191) NOT NULL,
-    `lastname` VARCHAR(191) NOT NULL,
+    `lastname` VARCHAR(191) NULL,
     `username` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE `reviews` (
 ALTER TABLE `users` ADD CONSTRAINT `users_imageId_fkey` FOREIGN KEY (`imageId`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `promotors` ADD CONSTRAINT `promotors_promotorImageId_fkey` FOREIGN KEY (`promotorImageId`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `promotors` ADD CONSTRAINT `promotors_promotorImageId_fkey` FOREIGN KEY (`promotorImageId`) REFERENCES `images`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `promotors` ADD CONSTRAINT `promotors_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

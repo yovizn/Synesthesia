@@ -415,7 +415,7 @@ class EchosService {
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
             firstname: user.firstname,
-            lastname: user.lastname,
+            lastname: user.lastname!,
             token: token_access,
             path: verifyForgetEmailPath,
         })
