@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextIndex", "fullTextSearch"]
@@ -15,33 +9,33 @@ datasource db {
 }
 
 model User {
-  id          String    @id
+  id          String        @id
   imageId     String?
   firstname   String
   lastname    String?
-  username    String    @unique
-  email       String    @unique
+  username    String        @unique
+  email       String        @unique
   password    String
   birth       DateTime?
   gender      Gender
   address     String?
-  referral    String    @unique
+  referral    String        @unique
   referrance  String?
-  point       Int       @default(0)
-  phoneNumber String?   @map("phone_number")
-  expPoint    DateTime? @map("exp_point")
-  isVerified  Boolean   @default(false)
-  isDelete    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  image       Image?        @relation(fields: [imageId], references: [id])
+  point       Int           @default(0)
+  phoneNumber String?       @map("phone_number")
+  expPoint    DateTime?     @map("exp_point")
+  isVerified  Boolean       @default(false)
+  isDelete    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   Promotor    Promotor?
   Review      Review[]
   Transaction Transaction[]
+  image       Image?        @relation(fields: [imageId], references: [id])
   Voucher     Voucher[]
 
   @@index([username, email])
+  @@index([imageId], map: "users_imageId_fkey")
   @@map("users")
 }
 
@@ -51,27 +45,26 @@ model Promotor {
   userId              String   @unique
   promotorName        String   @unique
   promotorDescription String?
-  balance             Decimal  @default(0) @db.Decimal(18, 2)
+  balance             Decimal  @default(0.00) @db.Decimal(18, 2)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  Event               Event[]
+  promotorImage       Image?   @relation(fields: [promotorImageId], references: [id], onDelete: Restrict)
+  user                User     @relation(fields: [userId], references: [id])
 
-  promotorImage Image?  @relation(fields: [promotorImageId], references: [id], onDelete: Restrict)
-  user          User    @relation(fields: [userId], references: [id])
-  Event         Event[]
-
+  @@index([promotorImageId], map: "promotors_promotorImageId_fkey")
   @@map("promotors")
 }
 
 model Image {
-  id        String   @id
-  blob      Bytes    @db.LongBlob
-  name      String?  @unique
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  User     User[]
-  Promotor Promotor[]
-  Event    Event[]
+  id        String     @id
+  blob      Bytes
+  name      String?    @unique
+  updatedAt DateTime   @updatedAt
+  createdAt DateTime   @default(now())
+  Event     Event[]
+  Promotor  Promotor[]
+  User      User[]
 
   @@map("images")
 }
@@ -99,20 +92,22 @@ model Event {
   Review      Review[]
   Tickets     Tickets[]
 
+  @@index([posterId], map: "events_posterId_fkey")
+  @@index([promotorId], map: "events_promotorId_fkey")
   @@map("events")
 }
 
 model Voucher {
-  id            String   @id
+  id            String        @id
   userId        String
   transactionId String?
-  isValid       Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  isValid       Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  Transaction   Transaction[]
+  user          User          @relation(fields: [userId], references: [id])
 
-  user        User          @relation(fields: [userId], references: [id])
-  Transaction Transaction[]
-
+  @@index([userId], map: "vouchers_userId_fkey")
   @@map("vouchers")
 }
 
@@ -123,46 +118,49 @@ model Transaction {
   eventId         String
   userId          String
   total           Decimal           @db.Decimal(18, 2)
-  discountPoint   Decimal           @default(0)
+  discountPoint   Decimal           @default(0.000000000000000000000000000000)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   status          StatusTransaction @default(PENDING)
-  user            User              @relation(fields: [userId], references: [id])
-  event           Event             @relation(fields: [eventId], references: [id])
-  Voucher         Voucher           @relation(fields: [voucherId], references: [id])
   TransactionItem TransactionItem[]
+  event           Event             @relation(fields: [eventId], references: [id])
+  user            User              @relation(fields: [userId], references: [id])
+  Voucher         Voucher           @relation(fields: [voucherId], references: [id])
 
+  @@index([eventId], map: "transacitons_eventId_fkey")
+  @@index([userId], map: "transacitons_userId_fkey")
+  @@index([voucherId], map: "transacitons_voucherId_fkey")
   @@map("transacitons")
 }
 
 model Tickets {
-  id        String     @id
-  eventId   String
-  price     Decimal    @db.Decimal(18, 2)
-  type      TicketType @default(REGULER)
-  capacity  Int
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
+  id              String            @id
+  eventId         String
+  price           Decimal           @db.Decimal(18, 2)
+  type            TicketType        @default(REGULER)
+  capacity        Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
   event           Event             @relation(fields: [eventId], references: [id])
   TransactionItem TransactionItem[]
 
+  @@index([eventId], map: "tickets_eventId_fkey")
   @@map("tickets")
 }
 
 model TransactionItem {
   transactionId String
+  quantity      Int         @default(0)
+  price         Decimal     @db.Decimal(18, 2)
+  discount      Decimal     @default(0.00) @db.Decimal(18, 2)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   ticketsId     String
-  quantity      Int      @default(0)
-  price         Decimal  @db.Decimal(18, 2)
-  discount      Decimal  @default(0) @db.Decimal(18, 2)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  ticket      Tickets     @relation(fields: [ticketsId], references: [id])
-  transaction Transaction @relation(fields: [transactionId], references: [id])
+  ticket        Tickets     @relation(fields: [ticketsId], references: [id])
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
 
   @@id([transactionId, ticketsId])
+  @@index([ticketsId], map: "transaciton_items_ticketsId_fkey")
   @@map("transaciton_items")
 }
 
@@ -173,11 +171,11 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, eventId])
+  @@index([eventId], map: "reviews_eventId_fkey")
   @@map("reviews")
 }
 
