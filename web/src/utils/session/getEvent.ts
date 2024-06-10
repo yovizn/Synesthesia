@@ -6,4 +6,9 @@ const getEvent = async (): Promise<EventType[]> => {
   return event.data
 }
 
-export { getEvent }
+const getEventsDetail = async (slug: string) => {
+  const eventDetail = await axiosInstance().get(`/events/v1/${slug}`)
+  return eventDetail.data
+}
+
+export { getEvent, getEventsDetail }
