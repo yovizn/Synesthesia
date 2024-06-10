@@ -79,14 +79,14 @@ model Event {
   endAt       DateTime  @map("end_at")
   city        String    @db.VarChar(55)
   location    String?
-  description String?
+  description String?   @db.LongText
   category    String
   venueType   VenueType
   useVoucher  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   poster      Image?    @relation(fields: [posterId], references: [id])
-  promotor    Promotor      @relation(fields: [promotorId], references: [id])
+  promotor    Promotor  @relation(fields: [promotorId], references: [id])
 
   Transaction Transaction[]
   Review      Review[]

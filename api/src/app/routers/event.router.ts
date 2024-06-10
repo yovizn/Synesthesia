@@ -13,7 +13,6 @@ class EventRouter {
     private initializedRoutes() {
         this.router.get(
             '/v1',
-            //  userAuth.accesToken,
             eventController.getEvent
         )
         this.router.post(
@@ -28,8 +27,7 @@ class EventRouter {
             eventController.editEvent
         )
         this.router.get(
-            '/v1/:eventId',
-            userAuth.accesToken,
+            '/v1/:slug',
             eventController.getEventDetail
         )
     }

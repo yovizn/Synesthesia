@@ -2,6 +2,7 @@ import placeholder from '@/public/noiseporn-JNuKyKXLh8U-unsplash.jpg'
 import { renderImage } from '@/utils/action/render'
 import { getEvent } from '@/utils/session/getEvent'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export const revalidate = 60
 
@@ -13,7 +14,7 @@ export default async function Home() {
       <section className="flex h-screen items-center justify-center">
         {events.map((event) => {
           return (
-            <div key={event.id}>
+            <Link href={`/events/${event.slug}`} key={event.id}>
               <div>{event.title}</div>
 
               <Image
@@ -22,7 +23,7 @@ export default async function Home() {
                 height={200}
                 width={200}
               />
-            </div>
+            </Link>
           )
         })}
       </section>
