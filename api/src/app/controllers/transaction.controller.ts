@@ -8,6 +8,7 @@ class TransactionController {
     next: NextFunction
   ) {
     try {
+      // asd
       const transactionId = req.params.transactionId;
       const userId = req.user?.id!;
       const data = await TransactionService.updateTransactionStatus(
