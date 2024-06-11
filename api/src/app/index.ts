@@ -7,6 +7,7 @@ import { cors, corsOptions } from '../utils/cors'
 import promotorRouter from './routers/promotor.router'
 import eventRouter from './routers/event.router'
 import imagesRouter from './routers/images.router'
+import transactionRouter from './routers/transaction.router'
 
 export class App {
     private app: Application
@@ -34,6 +35,7 @@ export class App {
         this.app.use('/echos', echoRouter.getRouter())
         this.app.use('/events', eventRouter.getRouter())
         this.app.use('/promotors', promotorRouter.getRouter())
+        this.app.use('/transactions', transactionRouter.getRouter())
         this.app.use('/images', imagesRouter.getRouter())
     }
 

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import userAuth from "../middlewares/user.auth";
 import TransactionController from "../controllers/transaction.controller";
+import transactionController from "../controllers/transaction.controller";
 
 class TransactionRouter {
   private router;
@@ -10,8 +11,9 @@ class TransactionRouter {
   }
 
   private initializedRoutes() {
+    this.router.post('/system/:ticketId', userAuth.accesToken, transactionController.createTransaction)
     this.router.post(
-      "/transactions/:transactionId",
+      "/v1/:transactionId",
       userAuth.accesToken,
       TransactionController.updateTransactionStatus
     );
