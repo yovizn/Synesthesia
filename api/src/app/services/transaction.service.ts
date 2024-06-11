@@ -19,7 +19,7 @@ class TransactionService {
 
         return await prisma.$transaction(async (tx) => {
             await tx.transaction.update({
-                data: { status },
+                data: { status: status },
                 where: { userId, id: transactionId },
             })
         })
