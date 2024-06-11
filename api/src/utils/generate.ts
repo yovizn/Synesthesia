@@ -12,4 +12,10 @@ const generateReferral = (count: number) => {
     return g[0]
 }
 
-export { nanoid, generateReferral }
+const generateInvoice = (id: string) => {
+    const newDate = new Date()
+    const date = newDate.toISOString().replace(/T.*|Z/g, '').replace(/-/g, '')
+    return `INV-${date}-${id}${nanoid(5)}`
+}
+
+export { nanoid, generateReferral, generateInvoice }

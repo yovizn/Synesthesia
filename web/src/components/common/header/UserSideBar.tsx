@@ -17,7 +17,7 @@ export default function UserSideBar() {
     <aside className="bg-muted/50">
       <div className={cn('w-full transition-all duration-200', isActive ? 'w-28' : 'md:w-96')}>
         <nav className="flex flex-col items-start justify-normal p-4 md:h-[calc(100vh-88px)] md:items-start md:justify-between md:p-6">
-          <div className="w-full overflow-hidden">
+          <div className="relative w-full overflow-hidden">
             <p
               className={cn(
                 'hidden text-3xl font-light uppercase transition-transform duration-200 md:inline-block',

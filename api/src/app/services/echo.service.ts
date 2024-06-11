@@ -25,6 +25,7 @@ import { emailTemplate } from '../../templates/email-template'
 import { createToken } from '../../libs/jwt'
 import { add } from 'date-fns'
 import sharp from 'sharp'
+import { toSlug } from '../../utils/toSlug'
 class EchosService {
     async register(req: Request) {
         const {
@@ -109,10 +110,8 @@ class EchosService {
                 await prisma.user.create({ data })
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-                    const name = (file.fieldname + nanoid(15))
-                        .toLocaleLowerCase()
-                        .replace(/ /g, '-')
-                        .replace(/[^\w-]+/g, '')
+                    const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                    const name = `user_avatar-${slug}`
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
@@ -337,10 +336,8 @@ class EchosService {
 
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
-                    const name = (file.fieldname + nanoid(15))
-                        .toLocaleLowerCase()
-                        .replace(/ /g, '-')
-                        .replace(/[^\w-]+/g, '')
+                    const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                    const name = `user_avatar-${slug}`
                     const image: Prisma.ImageCreateInput = {
                         id: nanoid(),
                         blob,
@@ -361,18 +358,17 @@ class EchosService {
                             data: { imageId: image.id },
                         })
                     }
-
-                    const user = await prisma.user.update({
-                        data,
-                        where: { username: params, id: req.user?.id },
-                    })
-
-                    const access_token = sign({ ...user }, SECRET_KEY_ACCESS, {
-                        expiresIn: '15m',
-                    })
-
-                    return access_token
                 }
+                const user = await prisma.user.update({
+                    data,
+                    where: { username: params, id: req.user?.id },
+                })
+
+                const access_token = sign({ ...user }, SECRET_KEY_ACCESS, {
+                    expiresIn: '15m',
+                })
+
+                return access_token
             },
             {
                 maxWait: 5000,
@@ -415,7 +411,7 @@ class EchosService {
         const { html } = emailTemplate({
             baseUrl: BASE_URL,
             firstname: user.firstname,
-            lastname: user.lastname,
+            lastname: user.lastname!,
             token: token_access,
             path: verifyForgetEmailPath,
         })

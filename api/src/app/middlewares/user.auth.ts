@@ -44,6 +44,11 @@ class UserAuth {
             next(error)
         }
     }
+
+    public isPromotor(user: UserType) {
+        if (user?.Promotor?.id) return true
+        return false
+    }
 }
 
 export default new UserAuth()
