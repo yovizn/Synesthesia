@@ -35,18 +35,26 @@ export default function EventDetailDescription({ data }: { data: EventDetailType
             className="mx-auto max-w-screen-lg"
           >
             <div>
-              <h3>Order ticket now!</h3>
+              <h3 className="mt-5">Order ticket now!</h3>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
               {data.Tickets.map((ticket) => (
-                <Card key={ticket?.id} className='space-y-2'>
+                <Card
+                  key={ticket?.id}
+                  className="space-y-2"
+                >
                   <CardHeader>
-                    <CardTitle>{ticket?.type}</CardTitle>
-                    <CardDescription>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Iusto, ratione.</CardDescription>
+                    <CardTitle className="mb-3">{ticket?.type}</CardTitle>
+                    <CardDescription>
+                      <p>
+                        - Include Tax
+                        <br />- Price exclude Service Fee & Admin Fee
+                      </p>
+                    </CardDescription>
 
                     <CardContent>
-                      <div className="flex w-full justify-between">
+                      <div className="mt-3 flex w-full justify-between">
                         <span className="block">Capacity:</span>
                         <span className="block">{ticket?.capacity}</span>
                       </div>
