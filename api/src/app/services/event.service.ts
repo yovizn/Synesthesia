@@ -55,9 +55,7 @@ class EventServices {
     }
 
     async createEvent(req: Request) {
-        // const {} = req.params
         const {
-            // slug,
             title,
             startAt,
             endAt,

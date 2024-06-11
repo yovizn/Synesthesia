@@ -1,8 +1,13 @@
 import type { Request } from 'express'
 import { prisma } from '../../libs/prisma'
 import { Prisma } from '@prisma/client'
-import { nanoid } from 'nanoid'
-import { generateInvoice } from '../../utils/generate'
+import { generateInvoice, nanoid } from '../../utils/generate'
+
+type TTransactionItems = {
+    id: string
+    price: Prisma.Decimal
+    quantity: number
+}
 
 class TransactionService {
     async updateTransactionStatus(
@@ -12,86 +17,80 @@ class TransactionService {
     ) {
         const { status } = req.body
 
-        await prisma.transaction.update({
-            data: { status },
-            where: { userId, id: transactionId },
+        return await prisma.$transaction(async (tx) => {
+            await tx.transaction.update({
+                data: { status },
+                where: { userId, id: transactionId },
+            })
         })
     }
 
     async createTransaction(req: Request) {
-        const { ticketId } = req.params
-        const { totalItems, usePoint, useVoucher } = req.body
-        const findTicket = await prisma.tickets.findFirst({
-            where: { id: ticketId },
-            include: { event: true },
-        })
+        const { usePoint, useVoucher, eventId } = req.body
+        const ticketsItem: TTransactionItems[] = req.body.ticketsItem
 
-        if (!findTicket?.id) throw new Error('Cannot find this event')
-        if (totalItems < 1) throw new Error('Invalid Total Items')
-        if (usePoint && !req.user?.point)
+        if (usePoint && Number(req.user?.point) < 0)
             throw new Error('Cannot use point balance is not enough')
 
         return await prisma.$transaction(async (tx) => {
             const voucher = await tx.voucher.findFirst({
                 where: { userId: req.user?.id },
+                select: { isValid: true },
             })
-            const invoiceNumber = generateInvoice(findTicket.event.id)
-            const discountPoint = Number(req.user?.point)
-            const totalSum = new Prisma.Decimal(findTicket.price)
-                .minus(discountPoint)
-                .mul(Number(totalItems))
 
-            const total =
-                useVoucher == 'true'
-                    ? totalSum.mul(new Prisma.Decimal(0.9))
-                    : totalSum
+            if (!voucher?.isValid) throw new Error('You cannot use voucher')
+
+            const invoiceNumber = generateInvoice(eventId)
+            const discountPoint = Number(req.user?.point)
+            const dataItems: Prisma.TransactionItemCreateManyInput[] = []
+            let sumTotal = 0
 
             const data: Prisma.TransactionCreateInput = {
                 id: nanoid(),
-                invoiceNumber,
-                event: { connect: { id: findTicket.event.id } },
+                event: { connect: { id: eventId } },
                 user: { connect: { id: req.user?.id } },
-                total,
+                invoiceNumber,
+                total: 0,
                 discountPoint: usePoint == 'true' ? discountPoint : 0,
-                Voucher:
-                    useVoucher == 'true'
-                        ? { connect: { id: voucher?.id } }
-                        : undefined,
             }
 
-            if (usePoint) {
-                await tx.user.update({
-                    where: { id: req.user?.id },
-                    data: { point: 0 },
-                })
-            }
-
-            if (useVoucher) {
-                if (voucher?.isValid === false)
-                    throw new Error('You cannot use voucher')
-
-                await tx.voucher.update({
-                    where: { id: voucher?.id },
-                    data: { isValid: false },
-                })
-            }
-
-            const createTransaction = await tx.transaction.create({
+            const transaction = await tx.transaction.create({
                 data,
             })
 
-            const dataItem: Prisma.TransactionItemCreateInput = {
-                price: findTicket.price,
-                ticket: { connect: { id: findTicket.id } },
-                transaction: { connect: { id: createTransaction.id } },
-                quantity: Number(totalItems),
-            }
+            for (let i = 0; i < ticketsItem.length; i++) {
+                const ticket = await tx.tickets.findFirst({
+                    where: { id: ticketsItem[i].id },
+                })
 
-            await tx.transactionItem.create({
-                data: dataItem,
+                if (!ticket) throw new Error('Cannot find ticket')
+
+                ticketsItem[i].price = ticket.price
+                sumTotal =
+                    sumTotal +
+                    Number(ticketsItem[i].price) * ticketsItem[i].quantity
+
+                dataItems.push({
+                    transactionId: transaction.id,
+                    ticketsId: ticket.id,
+                    price: ticket.price,
+                    quantity: ticketsItem[i].quantity,
+                })
+            }
+            const total = new Prisma.Decimal(sumTotal).mul(useVoucher ? 0.9 : 1)
+
+            await tx.transactionItem.createMany({
+                data: dataItems,
             })
 
-            return createTransaction
+            await tx.transaction.update({
+                data: {
+                    total,
+                },
+                where: {
+                    id: transaction.id,
+                },
+            })
         })
     }
 }
