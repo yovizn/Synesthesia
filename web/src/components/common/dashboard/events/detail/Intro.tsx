@@ -39,13 +39,13 @@ export default function EventDetailIntro({ data }: { data: EventDetailType }) {
           <div className="space-y-2 text-end font-extralight uppercase text-muted-foreground">
             <span>Start on</span>
             <Badge
-              className="flex items-center gap-1.5"
+              className="flex cursor-pointer items-center gap-1.5"
               variant={'secondary'}
             >
               <AlarmClockCheck className="size-4" />
               <span className="">{format(data.startAt, 'PPP')}</span>
             </Badge>
-            <Badge>{data.venueType}</Badge>
+            <Badge className="cursor-pointer">{data.venueType}</Badge>
           </div>
         </div>
       </div>
