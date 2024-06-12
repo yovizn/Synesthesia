@@ -3,6 +3,7 @@ import userAuth from "../middlewares/user.auth";
 import eventService from "../services/event.service";
 
 class EventController {
+  // 
   async getEvent(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await eventService.getEvent(req);
