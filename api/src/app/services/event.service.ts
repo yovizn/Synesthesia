@@ -1,189 +1,218 @@
-import type { Request } from 'express'
-import { prisma } from '../../libs/prisma'
-import { Prisma } from '@prisma/client'
-import type { Event } from '@prisma/client'
-import { nanoid } from 'nanoid'
-import sharp from 'sharp'
-import { toSlug } from '../../utils/toSlug'
+import type { Request } from "express";
+import { prisma } from "../../libs/prisma";
+import { Prisma } from "@prisma/client";
+import type { Event } from "@prisma/client";
+import { nanoid } from "nanoid";
+import sharp from "sharp";
+import { toSlug } from "../../utils/toSlug";
 
 class EventServices {
-    async getEvent(req: Request) {
-        // const { pageStr, pageSizeStr } = req.params
-        // const pageSize = parseInt(pageSizeStr, 10)
-        // const page = parseInt(pageStr, 10)
+  async getEventCategory(req: Request) {
+    const category: string = req.params.category;
 
-        // const { location, category } = req.body
-        // let filterParams: any = {}
-        // if (location) filterParams['location'] = location
-        // if (category) filterParams['category'] = category
+    return await prisma.event.findMany({
+      where: { category: category.toUpperCase() },
+      include: {
+        poster: { select: { name: true } },
+        promotor: {
+          select: {
+            promotorName: true,
+            promotorImage: { select: { name: true } },
+          },
+        },
+        Tickets: {
+          select: {
+            price: true,
+            type: true,
+            id: true,
+            capacity: true,
+          },
+        },
+      },
+    });
+  }
 
-        // filterParams['endAt'] = { gt: new Date() }
-        // return await prisma.event.findMany({
-        //     include: { Tickets: true },
-        //     where: filterParams,
-        //     take: pageSize < 100 ? pageSize : 20,
-        //     skip: page * pageSize || 0,
-        // })
-        return await prisma.event.findMany({
-            take: 10,
-            skip: 0,
-            include: {
-                poster: { select: { name: true } },
-                Tickets: {
-                    select: {
-                        price: true,
-                        type: true,
-                        id: true,
-                        capacity: true,
-                    },
-                },
-            },
-        })
-    }
+  async getEvent(req: Request) {
+    // const { pageStr, pageSizeStr } = req.params
+    // const pageSize = parseInt(pageSizeStr, 10)
+    // const page = parseInt(pageStr, 10)
 
-    async getEventDetail(req: Request) {
-        const { slug } = req.params
+    // const { location, category } = req.body
+    // let filterParams: any = {}
+    // if (location) filterParams['location'] = location
+    // if (category) filterParams['category'] = category
 
-        return await prisma.event.findFirst({
-            where: { slug },
-            include: {
-                promotor: true,
-                Tickets: true,
-                poster: { select: { name: true } },
-            },
-        })
-    }
+    // filterParams['endAt'] = { gt: new Date() }
+    // return await prisma.event.findMany({
+    //     include: { Tickets: true },
+    //     where: filterParams,
+    //     take: pageSize < 100 ? pageSize : 20,
+    //     skip: page * pageSize || 0,
+    // })
+    return await prisma.event.findMany({
+      // take: 10,
+      // skip: 0,
+      include: {
+        poster: { select: { name: true } },
+        promotor: {
+          select: {
+            promotorName: true,
+            promotorImage: { select: { name: true } },
+          },
+        },
+        Tickets: {
+          select: {
+            price: true,
+            type: true,
+            id: true,
+            capacity: true,
+          },
+        },
+      },
+    });
+  }
 
-    async createEvent(req: Request) {
-        const {
-            title,
-            startAt,
-            endAt,
-            location,
-            description,
-            city,
-            venueType,
-            category,
-            useVoucher,
-            priceReguler,
-            capacityReguler,
-            capacityVip,
-            priceVip,
-        } = req.body
+  async getEventDetail(req: Request) {
+    const { slug } = req.params;
 
-        const { file } = req
-        const findTitle = await prisma.event.findFirst({
-            where: { title },
-            select: { title: true },
-        })
+    return await prisma.event.findFirst({
+      where: { slug },
+      include: {
+        promotor: true,
+        Tickets: true,
+        poster: { select: { name: true } },
+      },
+    });
+  }
 
-        if (findTitle?.title)
-            throw new Error('Title is used, try another title')
+  async createEvent(req: Request) {
+    const {
+      title,
+      startAt,
+      endAt,
+      location,
+      description,
+      city,
+      venueType,
+      category,
+      useVoucher,
+      priceReguler,
+      capacityReguler,
+      capacityVip,
+      priceVip,
+    } = req.body;
 
-        if (Number(priceVip) < 1000)
-            throw new Error('VIP cannot less then 1000')
+    const { file } = req;
+    const findTitle = await prisma.event.findFirst({
+      where: { title },
+      select: { title: true },
+    });
 
-        if (priceVip && Number(capacityVip) < 0)
-            throw new Error('At least capacity need more than 0')
+    if (findTitle?.title) throw new Error("Title is used, try another title");
 
-        return await prisma.$transaction(async (prisma) => {
-            const generateSlug = `${toSlug(title.trim())}-${nanoid(10)}`
-            const data: Prisma.EventCreateInput = {
-                id: nanoid(),
-                slug: generateSlug,
-                title,
-                startAt,
-                endAt,
-                location,
-                description,
-                city,
-                venueType,
-                category,
-                useVoucher: useVoucher === 'true' ? true : false,
-                promotor: { connect: { id: req.user?.Promotor?.id } },
-            }
+    if (Number(priceVip) < 1000) throw new Error("VIP cannot less then 1000");
 
-            const event = await prisma.event.create({
-                data,
-            })
+    if (priceVip && Number(capacityVip) < 0)
+      throw new Error("At least capacity need more than 0");
 
-            if (file) {
-                const blob = await sharp(file.buffer).webp().toBuffer()
-                const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
-                const name = `event_poster-${slug}`
-                const image: Prisma.ImageCreateInput = {
-                    id: nanoid(),
-                    blob,
-                    name,
-                    Event: { connect: { id: event.id } },
-                }
-                await prisma.image.create({
-                    data: image,
-                })
-            }
+    return await prisma.$transaction(async (prisma) => {
+      const generateSlug = `${toSlug(title.trim())}-${nanoid(10)}`;
+      const data: Prisma.EventCreateInput = {
+        id: nanoid(),
+        slug: generateSlug,
+        title,
+        startAt,
+        endAt,
+        location,
+        description,
+        city,
+        venueType,
+        category,
+        useVoucher: useVoucher === "true" ? true : false,
+        promotor: { connect: { id: req.user?.Promotor?.id } },
+      };
 
-            const dataTicket: Prisma.TicketsCreateInput = {
-                id: nanoid(),
-                type: 'REGULER',
-                capacity: Number(capacityReguler),
-                price: Number(priceReguler),
-                event: { connect: { id: event.id } },
-            }
+      const event = await prisma.event.create({
+        data,
+      });
 
-            await prisma.tickets.create({
-                data: dataTicket,
-            })
+      if (file) {
+        const blob = await sharp(file.buffer).webp().toBuffer();
+        const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`;
+        const name = `event_poster-${slug}`;
+        const image: Prisma.ImageCreateInput = {
+          id: nanoid(),
+          blob,
+          name,
+          Event: { connect: { id: event.id } },
+        };
+        await prisma.image.create({
+          data: image,
+        });
+      }
 
-            if (priceVip && capacityVip && Number(priceVip) > 1000) {
-                const dataTicket: Prisma.TicketsCreateInput = {
-                    id: nanoid(),
-                    type: 'VIP',
-                    capacity: Number(capacityVip),
-                    price: Number(priceVip),
-                    event: { connect: { id: event.id } },
-                }
+      const dataTicket: Prisma.TicketsCreateInput = {
+        id: nanoid(),
+        type: "REGULER",
+        capacity: Number(capacityReguler),
+        price: Number(priceReguler),
+        event: { connect: { id: event.id } },
+      };
 
-                await prisma.tickets.create({
-                    data: dataTicket,
-                })
-            }
+      await prisma.tickets.create({
+        data: dataTicket,
+      });
 
-            return { title: event.title }
-        })
-    }
+      if (priceVip && capacityVip && Number(priceVip) > 1000) {
+        const dataTicket: Prisma.TicketsCreateInput = {
+          id: nanoid(),
+          type: "VIP",
+          capacity: Number(capacityVip),
+          price: Number(priceVip),
+          event: { connect: { id: event.id } },
+        };
 
-    async editEvent(req: Request) {
-        const params = req.params.event
-        const {
-            slug,
-            title,
-            startAt,
-            endAt,
-            city,
-            location,
-            description,
-            category,
-            venueType,
-        } = req.body as Event
+        await prisma.tickets.create({
+          data: dataTicket,
+        });
+      }
 
-        await prisma.$transaction(async (prisma) => {
-            const { id } = req.params
-            await prisma.event.update({
-                where: { id },
-                data: {
-                    slug,
-                    title,
-                    startAt,
-                    endAt,
-                    city,
-                    location,
-                    description,
-                    category,
-                    venueType,
-                },
-            })
-        })
-    }
+      return { title: event.title };
+    });
+  }
+
+  async editEvent(req: Request) {
+    const params = req.params.event;
+    const {
+      slug,
+      title,
+      startAt,
+      endAt,
+      city,
+      location,
+      description,
+      category,
+      venueType,
+    } = req.body as Event;
+
+    await prisma.$transaction(async (prisma) => {
+      const { id } = req.params;
+      await prisma.event.update({
+        where: { id },
+        data: {
+          slug,
+          title,
+          startAt,
+          endAt,
+          city,
+          location,
+          description,
+          category,
+          venueType,
+        },
+      });
+    });
+  }
 }
 
-export default new EventServices()
+export default new EventServices();

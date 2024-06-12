@@ -18,6 +18,10 @@ type EventType = {
   updatedAt: string
   poster: { name: string } | null
   Tickets: { price: number; type: string; id: string; capacity: number }[] | null
+  promotor: {
+    promotorName: string
+    promotorImage: { name: string | null } | null
+  }
 }
 
 type EventDetailType = {
