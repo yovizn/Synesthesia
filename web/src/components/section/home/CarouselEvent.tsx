@@ -8,12 +8,15 @@ import Autoplay from 'embla-carousel-autoplay'
 
 import { cn } from '@/lib/utils'
 import { EventType } from '@/types/event.type'
+import { PromotorType } from '@/types/promotor.type'
 import { renderImage } from '@/utils/action/render'
 import { formatDistance, formatMoney } from '@/utils/format-any'
 import Image from 'next/image'
 import Link from 'next/link'
 import Paragraph from '@/components/ui/p'
+import { Separator } from '@/components/ui/separator'
 import { useEffect, useRef } from 'react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface ICarouselEvent {
   className?: string
@@ -36,19 +39,22 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
       plugins={[plugin.current]}
       onMouseEnter={plugin.current.stop}
       onMouseLeave={plugin.current.reset}
-      className={cn('mx-auto w-full max-w-screen-sm md:max-w-screen-xl', className)}
+      className={cn('mx-auto w-full max-w-screen-sm space-y-5 md:max-w-screen-xl', className)}
     >
+      <Paragraph className="-space-y-80 text-2xl">Event Pilihan</Paragraph>
       <CarouselContent>
         {events.map((event) => {
           const price = event.Tickets?.filter((t) => t.type === 'REGULER')
-          console.log(price)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7f3abf25bde1c32ae00a786082bed1c3f63cbea9
           return (
             <CarouselItem
               key={event.id}
               className="basis-full md:basis-1/5"
             >
-              <div className="h-96">
+              <div className="h-fit">
                 <Card className="h-full overflow-hidden">
                   <div className="relative h-[200px] w-full">
                     <Image
@@ -66,8 +72,18 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
                         <span className="block">{formatDistance(new Date(event.createdAt))}</span>
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="">
+                    <CardContent className="space-y-3">
                       <Paragraph>{price?.map((p) => formatMoney(p.price))}</Paragraph>
+                      <Separator />
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          {event.promotor.promotorImage?.name ? (
+                            <AvatarImage src={renderImage.webp(event.promotor.promotorImage?.name!)} />
+                          ) : null}
+                          <AvatarFallback className="uppercase">{event.promotor.promotorName[0]}</AvatarFallback>
+                        </Avatar>
+                        <p>{event.promotor.promotorName}</p>
+                      </div>
                     </CardContent>
                   </Link>
                 </Card>

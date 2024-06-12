@@ -33,6 +33,7 @@ model User {
   Transaction Transaction[]
   image       Image?        @relation(fields: [imageId], references: [id])
   Voucher     Voucher[]
+  Carts       Carts[]
 
   @@index([username, email])
   @@index([imageId], map: "users_imageId_fkey")
@@ -91,6 +92,7 @@ model Event {
   Transaction Transaction[]
   Review      Review[]
   Tickets     Tickets[]
+  Carts       Carts[]
 
   @@index([posterId], map: "events_posterId_fkey")
   @@index([promotorId], map: "events_promotorId_fkey")
@@ -159,9 +161,24 @@ model Tickets {
   updatedAt       DateTime          @updatedAt
   event           Event             @relation(fields: [eventId], references: [id])
   TransactionItem TransactionItem[]
+  Carts           Carts[]
 
   @@index([eventId], map: "tickets_eventId_fkey")
   @@map("tickets")
+}
+
+model Carts {
+  userId    String
+  ticketsId String
+  eventId   String
+  quantity  Int
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  users     User    @relation(fields: [userId], references: [id])
+  tickets   Tickets @relation(fields: [ticketsId], references: [id])
+  events    Event   @relation(fields: [eventId], references: [id])
+
+  @@id([userId, ticketsId, eventId])
 }
 
 model Review {

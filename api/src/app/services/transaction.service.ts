@@ -91,6 +91,12 @@ class TransactionService {
                     id: transaction.id,
                 },
             })
+
+            await tx.carts.deleteMany({
+                where: {
+                    userId: req.user?.id,
+                },
+            })
         })
     }
 }

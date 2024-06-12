@@ -8,6 +8,7 @@ import promotorRouter from './routers/promotor.router'
 import eventRouter from './routers/event.router'
 import imagesRouter from './routers/images.router'
 import transactionRouter from './routers/transaction.router'
+import cartRouter from './routers/cart.router'
 
 export class App {
     private app: Application
@@ -32,6 +33,7 @@ export class App {
             })
         })
 
+        this.app.use('/carts', cartRouter.getRouter())
         this.app.use('/echos', echoRouter.getRouter())
         this.app.use('/events', eventRouter.getRouter())
         this.app.use('/promotors', promotorRouter.getRouter())

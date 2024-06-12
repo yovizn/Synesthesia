@@ -17,7 +17,15 @@ type EventType = {
   createdAt: string
   updatedAt: string
   poster: { name: string } | null
+<<<<<<< HEAD
+  Tickets: TicketType[] | null
+=======
   Tickets: { price: number; type: string; id: string; capacity: number }[] | null
+  promotor: {
+    promotorName: string
+    promotorImage: { name: string | null } | null
+  }
+>>>>>>> 7f3abf25bde1c32ae00a786082bed1c3f63cbea9
 }
 
 type EventDetailType = {
@@ -39,6 +47,7 @@ type EventDetailType = {
   promotor: PromotorType
   Tickets: TicketType[]
   poster: { name: string } | null
+  promotorImage: { name: string | null } | null
 }
 
 export type { EventType, EventDetailType }

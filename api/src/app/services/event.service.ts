@@ -7,28 +7,48 @@ import sharp from 'sharp'
 import { toSlug } from '../../utils/toSlug'
 
 class EventServices {
-    async getEvent(req: Request) {
-        // const { pageStr, pageSizeStr } = req.params
-        // const pageSize = parseInt(pageSizeStr, 10)
-        // const page = parseInt(pageStr, 10)
+    async getEventCategory(req: Request) {
+        const category: string = req.params.category
 
-        // const { location, category } = req.body
-        // let filterParams: any = {}
-        // if (location) filterParams['location'] = location
-        // if (category) filterParams['category'] = category
-
-        // filterParams['endAt'] = { gt: new Date() }
-        // return await prisma.event.findMany({
-        //     include: { Tickets: true },
-        //     where: filterParams,
-        //     take: pageSize < 100 ? pageSize : 20,
-        //     skip: page * pageSize || 0,
-        // })
         return await prisma.event.findMany({
-            take: 10,
-            skip: 0,
+            where: { category: category.toUpperCase() },
             include: {
                 poster: { select: { name: true } },
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                    },
+                },
+                Tickets: {
+                    select: {
+                        price: true,
+                        type: true,
+                        id: true,
+                        capacity: true,
+                    },
+                },
+            },
+        })
+    }
+    async getNewRelease(req: Request) {
+        return await prisma.event.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            },
+        })
+    }
+
+    async getEvent(req: Request) {
+        return await prisma.event.findMany({
+            include: {
+                poster: { select: { name: true } },
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                    },
+                },
                 Tickets: {
                     select: {
                         price: true,
@@ -47,8 +67,14 @@ class EventServices {
         return await prisma.event.findFirst({
             where: { slug },
             include: {
-                promotor: true,
                 Tickets: true,
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                        promotorDescription: true,
+                    },
+                },
                 poster: { select: { name: true } },
             },
         })
@@ -64,7 +90,7 @@ class EventServices {
             city,
             venueType,
             category,
-            useVoucher,
+            use_voucher,
             priceReguler,
             capacityReguler,
             capacityVip,
@@ -80,7 +106,7 @@ class EventServices {
         if (findTitle?.title)
             throw new Error('Title is used, try another title')
 
-        if (Number(priceVip) < 1000)
+        if (Number(capacityVip) && Number(priceVip) < 1000)
             throw new Error('VIP cannot less then 1000')
 
         if (priceVip && Number(capacityVip) < 0)
@@ -99,7 +125,7 @@ class EventServices {
                 city,
                 venueType,
                 category,
-                useVoucher: useVoucher === 'true' ? true : false,
+                useVoucher: use_voucher ? true : false,
                 promotor: { connect: { id: req.user?.Promotor?.id } },
             }
 
@@ -108,7 +134,7 @@ class EventServices {
             })
 
             if (file) {
-                const blob = await sharp(file.buffer).webp().toBuffer()
+                const blob = await sharp(file.buffer).png().toBuffer()
                 const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
                 const name = `event_poster-${slug}`
                 const image: Prisma.ImageCreateInput = {

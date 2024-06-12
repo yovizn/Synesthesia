@@ -1,6 +1,6 @@
-import EventDetailDescription from '@/components/common/dashboard/events/detail/Decription'
-import EventDetailIntro from '@/components/common/dashboard/events/detail/Intro'
-import EventDetailSection from '@/components/common/dashboard/events/detail/Section'
+import EventDetailDescription from '@/components/section/events/detail/Decription'
+import EventDetailIntro from '@/components/section/events/detail/Intro'
+import EventDetailSection from '@/components/section/events/detail/Section'
 import { getEventsDetail } from '@/utils/session/getEvent'
 import { notFound } from 'next/navigation'
 
