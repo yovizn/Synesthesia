@@ -5,7 +5,7 @@ This project was initial repo for synesthesia.
 # Objections:
 - [ ] Create a landing page for the website for a list of event and event details.
 - [ ] Responsiveness is a must.
-- [ ] Create feature: search, filtering(categories, location) and details.
+- [x] Create feature: search, filtering(categories, location) and details.
 - [ ] Create Event base on (name, price, date, location, description, available seats, and ticket types)
 - [ ] Promotor could create promotion base on discount Voucher or discount base on event dates.
 - [ ] Show event price in IDR formats.

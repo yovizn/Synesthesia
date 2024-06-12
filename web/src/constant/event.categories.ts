@@ -1,1 +1,1 @@
-const eventCategory = ['Rock', 'Metal', '']
+const eventCategory = ['ROCK', 'POP', 'METAL', 'JAZZ', 'REGGAE', 'EDM']
