@@ -12,4 +12,9 @@ const getEventsDetail = async (slug: string): Promise<EventDetailType> => {
   return data
 }
 
-export { getEvent, getEventsDetail }
+const getEventCategory = async (category: string): Promise<EventType[]> => {
+  const eventCategory = await axiosInstance().get(`/events/v2/${category}`)
+  return eventCategory.data
+}
+
+export { getEvent, getEventsDetail, getEventCategory }

@@ -7,6 +7,30 @@ import sharp from 'sharp'
 import { toSlug } from '../../utils/toSlug'
 
 class EventServices {
+    async getEventCategory(req: Request) {
+        const category: string = req.params.category
+
+        return await prisma.event.findMany({
+            where: { category: category.toUpperCase() },
+            include: {
+                poster: { select: { name: true } },
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                    },
+                },
+                Tickets: {
+                    select: {
+                        price: true,
+                        type: true,
+                        id: true,
+                        capacity: true,
+                    },
+                },
+            },
+        })
+    }
     async getNewRelease(req: Request) {
         return await prisma.event.findMany({
             orderBy: {
