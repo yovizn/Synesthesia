@@ -41,7 +41,6 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
       <CarouselContent>
         {events.map((event) => {
           const price = event.Tickets?.filter((t) => t.type === 'REGULER')
-          console.log(price)
 
           return (
             <CarouselItem

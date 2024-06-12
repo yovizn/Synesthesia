@@ -7,6 +7,14 @@ import sharp from 'sharp'
 import { toSlug } from '../../utils/toSlug'
 
 class EventServices {
+    async getNewRelease(req: Request) {
+        return await prisma.event.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            },
+        })
+    }
+
     async getEvent(req: Request) {
         // const { pageStr, pageSizeStr } = req.params
         // const pageSize = parseInt(pageSizeStr, 10)
@@ -29,6 +37,12 @@ class EventServices {
             skip: 0,
             include: {
                 poster: { select: { name: true } },
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                    },
+                },
                 Tickets: {
                     select: {
                         price: true,
@@ -47,8 +61,14 @@ class EventServices {
         return await prisma.event.findFirst({
             where: { slug },
             include: {
-                promotor: true,
                 Tickets: true,
+                promotor: {
+                    select: {
+                        promotorName: true,
+                        promotorImage: { select: { name: true } },
+                        promotorDescription: true,
+                    },
+                },
                 poster: { select: { name: true } },
             },
         })
@@ -64,7 +84,7 @@ class EventServices {
             city,
             venueType,
             category,
-            useVoucher,
+            use_voucher,
             priceReguler,
             capacityReguler,
             capacityVip,
@@ -80,7 +100,7 @@ class EventServices {
         if (findTitle?.title)
             throw new Error('Title is used, try another title')
 
-        if (Number(priceVip) < 1000)
+        if (Number(capacityVip) && Number(priceVip) < 1000)
             throw new Error('VIP cannot less then 1000')
 
         if (priceVip && Number(capacityVip) < 0)
@@ -99,7 +119,7 @@ class EventServices {
                 city,
                 venueType,
                 category,
-                useVoucher: useVoucher === 'true' ? true : false,
+                useVoucher: use_voucher ? true : false,
                 promotor: { connect: { id: req.user?.Promotor?.id } },
             }
 

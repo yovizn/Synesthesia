@@ -12,7 +12,7 @@ export default function Footer() {
   return (
     <div className={cn('w-full', path && 'hidden')}>
       <div className="mx-auto w-full max-w-screen-xl">
-        <div className="flex min-h-[400px] flex-col space-y-9 py-9">
+        <div className="flex h-[400px] md:h-[800px] flex-col space-y-9 py-9 px-6">
           <div className="h-full grow">
             <Logo className="text-lg" />
           </div>
