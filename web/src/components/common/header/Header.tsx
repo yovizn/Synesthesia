@@ -8,11 +8,12 @@ import Logo from '../Logo'
 import { CalendarPlus } from 'lucide-react'
 import PromotorButton from './PromotorButton'
 
+const AuthButton = dynamic(() => import('./AuthButton'), {
+  loading: () => <SkeletonProfile />,
+})
+
 export default function Header() {
   const access_token = cookies().get('access_token')?.value
-  const AuthButton = dynamic(() => import('./AuthButton'), {
-    loading: () => <SkeletonProfile />,
-  })
 
   return (
     <header className="h-[88px] w-full border-b bg-background px-6 py-4 text-foreground shadow">

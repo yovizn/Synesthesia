@@ -2,7 +2,18 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { useState } from 'react'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, Line, LineChart } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+} from 'recharts'
 
 const data = [
   {
@@ -50,24 +61,23 @@ const data = [
 ]
 
 export default function DashboardChart() {
-   const [opacity, setOpacity] = useState({
-     uv: 1,
-     pv: 1,
-   })
+  const [opacity, setOpacity] = useState({
+    uv: 1,
+    pv: 1,
+  })
 
-   const handleMouseEnter = (o) => {
-     const { dataKey } = o
+  const handleMouseEnter = (o) => {
+    const { dataKey } = o
 
-     setOpacity((op) => ({ ...op, [dataKey]: 0.5 }))
-   }
+    setOpacity((op) => ({ ...op, [dataKey]: 0.5 }))
+  }
 
-   const handleMouseLeave = (o) => {
-     const { dataKey } = o
+  const handleMouseLeave = (o) => {
+    const { dataKey } = o
 
-     setOpacity((op) => ({ ...op, [dataKey]: 1 }))
-   }
+    setOpacity((op) => ({ ...op, [dataKey]: 1 }))
+  }
 
-  
   return (
     <Card className="h-[60vh]">
       <CardContent className="h-full w-full p-6">

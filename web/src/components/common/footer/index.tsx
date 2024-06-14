@@ -10,9 +10,9 @@ export default function Footer() {
   const pathname = usePathname()
   const path = pathname.startsWith('/auth')
   return (
-    <div className={cn('w-full', path && 'hidden')}>
+    <footer className={cn('w-full', path && 'hidden')}>
       <div className="mx-auto w-full max-w-screen-xl">
-        <div className="flex h-[400px] md:h-[800px] flex-col space-y-9 py-9 px-6">
+        <div className="flex h-[400px] flex-col space-y-9 px-6 py-9">
           <div className="h-full grow">
             <Logo className="text-lg" />
           </div>
@@ -33,6 +33,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   )
 }

@@ -18,6 +18,7 @@ import { PersonIcon } from '@radix-ui/react-icons'
 import { Separator } from '@/components/ui/separator'
 import H3 from '@/components/ui/h3'
 import { GeistMono } from 'geist/font/mono'
+import { Star } from 'lucide-react'
 
 export default function EventDetailIntro({ data }: { data: EventDetailType }) {
   const container = useRef<ElementRef<'div'>>(null)
@@ -69,21 +70,30 @@ export default function EventDetailIntro({ data }: { data: EventDetailType }) {
           </CardContent>
           <CardFooter className="flex-col space-x-4">
             <Separator className="bg-muted-foreground/20" />
-            <div className="flex h-fit w-full items-center gap-4 pt-6">
-              <Avatar>
-                {data.promotor.promotorImage?.name ? (
-                  <AvatarImage
-                    src={renderImage.webp(data.promotor.promotorImage?.name)}
-                    className="object-cover"
-                  />
-                ) : null}
-                <AvatarFallback className="bg-background">
-                  <PersonIcon className="size-5 text-muted-foreground" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="space-y-1.5">
-                <p className="text-sm font-light leading-none text-muted-foreground">Organized by</p>
-                <p className="font-medium leading-none">{data.promotor.promotorName}</p>
+            <div className="flex h-fit w-full items-center justify-between gap-4 pt-6">
+              <div className="flex gap-2">
+                <Avatar>
+                  {data.promotor.promotorImage?.name ? (
+                    <AvatarImage
+                      src={renderImage.webp(data.promotor.promotorImage?.name)}
+                      className="object-cover"
+                    />
+                  ) : null}
+                  <AvatarFallback className="bg-background">
+                    <PersonIcon className="size-5 text-muted-foreground" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1.5">
+                  <p className="text-sm font-light leading-none text-muted-foreground">Organized by</p>
+                  <p className="font-medium leading-none">{data.promotor.promotorName}</p>
+                </div>
+              </div>
+              <div>
+                <div className="flex flex-row justify-center gap-2">
+                  <Star className="size-5 shrink-0 fill-yellow-400 text-yellow-400" />
+                  <div className="pt-1">4.5</div>
+                </div>
+                <div className="text-xs font-light">2759 rating</div>
               </div>
             </div>
           </CardFooter>
@@ -93,7 +103,7 @@ export default function EventDetailIntro({ data }: { data: EventDetailType }) {
         ref={container}
         className="relative h-screen overflow-hidden"
       >
-        <div className="absolute bottom-4 left-4 z-10 md:bottom-6 md:left-10 mix-blend-difference text-white">
+        <div className="absolute bottom-4 left-4 z-10 text-white mix-blend-difference md:bottom-6 md:left-10">
           <H3 className={`${GeistMono.className} text-balance text-7xl md:text-9xl`}>
             <span className="block">{format(data.startAt, 'EE')}</span>
             <span className="block">{format(data.startAt, 'MMM do')}</span>

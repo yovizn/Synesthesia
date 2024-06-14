@@ -11,6 +11,7 @@ import { EventType } from '@/types/event.type'
 import { PromotorType } from '@/types/promotor.type'
 import { renderImage } from '@/utils/action/render'
 import { formatDistance, formatMoney } from '@/utils/format-any'
+import { format, formatDate } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
 import Paragraph from '@/components/ui/p'
@@ -45,10 +46,6 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
       <CarouselContent>
         {events.map((event) => {
           const price = event.Tickets?.filter((t) => t.type === 'REGULER')
-<<<<<<< HEAD
-
-=======
->>>>>>> 7f3abf25bde1c32ae00a786082bed1c3f63cbea9
           return (
             <CarouselItem
               key={event.id}
@@ -69,7 +66,7 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
                       <CardTitle className="truncate">{event.title}</CardTitle>
                       <CardDescription className="flex w-full items-center justify-between">
                         <span className="block">{event.category}</span>
-                        <span className="block">{formatDistance(new Date(event.createdAt))}</span>
+                        <span className="block">{format(new Date(event.createdAt), 'PPP')}</span>
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
