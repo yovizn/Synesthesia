@@ -63,6 +63,14 @@ class EventServices {
 
     async getEventDetail(req: Request) {
         const { slug } = req.params
+        const findEvent = await prisma.event.findFirst({
+            where: { slug },
+            include: { Tickets: true },
+        })
+
+        const timeDifference =
+            findEvent?.startAt.getTime()! - new Date().getTime()
+        const diffrences = 3 * 24 * 60 * 60 * 1000
 
         return await prisma.event.findFirst({
             where: { slug },
@@ -91,6 +99,7 @@ class EventServices {
             venueType,
             category,
             use_voucher,
+            promo,
             priceReguler,
             capacityReguler,
             capacityVip,
@@ -126,6 +135,7 @@ class EventServices {
                 venueType,
                 category,
                 useVoucher: use_voucher ? true : false,
+                promo: promo ? new Prisma.Decimal(Number(promo)) : 0,
                 promotor: { connect: { id: req.user?.Promotor?.id } },
             }
 
@@ -134,7 +144,11 @@ class EventServices {
             })
 
             if (file) {
-                const blob = await sharp(file.buffer).png().toBuffer()
+                const blob = await sharp(file.buffer)
+                    .png({
+                        quality: 100,
+                    })
+                    .toBuffer()
                 const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
                 const name = `event_poster-${slug}`
                 const image: Prisma.ImageCreateInput = {
@@ -179,35 +193,83 @@ class EventServices {
     }
 
     async editEvent(req: Request) {
-        const params = req.params.event
         const {
-            slug,
             title,
             startAt,
             endAt,
-            city,
             location,
             description,
-            category,
+            city,
             venueType,
-        } = req.body as Event
+            category,
+            use_voucher,
+        } = req.body
 
-        await prisma.$transaction(async (prisma) => {
-            const { id } = req.params
-            await prisma.event.update({
-                where: { id },
-                data: {
-                    slug,
-                    title,
-                    startAt,
-                    endAt,
-                    city,
-                    location,
-                    description,
-                    category,
-                    venueType,
-                },
+        const { file } = req
+
+        const { id } = req.params
+
+        return await prisma.$transaction(async (tx) => {
+            const generateSlug = `${toSlug(title.trim())}-${nanoid(10)}`
+            const findTitle = await tx.event.findFirst({
+                where: { title },
             })
+            const findEvent = await tx.event.findFirst({
+                where: { id },
+            })
+
+            const data: Prisma.EventUpdateInput = {
+                ...(title && { title }),
+                ...(title && { slug: generateSlug }),
+                ...(startAt && { startAt }),
+                ...(endAt && { endAt }),
+                ...(city && { city }),
+                ...(location && { location }),
+                ...(description && { description }),
+                ...(category && { category }),
+                ...(venueType && { venueType }),
+                ...(use_voucher && { useVoucher: use_voucher ? true : false }),
+            }
+
+            if (findTitle?.title)
+                throw new Error('Title is used, try another title')
+
+            await tx.event.update({
+                where: { id },
+                data,
+            })
+
+            if (file) {
+                const blob = await sharp(file.buffer)
+                    .png({
+                        quality: 100,
+                    })
+                    .toBuffer()
+                const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`
+                const name = `event_poster-${slug}`
+                const image: Prisma.ImageUpdateInput = {
+                    blob,
+                    name,
+                }
+                await tx.image.update({
+                    data: image,
+                    where: { id: findEvent?.posterId! },
+                })
+            }
+        })
+    }
+
+    async deletEvent(req: Request) {
+        const { id } = req.params
+
+        const event = await prisma.event.findFirst({
+            where: { id },
+        })
+
+        if (!event?.id) throw new Error('Cannot find Event')
+
+        return await prisma.event.delete({
+            where: { id },
         })
     }
 }

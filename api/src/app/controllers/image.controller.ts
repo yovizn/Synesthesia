@@ -14,8 +14,9 @@ class ImageController {
 
     async renderPng(req: Request, res: Response, next: NextFunction){
       try {
-        res.set('Content-type', 'image/webp')
-        res.send()
+        const image = await imageService.renderPng(req)
+        res.set('Content-type', 'image/png')
+        res.send(image)
       } catch (error) {
         next(error)
       }

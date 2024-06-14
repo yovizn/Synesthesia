@@ -24,7 +24,6 @@ export default async function ForgetPasswordPage({ params }: ForgetPasswordPageT
 
     if (decode.id !== user.id) redirect('/auth/forget-password')
   }
-  console.log(user)
 
   return (
     <main className="min-h-screen px-6 py-40">

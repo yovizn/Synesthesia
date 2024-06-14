@@ -86,8 +86,7 @@ export async function middleware(request: NextRequest) {
 
   // Login
   if (access_token && isLoginPath) return NextResponse.redirect(new URL('/', request.url))
-  if (isPromotorPath && !user.Promotor?.id)
-    return NextResponse.redirect(new URL('/promotor/register', request.url))
+  if (isPromotorPath && !user.Promotor?.id) return NextResponse.redirect(new URL('/promotor/register', request.url))
 
   if (pathname.startsWith('/promotor/register') && user.Promotor?.id)
     return NextResponse.redirect(new URL('/promotor/dashboard', request.url))
@@ -103,5 +102,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/auth/:path*', '/promotor/:path*'],
+  matcher: ['/', '/events/:path*', '/transactions', '/auth/:path*', '/promotor/:path*'],
 }

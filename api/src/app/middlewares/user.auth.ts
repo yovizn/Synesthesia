@@ -15,6 +15,8 @@ class UserAuth {
                 req.headers.authorization?.replace('Bearer ', '') || ''
             req.user = verify(token, SECRET_KEY_ACCESS) as UserType
 
+            console.log(req.body)
+
             next()
         } catch (error) {
             next(error)

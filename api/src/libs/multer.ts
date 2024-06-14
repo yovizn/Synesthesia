@@ -3,7 +3,7 @@ import { join } from 'path'
 import { type Request } from 'express'
 import type { DestinationCb, FilenameCb } from '../models/multer.model'
 
-const maxSize = 1024 * 1024 * 2
+const maxSize = 1024 * 1024 * 1024
 
 const multerConfig: multer.Options = {
     fileFilter: (req, file, cb) => {
@@ -12,7 +12,7 @@ const multerConfig: multer.Options = {
         }
         const fileSize = parseInt(req.headers['content-length'] || '')
         if (fileSize > maxSize) {
-            return cb(new Error('Max size 2mb'))
+            return cb(new Error('Max size 1GB'))
         }
         return cb(null, true)
     },

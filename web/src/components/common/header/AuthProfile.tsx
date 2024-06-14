@@ -67,7 +67,9 @@ export default function AuthProfile({ user, handleLogout }: { user: UserType; ha
             )}
           </DropdownMenuItem>
 
-          <DropdownMenuItem>Transaction</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/transactions">Transaction</Link>
+          </DropdownMenuItem>
 
           <DropdownMenuItem asChild>
             <Link href={`/auth/user/${user.username}/tickets`}>Tickets</Link>

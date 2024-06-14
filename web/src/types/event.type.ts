@@ -16,16 +16,13 @@ type EventType = {
   useVoucher: boolean
   createdAt: string
   updatedAt: string
+  promo: number | null
   poster: { name: string } | null
-<<<<<<< HEAD
-  Tickets: TicketType[] | null
-=======
   Tickets: { price: number; type: string; id: string; capacity: number }[] | null
   promotor: {
     promotorName: string
     promotorImage: { name: string | null } | null
   }
->>>>>>> 7f3abf25bde1c32ae00a786082bed1c3f63cbea9
 }
 
 type EventDetailType = {

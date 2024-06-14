@@ -11,6 +11,15 @@ class CartController {
         }
     }
 
+    async getCartDetail(req: Request, res: Response, next: NextFunction) {
+        try {
+            const cart = await cartService.getCartDetail(req)
+            res.send(cart)
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async createCart(req: Request, res: Response, next: NextFunction) {
         try {
             await cartService.createCart(req)

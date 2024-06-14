@@ -33,7 +33,7 @@ model User {
   Transaction Transaction[]
   image       Image?        @relation(fields: [imageId], references: [id])
   Voucher     Voucher[]
-  Carts       Carts[]
+  Carts       Cart[]
 
   @@index([username, email])
   @@index([imageId], map: "users_imageId_fkey")
@@ -75,6 +75,7 @@ model Event {
   posterId    String?
   promotorId  String
   slug        String
+  promo       Decimal?  @db.Decimal(18, 2)
   title       String    @unique
   startAt     DateTime  @map("start_at")
   endAt       DateTime  @map("end_at")
@@ -86,13 +87,13 @@ model Event {
   useVoucher  Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  poster      Image?    @relation(fields: [posterId], references: [id])
+  poster      Image?    @relation(fields: [posterId], references: [id], onDelete: Cascade)
   promotor    Promotor  @relation(fields: [promotorId], references: [id])
 
   Transaction Transaction[]
   Review      Review[]
   Tickets     Tickets[]
-  Carts       Carts[]
+  Carts       Cart[]
 
   @@index([posterId], map: "events_posterId_fkey")
   @@index([promotorId], map: "events_promotorId_fkey")
@@ -125,7 +126,7 @@ model Transaction {
   updatedAt       DateTime          @updatedAt
   status          StatusTransaction @default(PENDING)
   TransactionItem TransactionItem[]
-  event           Event             @relation(fields: [eventId], references: [id])
+  event           Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user            User              @relation(fields: [userId], references: [id])
   Voucher         Voucher?          @relation(fields: [voucherId], references: [id])
 
@@ -159,26 +160,27 @@ model Tickets {
   capacity        Int
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  event           Event             @relation(fields: [eventId], references: [id])
+  event           Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
   TransactionItem TransactionItem[]
-  Carts           Carts[]
+  Carts           Cart[]
 
   @@index([eventId], map: "tickets_eventId_fkey")
   @@map("tickets")
 }
 
-model Carts {
+model Cart {
   userId    String
   ticketsId String
   eventId   String
   quantity  Int
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  users     User    @relation(fields: [userId], references: [id])
-  tickets   Tickets @relation(fields: [ticketsId], references: [id])
-  events    Event   @relation(fields: [eventId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User     @relation(fields: [userId], references: [id])
+  tickets   Tickets  @relation(fields: [ticketsId], references: [id])
+  events    Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@id([userId, ticketsId, eventId])
+  @@map("carts")
 }
 
 model Review {
@@ -188,7 +190,7 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  event     Event    @relation(fields: [eventId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id])
 
   @@id([userId, eventId])

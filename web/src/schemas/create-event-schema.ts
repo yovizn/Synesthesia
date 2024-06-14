@@ -60,6 +60,25 @@ const createEventSchema = z
     return val
   })
 
-type CreateEventType = z.infer<typeof createEventSchema>
+const editEventSchema = z.object({
+  avatar,
+  title: requiredStr.max(100, { message: "It's too long for title" }).optional(),
+  location: requiredStr.max(100).optional(),
+  city: requiredStr.max(50).optional(),
+  startAt: z.date().optional(),
+  endAt: z.date().optional(),
+  venueType: venueType.optional(),
+  category: category.optional(),
+  description: description.optional(),
+  use_voucher: z.boolean().default(false).optional(),
+  priceReguler: z.number().optional(),
+  capacityReguler: z.number().optional(),
+  priceVip: z.number().optional(),
+  capacityVip: z.number().optional(),
+  promo: z.number().min(1).max(75).optional(),
+})
 
-export { createEventSchema, CATEGORY_TYPE, type CreateEventType }
+type CreateEventType = z.infer<typeof createEventSchema>
+type EditEventType = z.infer<typeof editEventSchema>
+
+export { createEventSchema, editEventSchema, CATEGORY_TYPE, type CreateEventType, type EditEventType }

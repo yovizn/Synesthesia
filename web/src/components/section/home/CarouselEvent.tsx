@@ -44,17 +44,16 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
       <Paragraph className="-space-y-80 text-2xl">Event Pilihan</Paragraph>
       <CarouselContent>
         {events.map((event) => {
-          const price = event.Tickets?.filter((t) => t.type === 'REGULER')
-<<<<<<< HEAD
-
-=======
->>>>>>> 7f3abf25bde1c32ae00a786082bed1c3f63cbea9
+          const price = event.Tickets?.filter((t) => t!.type === 'REGULER')
           return (
             <CarouselItem
               key={event.id}
               className="basis-full md:basis-1/5"
             >
-              <div className="h-fit">
+              <Link
+                href={`/events/${event.slug}`}
+                className="h-fit"
+              >
                 <Card className="h-full overflow-hidden">
                   <div className="relative h-[200px] w-full">
                     <Image
@@ -64,30 +63,26 @@ export default function CarouselEvent({ events, className }: ICarouselEvent) {
                       className="aspect-video object-cover"
                     />
                   </div>
-                  <Link href={`/events/${event.slug}`}>
-                    <CardHeader className="justify-between">
-                      <CardTitle className="truncate">{event.title}</CardTitle>
-                      <CardDescription className="flex w-full items-center justify-between">
-                        <span className="block">{event.category}</span>
-                        <span className="block">{formatDistance(new Date(event.createdAt))}</span>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Paragraph>{price?.map((p) => formatMoney(p.price))}</Paragraph>
-                      <Separator />
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          {event.promotor.promotorImage?.name ? (
-                            <AvatarImage src={renderImage.webp(event.promotor.promotorImage?.name!)} />
-                          ) : null}
-                          <AvatarFallback className="uppercase">{event.promotor.promotorName[0]}</AvatarFallback>
-                        </Avatar>
-                        <p>{event.promotor.promotorName}</p>
-                      </div>
-                    </CardContent>
-                  </Link>
+                  <CardHeader className="justify-between">
+                    <CardTitle className="truncate">{event.title}</CardTitle>
+                    <CardDescription className="flex w-full items-center justify-between">
+                      <span className="block">{event.category}</span>
+                      <span className="block">{formatDistance(new Date(event.createdAt))}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Paragraph>{price?.map((p) => formatMoney(p!.price!))}</Paragraph>
+                    <Separator />
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        {event ? <AvatarImage src={renderImage.webp(event.promotor!.promotorImage?.name!)} /> : null}
+                        <AvatarFallback className="uppercase">{event.promotor.promotorName[0]}</AvatarFallback>
+                      </Avatar>
+                      <p>{event.promotor.promotorName}</p>
+                    </div>
+                  </CardContent>
                 </Card>
-              </div>
+              </Link>
             </CarouselItem>
           )
         })}

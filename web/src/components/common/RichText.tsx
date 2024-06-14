@@ -13,6 +13,7 @@ const Editor = dynamic(() => import('react-draft-wysiwyg').then((mod) => mod.Edi
 export default forwardRef<Object, EditorProps>(function RichTextEditor(props, ref) {
   return (
     <Editor
+      spellCheck
       editorClassName={cn(
         'min-h-[200px] cursor-text rounded-md border bg-background px-4 ring-offset-border focus-within:ring-1 focus-within:ring-ring focus-within:ring-offset-2',
         props.editorClassName,
@@ -22,7 +23,6 @@ export default forwardRef<Object, EditorProps>(function RichTextEditor(props, re
         inline: {
           options: ['bold', 'italic', 'underline'],
         },
-        
       }}
       editorRef={(r) => {
         if (typeof ref === 'function') {

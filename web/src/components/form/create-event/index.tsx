@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarIcon } from '@radix-ui/react-icons'
-import { PlusCircle } from 'lucide-react'
+import { LoaderCircle, PlusCircle } from 'lucide-react'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { draftToMarkdown } from 'markdown-draft-js'
@@ -25,14 +25,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 
-import RichText from '@/components/common/RichText'
 import ButtonSubmit from '@/components/ui/button-submit'
 import { Switch } from '@/components/ui/switch'
 import { createEventAction } from '@/utils/action/createEventAction'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+import { useState } from 'react'
+
+const RichText = dynamic(() => import('@/components/common/RichText'), {
+  loading: () => (
+    <div className="flex h-[200px] items-center justify-center">
+      <LoaderCircle className="block size-10 motion-safe:animate-spin" />
+    </div>
+  ),
+})
 
 export default function CreateEventForm() {
+  const [isPromo, setIsPromo] = useState(false)
   const router = useRouter()
   const form = useForm<CreateEventType>({
     resolver: zodResolver(createEventSchema),
@@ -208,25 +218,69 @@ export default function CreateEventForm() {
           <TabsContent value="detail">
             <div className="grid grid-cols-1 gap-x-6 gap-y-8 rounded-xl bg-muted p-6 md:grid-cols-2">
               {/* Use Voucher */}
-              <FormField
-                control={form.control}
-                name="use_voucher"
-                render={({ field, formState }) => (
-                  <FormItem className="col-span-1 w-fit gap-4 space-x-4 rounded-md bg-background px-4 py-2 md:col-span-2">
-                    <FormLabel className="font-light uppercase text-muted-foreground md:text-lg">Voucher</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={formState.isSubmitting}
-                        aria-readonly
-                        className="data-[state=unchecked]:bg-foreground/70"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="col-span-1 flex w-full items-center gap-10 md:col-span-2">
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="use_voucher"
+                    render={({ field, formState }) => (
+                      <FormItem className="w-fit gap-4 space-x-4 rounded-md bg-background px-4 py-2">
+                        <FormLabel className="font-light uppercase text-muted-foreground md:text-lg">Voucher</FormLabel>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={formState.isSubmitting}
+                            aria-readonly
+                            className="data-[state=unchecked]:bg-foreground/70"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* <div className="flex w-full justify-between gap-4 space-x-4 rounded-md bg-background px-4 py-2">
+                    <FormLabel
+                      htmlFor="promo"
+                      className="font-light uppercase text-muted-foreground md:text-lg"
+                    >
+                      PROMO
+                    </FormLabel>
+                    <Switch
+                      id="promo"
+                      onCheckedChange={() => setIsPromo(!isPromo)}
+                      className="data-[state=unchecked]:bg-foreground/70"
+                    />
+                  </div> */}
+                </div>
+
+                {/* <FormField
+                  control={form.control}
+                  name="promo"
+                  render={({ field, formState }) => (
+                    <FormItem>
+                      <FormLabel className="font-light uppercase text-muted-foreground md:text-lg">Promo</FormLabel>
+                      <FormDescription>This field 1-75 %</FormDescription>
+                      <FormControl>
+                        <div className="relative flex items-center gap-2.5">
+                          <Input
+                            {...field}
+                            min={1}
+                            max={75}
+                            type="number"
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            className="w-40 bg-background"
+                            disabled={formState.isSubmitting || !isPromo}
+                          />
+                          <span className="block w-full">%</span>
+                        </div>
+                      </FormControl>
+                      <FormDescription>This field will avoid in H-3 of your event start.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                /> */}
+              </div>
 
               {/* Location */}
               <div className="flex flex-col gap-2">
@@ -345,7 +399,9 @@ export default function CreateEventForm() {
                             toYear={2030}
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) => date <= new Date() || date > new Date('2040-01-01')}
+                            disabled={(date) =>
+                              date <= new Date() || date > new Date('2040-01-01') || date < form.getValues('startAt')
+                            }
                             initialFocus
                           />
                         </PopoverContent>

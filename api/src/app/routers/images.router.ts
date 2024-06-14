@@ -9,6 +9,7 @@ class ImageRouter {
 
     private initializedRoutes() {
       this.router.get('/webp/:name', imageController.renderWebp)
+      this.router.get('/png/:name', imageController.renderPng)
     }
 
     public getRouter() {

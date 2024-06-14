@@ -50,36 +50,7 @@ class EchosService {
                     throw new Error('Username or Email is already exist', {
                         cause: 'The provided username or email address is already associated with an existing account in the system.',
                     })
-                if (referrance) {
-                    const checkReferral = await prisma.user.findFirst({
-                        where: {
-                            referral: referrance,
-                        },
-                        select: {
-                            id: true,
-                            point: true,
-                            expPoint: true,
-                        },
-                    })
-                    if (!checkReferral)
-                        throw new Error(
-                            'Invalid referral code. Please check and try again. ',
-                            {
-                                cause: 'The referral code provided does not match the expected format or is incorrect.',
-                            }
-                        )
-                    const newExpDate = add(new Date(), { months: 3 })
-                    await prisma.user.update({
-                        where: { id: checkReferral.id },
-                        data: {
-                            point:
-                                checkReferral.expPoint! > new Date()
-                                    ? checkReferral.point + 10000
-                                    : 10000,
-                            expPoint: newExpDate,
-                        },
-                    })
-                }
+
                 const hashPass = await hashPassword(password)
                 const referral = generateReferral(1).toUpperCase()
                 const data: Prisma.UserCreateInput = {
@@ -108,6 +79,39 @@ class EchosService {
                 })
 
                 await prisma.user.create({ data })
+
+                if (referrance) {
+                    const checkReferral = await prisma.user.findFirst({
+                        where: {
+                            referral: referrance,
+                        },
+                        select: {
+                            id: true,
+                            point: true,
+                            expPoint: true,
+                        },
+                    })
+                    if (!checkReferral)
+                        throw new Error(
+                            'Invalid referral code. Please check and try again. ',
+                            {
+                                cause: 'The referral code provided does not match the expected format or is incorrect.',
+                            }
+                        )
+
+                    const newExpDate = add(new Date(), { months: 3 })
+                    await prisma.user.update({
+                        where: { id: checkReferral.id },
+                        data: {
+                            point:
+                                checkReferral.expPoint! > new Date()
+                                    ? checkReferral.point + 10000
+                                    : 10000,
+                            expPoint: newExpDate,
+                        },
+                    })
+                }
+
                 if (file) {
                     const blob = await sharp(file.buffer).webp().toBuffer()
                     const slug = `${toSlug(file.fieldname)}-${nanoid(10)}`

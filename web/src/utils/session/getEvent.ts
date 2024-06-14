@@ -1,6 +1,5 @@
 import { axiosInstance } from '@/lib/axios.config'
 import { EventDetailType, EventType } from '@/types/event.type'
-import { cache } from 'react'
 
 const getEvent = async (): Promise<EventType[]> => {
   const { data } = await axiosInstance().get('/events/v1')
@@ -13,8 +12,8 @@ const getEventsDetail = async (slug: string): Promise<EventDetailType> => {
 }
 
 const getEventCategory = async (category: string): Promise<EventType[]> => {
-  const eventCategory = await axiosInstance().get(`/events/v2/${category}`)
-  return eventCategory.data
+  const { data } = await axiosInstance().get(`/events/v2/${category}`)
+  return data
 }
 
 export { getEvent, getEventsDetail, getEventCategory }

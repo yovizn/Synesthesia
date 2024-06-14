@@ -6,10 +6,6 @@ const forgetPasswordAction = async (
   id: string,
   username: string,
 ): Promise<{ data: { title: string; description: string } }> => {
-  console.log('password', { password })
-  console.log('id', id)
-  console.log('username', username)
-
   return await axiosInstance().post(
     `/echos/validations/${id}`,
     { password },

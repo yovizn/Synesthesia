@@ -1,17 +1,25 @@
+import { Button } from '@/components/ui/button'
 import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { toast } from '@/components/ui/use-toast'
 import { cn } from '@/lib/utils'
+import { deleteEventAction } from '@/utils/action/deleteEventAction'
 import { formatDistance, formatMoney } from '@/utils/format-any'
 import { getEvent } from '@/utils/session/getEvent'
+import { AxiosError } from 'axios'
+import { ArrowUpRight, Edit2Icon, Trash } from 'lucide-react'
 import { Metadata } from 'next'
+import Link from 'next/link'
+import DeleteDialog from './_component/DeleteDialog'
 
 export const metadata: Metadata = {
   title: 'Event',
@@ -19,7 +27,6 @@ export const metadata: Metadata = {
 
 export default async function EventPage() {
   const events = await getEvent()
-  const total = events.map((event) => event.Tickets)
 
   return (
     <div className="size-full min-h-96 rounded-xl border bg-background p-6">
@@ -34,6 +41,7 @@ export default async function EventPage() {
             <TableHead>Venue Type</TableHead>
             <TableHead>Use Voucher</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>settings</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -53,7 +61,7 @@ export default async function EventPage() {
                   </span>
                 ))}
               </TableCell>
-              <TableCell>
+              <TableCell className="min-h-[157px]">
                 {event.Tickets?.map((ticket) => (
                   <span
                     key={ticket.id}
@@ -71,17 +79,25 @@ export default async function EventPage() {
               <TableCell className="font-bold capitalize text-muted-foreground">
                 Start {formatDistance(event.startAt)}
               </TableCell>
+              <TableCell className="flex gap-6">
+                <Link href={`/promotor/edit-event/${event.slug}`}>
+                  <Edit2Icon className="size-4" />
+                </Link>
+
+                <DeleteDialog
+                  data={{
+                    id: event.id,
+                    title: event.title,
+                  }}
+                />
+
+                <Link href={`/events/${event.slug}`}>
+                  <ArrowUpRight className="size-5" />
+                </Link>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
-
-        <TableFooter>
-          <TableRow>
-            <TableCell colSpan={5}>Total</TableCell>
-            <TableCell>Events: {events.length}</TableCell>
-            <TableCell>Price: {''}</TableCell>
-          </TableRow>
-        </TableFooter>
       </Table>
     </div>
   )

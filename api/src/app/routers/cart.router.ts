@@ -10,6 +10,8 @@ class CartRouter {
     }
 
     private initializedRoutes() {
+        this.router.get('/:eventId', userAuth.accesToken, cartController.getCartDetail)
+        this.router.post('/shinks', userAuth.accesToken, cartController.deletCart)
         this.router.get('/', userAuth.accesToken, cartController.getCart)
         this.router.post('/', userAuth.accesToken, cartController.createCart)
         this.router.patch(
@@ -17,7 +19,6 @@ class CartRouter {
             userAuth.accesToken,
             cartController.updateCartQuantity
         )
-        this.router.delete('/', userAuth.accesToken, cartController.deletCart)
     }
 
     public getRouter() {

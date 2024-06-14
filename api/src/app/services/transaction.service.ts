@@ -10,35 +10,52 @@ type TTransactionItems = {
 }
 
 class TransactionService {
-    async updateTransactionStatus(
-        req: Request,
-        userId: string,
-        transactionId: string
-    ) {
+    async getTrasaction(req: Request) {
+        return await prisma.transaction.findMany({
+            where: { userId: req.user?.id },
+            include: {
+                event: {
+                    select: { title: true, poster: { select: { name: true } } },
+                },
+            },
+        })
+    }
+
+    async updateTransactionStatus(req: Request) {
         const { status } = req.body
+        const { id } = req.params
 
         return await prisma.$transaction(async (tx) => {
             await tx.transaction.update({
-                data: { status: status },
-                where: { userId, id: transactionId },
+                data: { status: status === "PAID" ? 'SUCCESS' : 'UNPAID' },
+                where: { userId: req.user?.id, id },
             })
         })
     }
 
     async createTransaction(req: Request) {
-        const { usePoint, useVoucher, eventId } = req.body
+        const { usePoint, use_voucher, eventId } = req.body
         const ticketsItem: TTransactionItems[] = req.body.ticketsItem
+
+        console.log(req.body)
 
         if (usePoint && Number(req.user?.point) < 0)
             throw new Error('Cannot use point balance is not enough')
 
         return await prisma.$transaction(async (tx) => {
+            const event = await tx.event.findFirst({
+                where: { id: eventId },
+                select: { useVoucher: true },
+            })
             const voucher = await tx.voucher.findFirst({
                 where: { userId: req.user?.id },
                 select: { isValid: true },
             })
 
-            if (!voucher?.isValid) throw new Error('You cannot use voucher')
+            console.log(voucher)
+
+            if (use_voucher && !voucher?.isValid)
+                throw new Error('You cannot use voucher')
 
             const invoiceNumber = generateInvoice(eventId)
             const discountPoint = Number(req.user?.point)
@@ -61,14 +78,20 @@ class TransactionService {
             for (let i = 0; i < ticketsItem.length; i++) {
                 const ticket = await tx.tickets.findFirst({
                     where: { id: ticketsItem[i].id },
+                    include: { event: { select: { useVoucher: true } } },
                 })
 
                 if (!ticket) throw new Error('Cannot find ticket')
 
                 ticketsItem[i].price = ticket.price
+
                 sumTotal =
                     sumTotal +
-                    Number(ticketsItem[i].price) * ticketsItem[i].quantity
+                    Number(ticketsItem[i].price) *
+                        ticketsItem[i].quantity *
+                        (Boolean(use_voucher) && ticket.event.useVoucher
+                            ? 0.9
+                            : 1)
 
                 dataItems.push({
                     transactionId: transaction.id,
@@ -77,7 +100,9 @@ class TransactionService {
                     quantity: ticketsItem[i].quantity,
                 })
             }
-            const total = new Prisma.Decimal(sumTotal).mul(useVoucher ? 0.9 : 1)
+            const total = new Prisma.Decimal(sumTotal).mul(
+                event?.useVoucher ? 0.9 : 1
+            )
 
             await tx.transactionItem.createMany({
                 data: dataItems,
@@ -92,7 +117,7 @@ class TransactionService {
                 },
             })
 
-            await tx.carts.deleteMany({
+            await tx.cart.deleteMany({
                 where: {
                     userId: req.user?.id,
                 },
